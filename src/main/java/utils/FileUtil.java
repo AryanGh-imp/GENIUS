@@ -46,7 +46,7 @@ public class FileUtil {
     // Reading user information from file
     public static String[] readUser(String email) {
         String userFile = USERS_DIR + email + ".txt";
-        String[] userData = new String[2]; // To save username and email
+        String[] userData = new String[3]; // To save username and email
 
         try {
             List<String> lines = Files.readAllLines(Paths.get(userFile));
@@ -54,10 +54,16 @@ public class FileUtil {
             for (String line : lines) {
                 String[] parts = line.split(": ");
                 if (parts.length == 2) {
-                    if (parts[0].equals("Email")) {
-                        userData[0] = parts[1];
-                    } else if (parts[0].equals("Nickname")) {
-                        userData[1] = parts[1];
+                    switch (parts[0]) {
+                        case "Email":
+                            userData[0] = parts[1];
+                            break;
+                        case "Nickname":
+                            userData[1] = parts[1];
+                            break;
+                        case "Password":
+                            userData[2] = parts[1];
+                            break;
                     }
                 }
             }
@@ -66,6 +72,11 @@ public class FileUtil {
         }
 
         return userData;
+    }
+
+    public static boolean isValidUser(String email, String password) {
+        String[] userData = readUser(email);
+        return userData[0] != null && userData[2] != null && userData[2].equals(password);
     }
 
 }

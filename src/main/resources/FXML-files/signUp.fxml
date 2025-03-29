@@ -20,7 +20,7 @@
          <center>
             <ImageView fitHeight="38.0" fitWidth="111.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                <image>
-                  <Image url="@../../../../../Genius.com_logo_yellow.png" />
+                  <Image url="@/pics/Genius.com_logo_yellow.png" />
                </image>
             </ImageView>
          </center>
