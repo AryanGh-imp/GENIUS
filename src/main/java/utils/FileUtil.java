@@ -1,5 +1,6 @@
 package utils;
 
+import javafx.scene.control.Alert;
 import models.Artist;
 import models.User;
 
@@ -21,16 +22,17 @@ public class FileUtil {
             Files.createDirectories(Paths.get(DIR));  // Ensure directory exists
         } catch (IOException e) {
             System.err.println("Error creating directory: " + e.getMessage());
+            showError("Failed to create directory: " + DIR);
         }
     }
 
-    private static String sanitizeFileName(String name) {
-        return name.replaceAll("[^a-zA-Z0-9_-]", "_"); // Only letters, numbers, _ are allowed.
+    public static String sanitizeFileName(String name) {
+        return name != null ? name.replaceAll("[^a-zA-Z0-9_-]", "_") : ""; // Only letters, numbers, _ are allowed.
     }
 
 
     // Checking for duplicate emails or nickname
-    public static boolean isEmailOrNickNameTaken(String email, String nickName) {
+    public static synchronized boolean isEmailOrNickNameTaken(String email, String nickName) {
         String safeNickName = sanitizeFileName(nickName);
         ensureDataDirectoryExists(DATA_DIR + "users/" + safeNickName);
         ensureDataDirectoryExists(DATA_DIR + "artists/" + safeNickName);
@@ -41,7 +43,7 @@ public class FileUtil {
     }
 
     // Save user information to file
-    public static void saveUser(String email, String nickName, String password) {
+    public static synchronized void saveUser(String email, String nickName, String password) {
         String safeNickName = sanitizeFileName(nickName);
         if (isEmailOrNickNameTaken(email, safeNickName)) {
             showError("This email or nickname is already registered. Please try another one.");
@@ -71,40 +73,29 @@ public class FileUtil {
         }
     }
 
-    public static void saveArtist(String email, String nickName, String password) {
+    public static synchronized void saveArtist(String email, String nickName, String password, boolean approved) {
         String safeNickName = sanitizeFileName(nickName);
         if (isEmailOrNickNameTaken(email, safeNickName)) {
-            showError("This email or nickname is already registered. Please try another one.");
-            return;  // If the email is a duplicate, the data will not be saved.
+            return;
         }
-
-        String ARTIST_DIR = DATA_DIR + "artists/" + safeNickName + "/";
-        ensureDataDirectoryExists(ARTIST_DIR);
-
-        // Saving artist info
-        String infoFile = ARTIST_DIR + safeNickName + "-" + email + ".txt";
-
-            List<String> artistData = Arrays.asList(
-                    "Email: " + email,
-                    "Nickname: " + safeNickName,
-                    "Password: " + password
-            );
-
+        String artistDir = DATA_DIR + "artists/" + safeNickName + "/";
+        ensureDataDirectoryExists(artistDir);
+        String infoFile = artistDir + safeNickName + "-" + email + ".txt";
+        List<String> artistData = Arrays.asList(
+                "Email: " + email,
+                "Nickname: " + safeNickName,
+                "Password: " + password,
+                "Approved: " + approved);
         try {
             Files.write(Paths.get(infoFile), artistData, StandardOpenOption.CREATE);
-
-            // Save followers
-            String followersFile = ARTIST_DIR + "followers.txt";
-            Files.write(Paths.get(followersFile), Collections.singletonList("Followers: (None)"), StandardOpenOption.CREATE);
-
-            // Save singles directory
-            String singlesDir = ARTIST_DIR + "singles/";
+            String followersFile = artistDir + "followers.txt";
+            if (!new File(followersFile).exists()) {
+                Files.write(Paths.get(followersFile), Collections.singletonList("Followers: (None)"), StandardOpenOption.CREATE);
+            }
+            String singlesDir = artistDir + "singles/";
             ensureDataDirectoryExists(singlesDir);
-
-            // Save albums directory
-            String albumsDir = ARTIST_DIR + "albums/";
+            String albumsDir = artistDir + "albums/";
             ensureDataDirectoryExists(albumsDir);
-
         } catch (IOException e) {
             System.err.println("Error saving artist data: " + e.getMessage());
             showError("Failed to save artist data!");
@@ -112,32 +103,42 @@ public class FileUtil {
     }
 
     // Save a song in singles or album folder
-    public static void saveSong(String artistNickName, String songName, String albumName, String songDetails) {
+    public static synchronized void saveSong(String artistNickName, String songName, String albumName, String songDetails) {
         String safeArtistNickName = sanitizeFileName(artistNickName);
-        String safeAlbumName = sanitizeFileName(albumName);
-
         String artistDir = DATA_DIR + "artists/" + safeArtistNickName + "/";
-
         if (!new File(artistDir).exists()) {
             showError("Artist does not exist!");
             return;
         }
-
         String safeSongName = sanitizeFileName(songName);
+        String SONG_DIR;
+        if (albumName != null && !albumName.trim().isEmpty()) {
+            String safeAlbumName = sanitizeFileName(albumName);
+            SONG_DIR = artistDir + "albums/" + safeAlbumName + "/" + safeSongName + "/";
+            ensureDataDirectoryExists(SONG_DIR);
 
-        String songDir = artistDir + "albums/" + safeAlbumName + "/" + safeSongName + "/";
+            File songFileCheck = new File(SONG_DIR, safeSongName + ".txt");
+            if (songFileCheck.exists()) {
+                showError("A song with the name '" + songName + "' already exists in this album!");
+                return;
+            }
+        } else {
+            SONG_DIR = artistDir + "singles/" + safeSongName + "/";
+            ensureDataDirectoryExists(SONG_DIR);
 
-        ensureDataDirectoryExists(songDir);
-        File songFile = new File(songDir, safeSongName + ".txt");
-
+            File songFileCheck = new File(SONG_DIR, safeSongName + ".txt");
+            if (songFileCheck.exists()) {
+                showError("A song with the name '" + songName + "' already exists as a single!");
+                return;
+            }
+        }
+        File songFile = new File(SONG_DIR, safeSongName + ".txt");
         List<String> songData = Arrays.asList(
                 "Song Name: " + safeSongName,
                 "Likes: 0",
                 "Views: 0",
                 "Release Date: Not set",
-                "Lyrics: " + songDetails
-        );
-
+                "Lyrics: " + songDetails);
         try {
             Files.write(songFile.toPath(), songData, StandardOpenOption.CREATE);
         } catch (IOException e) {
@@ -179,14 +180,23 @@ public class FileUtil {
                     }
                 }
             }
+
+            if (userData[0] == null || userData[1] == null || userData[2] == null) {
+                System.err.println("User data is incomplete: " + userFile);
+                showError("User data is corrupted!");
+                return null;
+            }
+
         } catch (IOException e) {
             System.err.println("Error reading user data: " + e.getMessage());
+            showError("Failed to read user data!");
+            return null;
         }
         return userData;
     }
 
 
-    public static void saveFollowingArtists(String nickName, List<Artist> followingArtists) {
+    public static synchronized void saveFollowingArtists(String nickName, List<Artist> followingArtists) {
         String safeNickName = sanitizeFileName(nickName);
 
         String USER_DIR = DATA_DIR + "users/" + safeNickName + "/";
@@ -205,6 +215,7 @@ public class FileUtil {
             writer.newLine();
         } catch (IOException e) {
             System.err.println("Error writing followings file: " + e.getMessage());
+            showError("Failed to save following artists!");
         }
     }
 
@@ -234,7 +245,7 @@ public class FileUtil {
         return followingArtists;
     }
 
-    public static void saveFollowers(Artist artist, List<User> followers) {
+    public static synchronized void saveFollowers(Artist artist, List<User> followers) {
         String safeNickName = sanitizeFileName(artist.getNickName());
 
         String ARTIST_DIR = DATA_DIR + "artists/" + safeNickName + "/";
@@ -252,6 +263,7 @@ public class FileUtil {
             writer.newLine();
         } catch (IOException e) {
             System.err.println("Error writing followers file: " + e.getMessage());
+            showError("Failed to save followers!");
         }
     }
 
