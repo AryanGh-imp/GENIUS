@@ -12,15 +12,17 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.openjfx:javafx-controls:23'
-    implementation 'org.openjfx:javafx-fxml:23'
+    implementation 'org.openjfx:javafx-controls:21.0.2'
+    implementation 'org.openjfx:javafx-fxml:21.0.2'
 
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation platform("org.junit:junit-bom:5.10.0")
+    testImplementation "org.junit.jupiter:junit-jupiter"
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(23))
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(23))
+    }
 }
 
 javafx {
@@ -29,7 +31,7 @@ javafx {
 }
 
 application {
-    mainClass.set("Main.java")
+    mainClass.set("Main")
 }
 
 tasks.test {
