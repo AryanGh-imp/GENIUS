@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import services.AccountManager;
+import services.file.AdminFileManager;
 import utils.AlertUtil;
 import utils.SceneUtil;
 
@@ -36,18 +37,13 @@ public class SignUpController {
     private ToggleButton userBtn;
 
     private String selectedRole = "User";
+    private final AdminFileManager adminFileManager = new AdminFileManager();
 
     @FXML
     private void initialize() {
-
         setupRoleSelection();
-
-        // Attaching the CSS file to the scene
         roleGrid.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/styles.css")).toExternalForm());
-
-        // Default setting
         userBtn.setSelected(true);
-
         signUpButton.setOnAction(event -> handleSignUp());
         signInLabel.setOnMouseClicked(event -> handleSignInRedirect());
     }
@@ -56,9 +52,8 @@ public class SignUpController {
         roleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
                 ToggleButton selectedButton = (ToggleButton) newToggle;
-                selectedRole = selectedButton.getText(); // "User" or "Artist"
+                selectedRole = selectedButton.getText();
             } else {
-                // If no button is selected, we default to "User"
                 selectedRole = "User";
                 userBtn.setSelected(true);
             }
@@ -90,13 +85,20 @@ public class SignUpController {
             return;
         }
 
-        if (!AccountManager.registerUser(email, nickname, password, selectedRole)) {
-            AlertUtil.showError("Sign-up failed. Please try again.");
-            return;
+        if (selectedRole.equals("Artist")) {
+            // For the artist, a request is sent to the admin.
+            adminFileManager.saveArtistRequest(email, nickname, password);
+            AlertUtil.showSuccess("Your artist registration request has been submitted for approval.");
+            SceneUtil.changeScene(signUpButton, "/FXML-files/signIn.fxml");
+        } else {
+            // For regular users, registration is done directly.
+            if (!AccountManager.registerUser(email, nickname, password, selectedRole)) {
+                AlertUtil.showError("Sign-up failed. Please try again.");
+                return;
+            }
+            AlertUtil.showSuccess("Sign-up successful for: " + email);
+            SceneUtil.changeScene(signUpButton, "/FXML-files/signIn.fxml");
         }
-
-        AlertUtil.showSuccess("Sign-up successful for: " + email);
-        SceneUtil.changeScene(signUpButton, "/FXML-files/signIn.fxml");
     }
 
     private void handleSignInRedirect() {
