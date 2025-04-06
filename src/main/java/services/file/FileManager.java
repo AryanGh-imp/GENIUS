@@ -9,7 +9,6 @@ import utils.FileUtil;
 import java.io.File;
 import java.util.List;
 
-
 public abstract class FileManager {
     protected static final String DATA_DIR = FileUtil.DATA_DIR;
 
@@ -29,11 +28,14 @@ public abstract class FileManager {
         String safeNickName = FileUtil.sanitizeFileName(nickName);
         String userDir = DATA_DIR + "users/" + safeNickName + "/";
         String artistDir = DATA_DIR + "artists/" + safeNickName + "/";
+        String adminDir = DATA_DIR + "admin/" + safeNickName + "/";
         String userFileName = safeNickName + "-" + email + ".txt";
-        return new File(userDir, userFileName).exists() || new File(artistDir, userFileName).exists();
+        return new File(userDir, userFileName).exists() ||
+                new File(artistDir, userFileName).exists() ||
+                new File(adminDir, userFileName).exists();
     }
 
-    protected void saveAccount(Account account) throws RuntimeException {
+    public void saveAccount(Account account) throws RuntimeException {
         String safeNickName = FileUtil.sanitizeFileName(account.getNickName());
         String role = account.getRole();
         String dir = switch (role.toLowerCase()) {
@@ -54,8 +56,7 @@ public abstract class FileManager {
         FileUtil.writeFile(indexFile, indexData);
     }
 
-
-    protected Account loadAccountByNickName(String nickName) throws IllegalStateException {
+    public Account loadAccountByNickName(String nickName) throws IllegalStateException {
         String safeNickName = FileUtil.sanitizeFileName(nickName);
         File userFile = new File(DATA_DIR + "users/" + safeNickName + "/" + safeNickName + "-" + nickName + ".txt");
         if (userFile.exists()) {
@@ -121,5 +122,4 @@ public abstract class FileManager {
         }
         return null;
     }
-
 }

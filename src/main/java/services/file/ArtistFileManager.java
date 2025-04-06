@@ -38,6 +38,40 @@ public class ArtistFileManager extends FileManager {
         saveFollowers((Artist) account, new ArrayList<>());
     }
 
+    public List<Artist> loadAllArtists() {
+        List<Artist> artists = new ArrayList<>();
+        String artistsDir = DATA_DIR + "artists/";
+        File dir = new File(artistsDir);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return artists;
+        }
+
+        File[] artistDirs = dir.listFiles(File::isDirectory);
+        if (artistDirs == null) {
+            return artists;
+        }
+
+        for (File artistDir : artistDirs) {
+            File[] artistFiles = artistDir.listFiles((d, name) -> name.endsWith(".txt"));
+            if (artistFiles == null) {
+                continue;
+            }
+
+            for (File file : artistFiles) {
+                if (!file.getName().equals(FOLLOWERS_FILE_NAME)) {
+                    try {
+                        Account account = loadAccountFromFile(file);
+                        if (account instanceof Artist artist) {
+                            artists.add(artist);
+                        }
+                    } catch (IllegalStateException e) {
+                        // Skip corrupted files
+                    }
+                }
+            }
+        }
+        return artists;
+    }
 
     public static synchronized void saveFollowers(Artist artist, List<User> followers) {
         if (artist == null) {
