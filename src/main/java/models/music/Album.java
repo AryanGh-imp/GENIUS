@@ -48,7 +48,14 @@ public class Album {
         List<String> artistNickNames = song.getArtists().stream()
                 .map(Artist::getNickName)
                 .collect(Collectors.toList());
-        songManager.saveSong(artistNickNames, song.getTitle(), title, song.getLyrics(), new File(song.getFilePath()));
+        try {
+            songManager.saveSong(artistNickNames, song.getTitle(), title, song.getLyrics(), new File(song.getFilePath()), song.getReleaseDate());
+            saveAlbum();
+        } catch (Exception e) {
+            tracklist.remove(song);
+            song.setAlbum(null);
+            throw new IllegalStateException("Failed to save song: " + e.getMessage(), e);
+        }
     }
 
     public boolean removeSong(Song song) {
@@ -58,6 +65,7 @@ public class Album {
         boolean removed = tracklist.remove(song);
         if (removed) {
             song.setAlbum(null);
+            saveAlbum();
         }
         return removed;
     }
@@ -82,12 +90,15 @@ public class Album {
         if (!artist.isApproved()) {
             throw new IllegalStateException("Cannot save album: Artist is not approved");
         }
-        songManager.saveAlbum(artist.getNickName(), title, releaseDate);
+        List<String> songTitles = tracklist.stream()
+                .map(Song::getTitle)
+                .collect(Collectors.toList());
+        songManager.saveAlbum(artist.getNickName(), title, releaseDate, songTitles);
     }
 
     @Override
     public String toString() {
         return "Album{title='" + title + "', releaseDate='" + releaseDate +
-                "', track list=" + tracklist + ", artist=" + artist.getNickName() + "}";
+                "', tracklist=" + tracklist + ", artist=" + artist.getNickName() + "}";
     }
 }
