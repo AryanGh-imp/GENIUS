@@ -65,7 +65,7 @@ public class ArtistFileManager extends FileManager {
                             artists.add(artist);
                         }
                     } catch (IllegalStateException e) {
-                        // Skip corrupted files
+                        System.err.println("Failed to load artist from file: " + file.getPath() + " - " + e.getMessage());
                     }
                 }
             }

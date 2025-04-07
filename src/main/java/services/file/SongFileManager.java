@@ -5,8 +5,12 @@ import models.music.Song;
 import models.music.Album;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static utils.FileUtil.*;
 
@@ -45,11 +49,27 @@ public class SongFileManager extends FileManager {
             throw new IllegalArgumentException("Release date cannot be null or empty");
         }
 
+        // Checking the song file format
+        String fileName = sourceFile.getName().toLowerCase();
+        if (!fileName.endsWith(".mp3")) {
+            throw new IllegalArgumentException("Only MP3 files are supported for songs");
+        }
+
         String artistNickName = artistNickNames.getFirst();
         String songDir = getSongDir(artistNickName, songTitle, albumName);
         ensureDataDirectoryExists(songDir);
 
+        // Copy the song file to the destination directory.
         String safeSongTitle = sanitizeFileName(songTitle);
+        String audioFileName = safeSongTitle + ".mp3"; // Song file name in the destination directory
+        File destinationFile = new File(songDir, audioFileName);
+        try {
+            Files.copy(sourceFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to copy audio file to: " + destinationFile.getPath(), e);
+        }
+
+        // Save track information
         String songFile = songDir + safeSongTitle + ".txt";
         List<String> songData = new ArrayList<>();
         songData.add("Song Name: " + songTitle);
@@ -58,13 +78,14 @@ public class SongFileManager extends FileManager {
         songData.add("Views: 0");
         songData.add("Release Date: " + releaseDate);
         songData.add("Lyrics: " + lyrics);
-        songData.add("File Path: " + sourceFile.getPath());
+        songData.add("File Path: " + destinationFile.getPath()); // Copied file path
         try {
             writeFile(songFile, songData);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to save song file: " + songFile, e);
         }
 
+        // Save lyric history
         String lyricsHistoryFile = songDir + safeSongTitle + "-lyrics-history.txt";
         List<String> lyricsHistory = new ArrayList<>();
         lyricsHistory.add("Lyrics: " + lyrics + " | Timestamp: " + System.currentTimeMillis());
@@ -338,6 +359,41 @@ public class SongFileManager extends FileManager {
                     artist.getAlbums().add(album);
                 }
             }
+        }
+    }
+
+    public synchronized void deleteSong(String artistNickName, String songTitle, String albumName) {
+        String songDir = getSongDir(artistNickName, songTitle, albumName);
+        String safeSongTitle = sanitizeFileName(songTitle);
+
+        // Delete the song information file
+        File songFile = new File(songDir + safeSongTitle + ".txt");
+        if (songFile.exists()) {
+            songFile.delete();
+        }
+
+        // Delete the lyric history file
+        File lyricsHistoryFile = new File(songDir + safeSongTitle + "-lyrics-history.txt");
+        if (lyricsHistoryFile.exists()) {
+            lyricsHistoryFile.delete();
+        }
+
+        // Delete the comments file
+        File commentsFile = new File(songDir + safeSongTitle + "-comments.txt");
+        if (commentsFile.exists()) {
+            commentsFile.delete();
+        }
+
+        // Delete song file (MP3)
+        File audioFile = new File(songDir + safeSongTitle + ".mp3");
+        if (audioFile.exists()) {
+            audioFile.delete();
+        }
+
+        // Delete the song directory if it is empty.
+        File songDirFile = new File(songDir);
+        if (songDirFile.exists() && Objects.requireNonNull(songDirFile.listFiles()).length == 0) {
+            songDirFile.delete();
         }
     }
 

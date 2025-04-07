@@ -6,7 +6,7 @@ import java.util.List;
 
 import static utils.FileUtil.*;
 
-public class LyricsRequestManager extends FileManager {
+public class LyricsRequestManager {
     private static final String LYRICS_REQUESTS_DIR = DATA_DIR + "lyrics_requests/";
     private static final String LYRICS_REQUESTS_PENDING = LYRICS_REQUESTS_DIR + "pending/";
     private static final String LYRICS_REQUESTS_APPROVED = LYRICS_REQUESTS_DIR + "approved/";

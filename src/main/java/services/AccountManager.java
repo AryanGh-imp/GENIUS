@@ -123,30 +123,6 @@ public class AccountManager {
         return findByUsername(nickName);
     }
 
-    public static Account login(String username, String password) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-        if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be null or empty");
-        }
-
-        username = username.toLowerCase();
-        Account account = findByUsername(username);
-
-        if (!account.getPassword().equals(password)) {
-            throw new IllegalStateException("Incorrect password");
-        }
-
-        if (account instanceof Artist artist) {
-            if (!artist.isApproved()) {
-                throw new IllegalStateException("Your artist account is not yet approved by the admin");
-            }
-        }
-
-        return account;
-    }
-
     public static boolean validateEmail(String email) {
         String regex = "^[a-zA-Z0-9]+([._+-][a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z]{2,})+$";
         return Pattern.matches(regex, email);

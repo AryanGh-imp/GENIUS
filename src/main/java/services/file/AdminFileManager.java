@@ -14,7 +14,7 @@ public class AdminFileManager extends FileManager {
     private static final String ARTIST_REQUESTS_APPROVED = ARTIST_REQUESTS_DIR + "approved/";
     private static final String ARTIST_REQUESTS_REJECTED = ARTIST_REQUESTS_DIR + "rejected/";
 
-    private final ArtistFileManager artistFileManager = new ArtistFileManager();
+    private final FileManager artistFileManager = new ArtistFileManager();
     private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
 
     public synchronized void saveArtistRequest(String email, String nickName, String password) {
