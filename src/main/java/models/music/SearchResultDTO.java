@@ -1,68 +1,65 @@
 package models.music;
 
-import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Data Transfer Object (DTO) for search results, representing an artist, album, or song.
+ */
 public class SearchResultDTO {
+    /**
+     * Enum representing the type of search result.
+     */
     public enum ResultType {
-        ARTIST, SONG, ALBUM
+        ARTIST, ALBUM, SONG
     }
 
     private final ResultType type;
     private final String name;
     private final String path;
+    private final int views;
 
-    public SearchResultDTO(String type, String name, String path) {
-        if (type == null || type.trim().isEmpty()) {
-            throw new IllegalArgumentException("Type cannot be null or empty");
-        }
-        try {
-            this.type = ResultType.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid type: " + type + ". Must be one of: " +
-                    String.join(", ", Arrays.stream(ResultType.values()).map(Enum::name).toList()));
-        }
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
-        }
-        if (path == null || path.trim().isEmpty()) {
-            throw new IllegalArgumentException("Path cannot be null or empty");
-        }
-        this.name = name;
-        this.path = path;
-    }
 
-    public SearchResultDTO(ResultType type, String name, String path) {
-        if (type == null) {
-            throw new IllegalArgumentException("Type cannot be null");
-        }
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
-        }
-        if (path == null || path.trim().isEmpty()) {
-            throw new IllegalArgumentException("Path cannot be null or empty");
-        }
+    public SearchResultDTO(ResultType type, String name, String path, int views) {
         this.type = type;
         this.name = name;
         this.path = path;
+        this.views = views;
     }
 
-    // Getters
+    /**
+     * Gets the type of the search result.
+     *
+     * @return The result type.
+     */
     public ResultType getType() {
         return type;
     }
 
+    /**
+     * Gets the name of the artist, album, or song.
+     *
+     * @return The name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Gets the file path associated with the result.
+     *
+     * @return The file path.
+     */
     public String getPath() {
         return path;
     }
 
+    public int getViews() {
+        return views;
+    }
+
     @Override
     public String toString() {
-        return type.name() + ": " + name + " (Path: " + path + ")";
+        return String.format("[%s] %s (Path: %s, Views: %d)", type, name, path, views);
     }
 
     @Override
