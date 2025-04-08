@@ -16,6 +16,8 @@ public class Album {
     private final Artist artist;
     private final List<Song> songs;
 
+    private boolean isDirty = true; // Defaults to true, because it's a new album
+
     /**
      * Constructs a new Album with the specified title, release date, and artist.
      *
@@ -36,22 +38,17 @@ public class Album {
         this.songs = Collections.synchronizedList(new ArrayList<>());
     }
 
-    /**
-     * Adds a song to the album.
-     *
-     * @param song The song to add.
-     * @throws IllegalArgumentException if the song is null.
-     */
+    public boolean isDirty() {
+        return isDirty || songs.stream().anyMatch(Song::isDirty);
+    }
+
+    public void setDirty(boolean dirty) {
+        this.isDirty = dirty;
+    }
+
     public void addSong(Song song) {
-        if (song == null) {
-            throw new IllegalArgumentException("Song cannot be null");
-        }
-        synchronized (songs) {
-            if (!songs.contains(song)) {
-                songs.add(song);
-                song.setAlbum(this);
-            }
-        }
+        songs.add(song);
+        this.isDirty = true;
     }
 
     /**

@@ -18,6 +18,8 @@ public class Song {
     private Album album;
     private final List<Artist> artists;
 
+    private boolean isDirty = true; // Defaults to true, because it's a new song
+
     /**
      * Constructs a new Song with the specified title, lyrics, and release date.
      *
@@ -68,15 +70,6 @@ public class Song {
      */
     public String getLyrics() {
         return lyrics;
-    }
-
-    /**
-     * Sets the lyrics of the song.
-     *
-     * @param lyrics The new lyrics.
-     */
-    public void setLyrics(String lyrics) {
-        this.lyrics = lyrics != null ? lyrics : "";
     }
 
     /**
@@ -149,6 +142,20 @@ public class Song {
      */
     public void setAlbum(Album album) {
         this.album = album;
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.isDirty = dirty;
+    }
+
+    // Set the flag whenever the song changes (e.g. song change or likes)
+    public void setLyrics(String lyrics) {
+        this.lyrics = lyrics;
+        this.isDirty = true;
     }
 
     /**

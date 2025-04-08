@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static utils.FileUtil.*;
 
@@ -28,6 +29,110 @@ public class SongFileManager extends FileManager {
             return getAlbumDir(artistNickName, albumName) + safeSongTitle + "/";
         } else {
             return DATA_DIR + "artists/" + safeArtistNickName + "/singles/" + safeSongTitle + "/";
+        }
+    }
+
+    /**
+     * Saves the songs and albums for the specified artist to the file system.
+     *
+     * @param artist The artist whose songs and albums should be saved.
+     * @throws IllegalArgumentException if the artist is null.
+     * @throws IllegalStateException if saving fails.
+     */
+    public synchronized void saveSongsAndAlbumsForArtist(Artist artist) {
+        if (artist == null) {
+            throw new IllegalArgumentException("Artist cannot be null");
+        }
+
+        String safeNickName = sanitizeFileName(artist.getNickName());
+        String artistDir = DATA_DIR + "artists/" + safeNickName + "/";
+        File singlesDir = new File(artistDir + "singles/");
+        File albumsDir = new File(artistDir + "albums/");
+
+        // Get current songs and albums in the file system
+        List<String> existingSingles = new ArrayList<>();
+        List<String> existingAlbums = new ArrayList<>();
+
+        // Identify existing singles
+        if (singlesDir.exists() && singlesDir.isDirectory()) {
+            File[] songFolders = singlesDir.listFiles(File::isDirectory);
+            if (songFolders != null) {
+                for (File songFolder : songFolders) {
+                    existingSingles.add(songFolder.getName());
+                }
+            }
+        }
+
+        // Identify existing albums
+        if (albumsDir.exists() && albumsDir.isDirectory()) {
+            File[] albumFolders = albumsDir.listFiles(File::isDirectory);
+            if (albumFolders != null) {
+                for (File albumFolder : albumFolders) {
+                    existingAlbums.add(albumFolder.getName());
+                }
+            }
+        }
+
+        // Remove singles that no longer exist
+        List<String> currentSingles = artist.getSingles().stream()
+                .map(Song::getTitle)
+                .map(FileUtil::sanitizeFileName)
+                .toList();
+        for (String existingSingle : existingSingles) {
+            if (!currentSingles.contains(existingSingle)) {
+                deleteSong(artist.getNickName(), existingSingle, null);
+            }
+        }
+
+        // Remove albums that no longer exist
+        List<String> currentAlbums = artist.getAlbums().stream()
+                .map(Album::getTitle)
+                .map(FileUtil::sanitizeFileName)
+                .toList();
+        for (String existingAlbum : existingAlbums) {
+            if (!currentAlbums.contains(existingAlbum)) {
+                File albumFolder = new File(albumsDir, existingAlbum);
+                File albumFile = new File(albumFolder.getPath() + "/album.txt");
+                if (albumFile.exists()) {
+                    List<String> albumData = readFile(albumFile.getPath());
+                    List<String> songTitles = new ArrayList<>();
+                    for (String line : albumData) {
+                        if (line.startsWith("Songs: ") && !line.equals("Songs: ")) {
+                            songTitles = List.of(line.substring("Songs: ".length()).split(","));
+                        }
+                    }
+                    for (String songTitle : songTitles) {
+                        deleteSong(artist.getNickName(), songTitle, existingAlbum);
+                    }
+                }
+                FileUtil.deleteDirectory(albumFolder);
+            }
+        }
+
+        // Save modified singles
+        List<String> artistNickNames = Collections.singletonList(artist.getNickName());
+        for (Song single : artist.getSingles()) {
+            if (single.isDirty()) {
+                saveSong(artistNickNames, single.getTitle(), null, single.getLyrics(), single.getReleaseDate());
+                single.setDirty(false);
+            }
+        }
+
+        // Save modified albums
+        for (Album album : artist.getAlbums()) {
+            if (album.isDirty()) {
+                List<String> songTitles = album.getSongs().stream()
+                        .map(Song::getTitle)
+                        .collect(Collectors.toList());
+                saveAlbum(artist.getNickName(), album.getTitle(), album.getReleaseDate(), songTitles);
+                album.setDirty(false);
+            }
+            for (Song song : album.getSongs()) {
+                if (song.isDirty()) {
+                    saveSong(artistNickNames, song.getTitle(), album.getTitle(), song.getLyrics(), song.getReleaseDate());
+                    song.setDirty(false);
+                }
+            }
         }
     }
 
