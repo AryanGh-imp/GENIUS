@@ -5,7 +5,8 @@ import models.account.User;
 import models.account.Artist;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static utils.FileUtil.*;
@@ -13,8 +14,17 @@ import static utils.FileUtil.*;
 public class ArtistFileManager extends FileManager {
     private static final String FOLLOWERS_FILE_NAME = "followers.txt";
     private static final String FOLLOWERS_PREFIX = "Followers:";
-    private static Map<String, User> userMap;
     private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
+    private UserFileManager userFileManager;
+
+    /**
+     * Sets the UserFileManager instance.
+     *
+     * @param userFileManager The UserFileManager instance.
+     */
+    public void setUserFileManager(UserFileManager userFileManager) {
+        this.userFileManager = userFileManager;
+    }
 
     @Override
     public synchronized void saveAccount(Account account) {
@@ -43,17 +53,20 @@ public class ArtistFileManager extends FileManager {
         String artistsDir = DATA_DIR + "artists/";
         File dir = new File(artistsDir);
         if (!dir.exists() || !dir.isDirectory()) {
+            System.err.println("Artists directory does not exist or is not a directory: " + artistsDir);
             return artists;
         }
 
         File[] artistDirs = dir.listFiles(File::isDirectory);
         if (artistDirs == null) {
+            System.err.println("No artist directories found in: " + artistsDir);
             return artists;
         }
 
         for (File artistDir : artistDirs) {
             File[] artistFiles = artistDir.listFiles((d, name) -> name.endsWith(".txt"));
             if (artistFiles == null) {
+                System.err.println("No files found in artist directory: " + artistDir.getPath());
                 continue;
             }
 
@@ -73,7 +86,7 @@ public class ArtistFileManager extends FileManager {
         return artists;
     }
 
-    public static synchronized void saveFollowers(Artist artist, List<User> followers) {
+    public synchronized void saveFollowers(Artist artist, List<User> followers) {
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
         }
@@ -96,25 +109,17 @@ public class ArtistFileManager extends FileManager {
         writeFile(fileName, data);
     }
 
-    public static void initializeUserMap(List<User> allUsers) {
-        if (allUsers == null) {
-            throw new IllegalArgumentException("All users list cannot be null");
-        }
-        userMap = allUsers.stream()
-                .collect(Collectors.toMap(User::getNickName, u -> u, (u1, u2) -> u1));
-    }
-
-    public static List<User> loadFollowers(Artist artist, List<User> allUsers) {
+    public List<User> loadFollowers(Artist artist) {
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
         }
-        if (allUsers == null) {
-            throw new IllegalArgumentException("All users list cannot be null");
+        if (userFileManager == null) {
+            throw new IllegalStateException("UserFileManager is not set in ArtistFileManager.");
         }
 
-        if (userMap == null) {
-            initializeUserMap(allUsers);
-        }
+        List<User> allUsers = userFileManager.loadAllUsers();
+        var userMap = allUsers.stream()
+                .collect(Collectors.toMap(User::getNickName, u -> u, (u1, u2) -> u1));
 
         String safeNickName = sanitizeFileName(artist.getNickName());
         String fileName = DATA_DIR + "artists/" + safeNickName + "/" + FOLLOWERS_FILE_NAME;
