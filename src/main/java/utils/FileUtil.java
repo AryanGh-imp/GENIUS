@@ -5,7 +5,7 @@ import java.nio.file.*;
 import java.util.*;
 
 public class FileUtil {
-    public static final String DATA_DIR = "DATA/";
+    public static final String DATA_DIR = "data/";
 
     public static void ensureDataDirectoryExists(String dir) {
         try {
