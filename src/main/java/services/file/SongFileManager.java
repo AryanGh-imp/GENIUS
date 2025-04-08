@@ -3,12 +3,11 @@ package services.file;
 import models.account.Artist;
 import models.music.Song;
 import models.music.Album;
+import utils.FileUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,15 +31,22 @@ public class SongFileManager extends FileManager {
         }
     }
 
-    public synchronized void saveSong(List<String> artistNickNames, String songTitle, String albumName, String lyrics, File sourceFile, String releaseDate) {
+    public String loadLyrics(String metaFilePath) {
+        String lyricsFilePath = metaFilePath.replace(".txt", "_lyrics.txt");
+        File lyricsFile = new File(lyricsFilePath);
+        if (lyricsFile.exists()) {
+            List<String> lines = FileUtil.readFile(lyricsFilePath);
+            return String.join("\n", lines);
+        }
+        return null;
+    }
+
+    public synchronized void saveSong(List<String> artistNickNames, String songTitle, String albumName, String lyrics, String releaseDate) {
         if (artistNickNames == null || artistNickNames.isEmpty()) {
             throw new IllegalArgumentException("Artist nicknames list cannot be null or empty");
         }
         if (songTitle == null || songTitle.isEmpty()) {
             throw new IllegalArgumentException("Song title cannot be null or empty");
-        }
-        if (sourceFile == null || !sourceFile.exists()) {
-            throw new IllegalArgumentException("Source file cannot be null and must exist");
         }
         if (lyrics == null) {
             throw new IllegalArgumentException("Lyrics cannot be null");
@@ -49,27 +55,12 @@ public class SongFileManager extends FileManager {
             throw new IllegalArgumentException("Release date cannot be null or empty");
         }
 
-        // Checking the song file format
-        String fileName = sourceFile.getName().toLowerCase();
-        if (!fileName.endsWith(".mp3")) {
-            throw new IllegalArgumentException("Only MP3 files are supported for songs");
-        }
-
         String artistNickName = artistNickNames.getFirst();
         String songDir = getSongDir(artistNickName, songTitle, albumName);
         ensureDataDirectoryExists(songDir);
 
-        // Copy the song file to the destination directory.
+        // Save track information (metadata file)
         String safeSongTitle = sanitizeFileName(songTitle);
-        String audioFileName = safeSongTitle + ".mp3"; // Song file name in the destination directory
-        File destinationFile = new File(songDir, audioFileName);
-        try {
-            Files.copy(sourceFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to copy audio file to: " + destinationFile.getPath(), e);
-        }
-
-        // Save track information
         String songFile = songDir + safeSongTitle + ".txt";
         List<String> songData = new ArrayList<>();
         songData.add("Song Name: " + songTitle);
@@ -77,15 +68,21 @@ public class SongFileManager extends FileManager {
         songData.add("Likes: 0");
         songData.add("Views: 0");
         songData.add("Release Date: " + releaseDate);
-        songData.add("Lyrics: " + lyrics);
-        songData.add("File Path: " + destinationFile.getPath()); // Copied file path
         try {
             writeFile(songFile, songData);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to save song file: " + songFile, e);
         }
 
-        // Save lyric history
+        // Save lyrics in a separate file
+        String lyricsFile = songDir + safeSongTitle + "_lyrics.txt";
+        try {
+            writeFile(lyricsFile, Collections.singletonList(lyrics));
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to save lyrics file: " + lyricsFile, e);
+        }
+
+        // Save lyrics history
         String lyricsHistoryFile = songDir + safeSongTitle + "-lyrics-history.txt";
         List<String> lyricsHistory = new ArrayList<>();
         lyricsHistory.add("Lyrics: " + lyrics + " | Timestamp: " + System.currentTimeMillis());
@@ -134,31 +131,22 @@ public class SongFileManager extends FileManager {
         }
 
         String songDir = getSongDir(artistNickName, songTitle, albumName);
-        String songFile = songDir + sanitizeFileName(songTitle) + ".txt";
-        File file = new File(songFile);
+        String safeSongTitle = sanitizeFileName(songTitle);
+        String lyricsFile = songDir + safeSongTitle + "_lyrics.txt";
+        File file = new File(lyricsFile);
         if (!file.exists()) {
-            throw new IllegalStateException("Song file not found: " + songFile);
+            throw new IllegalStateException("Lyrics file not found: " + lyricsFile);
         }
 
-        List<String> songData = readFile(songFile);
-        boolean lyricsFound = false;
-        for (int i = 0; i < songData.size(); i++) {
-            if (songData.get(i).startsWith("Lyrics:")) {
-                songData.set(i, "Lyrics: " + suggestedLyrics);
-                lyricsFound = true;
-                break;
-            }
-        }
-        if (!lyricsFound) {
-            throw new IllegalStateException("Lyrics not found in song file: " + songFile);
-        }
+        // Update the lyrics file
         try {
-            writeFile(songFile, songData);
+            writeFile(lyricsFile, Collections.singletonList(suggestedLyrics));
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to update song file: " + songFile, e);
+            throw new IllegalStateException("Failed to update lyrics file: " + lyricsFile, e);
         }
 
-        String lyricsHistoryFile = songDir + sanitizeFileName(songTitle) + "-lyrics-history.txt";
+        // Update lyrics history
+        String lyricsHistoryFile = songDir + safeSongTitle + "-lyrics-history.txt";
         List<String> lyricsHistory = new ArrayList<>();
         File historyFile = new File(lyricsHistoryFile);
         if (historyFile.exists()) {
@@ -372,7 +360,13 @@ public class SongFileManager extends FileManager {
             songFile.delete();
         }
 
-        // Delete the lyric history file
+        // Delete the lyrics file
+        File lyricsFile = new File(songDir + safeSongTitle + "_lyrics.txt");
+        if (lyricsFile.exists()) {
+            lyricsFile.delete();
+        }
+
+        // Delete the lyrics history file
         File lyricsHistoryFile = new File(songDir + safeSongTitle + "-lyrics-history.txt");
         if (lyricsHistoryFile.exists()) {
             lyricsHistoryFile.delete();
@@ -384,13 +378,7 @@ public class SongFileManager extends FileManager {
             commentsFile.delete();
         }
 
-        // Delete song file (MP3)
-        File audioFile = new File(songDir + safeSongTitle + ".mp3");
-        if (audioFile.exists()) {
-            audioFile.delete();
-        }
-
-        // Delete the song directory if it is empty.
+        // Delete the song directory if it is empty
         File songDirFile = new File(songDir);
         if (songDirFile.exists() && Objects.requireNonNull(songDirFile.listFiles()).length == 0) {
             songDirFile.delete();
@@ -399,11 +387,9 @@ public class SongFileManager extends FileManager {
 
     private Song parseSongFromFile(List<String> songData, Album album) {
         String title = null;
-        String lyricsText = "";
         String releaseDate = "Not set";
         int likes = 0;
         int views = 0;
-        String filePath = null;
 
         for (String line : songData) {
             int index = line.indexOf(": ");
@@ -427,8 +413,6 @@ public class SongFileManager extends FileManager {
                         }
                         break;
                     case "Release Date": releaseDate = value; break;
-                    case "Lyrics": lyricsText = value; break;
-                    case "File Path": filePath = value; break;
                 }
             }
         }
@@ -437,10 +421,10 @@ public class SongFileManager extends FileManager {
             throw new IllegalStateException("Failed to parse song: Song title is missing in data: " + songData);
         }
 
-        Song song = new Song(title, lyricsText, releaseDate);
+        // Lyrics will be loaded lazily, so we pass an empty string here
+        Song song = new Song(title, "", releaseDate);
         song.setLikes(likes);
         song.setViews(views);
-        song.setFilePath(filePath);
         if (album != null) {
             song.setAlbum(album);
         }

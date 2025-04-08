@@ -1,104 +1,144 @@
 package models.music;
 
 import models.account.Artist;
-import services.file.SongFileManager;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
+/**
+ * Represents an album in the system.
+ */
 public class Album {
     private final String title;
-    private final String releaseDate;
-    private final List<Song> tracklist;
+    private String releaseDate;
     private final Artist artist;
-    private final SongFileManager songManager = new SongFileManager();
+    private final List<Song> songs;
 
+    /**
+     * Constructs a new Album with the specified title, release date, and artist.
+     *
+     * @param title       The title of the album.
+     * @param releaseDate The release date of the album.
+     * @param artist      The artist who created the album.
+     */
     public Album(String title, String releaseDate, Artist artist) {
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null or empty");
-        }
-        if (releaseDate == null || releaseDate.trim().isEmpty()) {
-            throw new IllegalArgumentException("Release date cannot be null or empty");
+            throw new IllegalArgumentException("Album title cannot be null or empty");
         }
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
         }
         this.title = title;
-        this.releaseDate = releaseDate;
+        this.releaseDate = releaseDate != null ? releaseDate : "Not set";
         this.artist = artist;
-        this.tracklist = new ArrayList<>();
-        saveAlbum();
+        this.songs = Collections.synchronizedList(new ArrayList<>());
     }
 
+    /**
+     * Adds a song to the album.
+     *
+     * @param song The song to add.
+     * @throws IllegalArgumentException if the song is null.
+     */
     public void addSong(Song song) {
-        if (!artist.isApproved()) {
-            throw new IllegalStateException("Cannot add song to album: Artist is not approved");
-        }
         if (song == null) {
             throw new IllegalArgumentException("Song cannot be null");
         }
-        File sourceFile = new File(song.getFilePath());
-        if (!sourceFile.exists()) {
-            throw new IllegalStateException("Song file does not exist: " + song.getFilePath());
-        }
-        tracklist.add(song);
-        song.setAlbum(this);
-        List<String> artistNickNames = song.getArtists().stream()
-                .map(Artist::getNickName)
-                .collect(Collectors.toList());
-        try {
-            songManager.saveSong(artistNickNames, song.getTitle(), title, song.getLyrics(), new File(song.getFilePath()), song.getReleaseDate());
-            saveAlbum();
-        } catch (Exception e) {
-            tracklist.remove(song);
-            song.setAlbum(null);
-            throw new IllegalStateException("Failed to save song: " + e.getMessage(), e);
+        synchronized (songs) {
+            if (!songs.contains(song)) {
+                songs.add(song);
+                song.setAlbum(this);
+            }
         }
     }
 
+    /**
+     * Removes a song from the album.
+     *
+     * @param song The song to remove.
+     * @return true if the song was removed, false if it wasn't in the album
+     */
     public boolean removeSong(Song song) {
         if (song == null) {
             return false;
         }
-        boolean removed = tracklist.remove(song);
-        if (removed) {
-            song.setAlbum(null);
-            saveAlbum();
+        synchronized (songs) {
+            boolean removed = songs.remove(song);
+            if (removed) {
+                song.setAlbum(null);
+            }
+            return removed;
         }
-        return removed;
     }
 
+    /**
+     * Gets the title of the album.
+     *
+     * @return The album title.
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Gets the release date of the album.
+     *
+     * @return The release date.
+     */
     public String getReleaseDate() {
         return releaseDate;
     }
 
-    public List<Song> getSongs() {
-        return new ArrayList<>(tracklist);
+    /**
+     * Sets the release date of the album.
+     *
+     * @param releaseDate The new release date.
+     */
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate != null ? releaseDate : "Not set";
     }
 
+    /**
+     * Gets the artist of the album.
+     *
+     * @return The artist.
+     */
     public Artist getArtist() {
         return artist;
     }
 
-    private void saveAlbum() {
-        if (!artist.isApproved()) {
-            throw new IllegalStateException("Cannot save album: Artist is not approved");
+    /**
+     * Gets a copy of the list of songs in the album.
+     *
+     * @return A new list containing the songs.
+     */
+    public List<Song> getSongs() {
+        synchronized (songs) {
+            return new ArrayList<>(songs);
         }
-        List<String> songTitles = tracklist.stream()
-                .map(Song::getTitle)
-                .collect(Collectors.toList());
-        songManager.saveAlbum(artist.getNickName(), title, releaseDate, songTitles);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Album album)) return false;
+        return Objects.equals(title, album.title) && 
+               Objects.equals(artist, album.artist);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, artist);
     }
 
     @Override
     public String toString() {
-        return "Album{title='" + title + "', releaseDate='" + releaseDate +
-                "', tracklist=" + tracklist + ", artist=" + artist.getNickName() + "}";
+        synchronized (songs) {
+            return "Album: " + title + 
+                   " by " + artist.getNickName() + 
+                   " (" + songs.size() + " songs)";
+        }
     }
 }

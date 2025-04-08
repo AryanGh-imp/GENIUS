@@ -36,41 +36,39 @@ public class SearchAndChartManager {
         List<SongDTO> songs = new ArrayList<>();
         File artistsDir = new File(FileUtil.DATA_DIR + "artists/");
 
-        // Check if the artists directory exists and is a directory
         if (!artistsDir.exists() || !artistsDir.isDirectory()) {
             return songs;
         }
 
-        // Iterate through each artist directory
         for (File artistDir : Objects.requireNonNull(artistsDir.listFiles(File::isDirectory))) {
             String artistName = artistDir.getName();
             File singlesDir = new File(artistDir, "singles/");
             File albumsDir = new File(artistDir, "albums/");
 
-            // Load single songs (not part of an album)
-            if (singlesDir.exists() && singlesDir.isDirectory()) {
-                for (File songDir : Objects.requireNonNull(singlesDir.listFiles(File::isDirectory))) {
-                    SongDTO song = loadSongFromFile(songDir, artistName, null);
-                    if (song != null) {
-                        songs.add(song);
-                    }
-                }
-            }
+            loadSongsFromDirectory(singlesDir, artistName, null, songs);
+            loadAlbumSongs(albumsDir, artistName, songs);
+        }
+        return songs;
+    }
 
-            // Load albums and their songs
-            if (albumsDir.exists() && albumsDir.isDirectory()) {
-                for (File albumDir : Objects.requireNonNull(albumsDir.listFiles(File::isDirectory))) {
-                    String albumName = albumDir.getName();
-                    for (File songDir : Objects.requireNonNull(albumDir.listFiles(File::isDirectory))) {
-                        SongDTO song = loadSongFromFile(songDir, artistName, albumName);
-                        if (song != null) {
-                            songs.add(song);
-                        }
-                    }
+    private void loadSongsFromDirectory(File directory, String artistName, String albumName, List<SongDTO> songs) {
+        if (directory.exists() && directory.isDirectory()) {
+            for (File songDir : Objects.requireNonNull(directory.listFiles(File::isDirectory))) {
+                SongDTO song = loadSongFromFile(songDir, artistName, albumName);
+                if (song != null) {
+                    songs.add(song);
                 }
             }
         }
-        return songs;
+    }
+
+    private void loadAlbumSongs(File albumsDir, String artistName, List<SongDTO> songs) {
+        if (albumsDir.exists() && albumsDir.isDirectory()) {
+            for (File albumDir : Objects.requireNonNull(albumsDir.listFiles(File::isDirectory))) {
+                String albumName = albumDir.getName();
+                loadSongsFromDirectory(albumDir, artistName, albumName, songs);
+            }
+        }
     }
 
     /**
@@ -86,7 +84,6 @@ public class SearchAndChartManager {
         String metaFilePath = songDir.getPath() + "/" + songDir.getName() + ".txt";
         File metaFile = new File(metaFilePath);
 
-        // Check if the metadata file exists
         if (!metaFile.exists()) {
             System.err.println("Metadata file does not exist: " + metaFilePath);
             return null;
@@ -96,43 +93,41 @@ public class SearchAndChartManager {
             List<String> metaData = FileUtil.readFile(metaFilePath);
             String title = null;
             Integer views = null;
+            String releaseDate = null;
 
-            // Parse the metadata file to extract song details
             for (String line : metaData) {
                 int index = line.indexOf(": ");
                 if (index != -1) {
                     String key = line.substring(0, index);
                     String value = line.substring(index + 2);
                     switch (key) {
-                        case "Song Name":
-                            title = value;
-                            break;
-                        case "Views":
-                            views = Integer.parseInt(value);
-                            break;
+                        case "Song Name": title = value; break;
+                        case "Views": views = Integer.parseInt(value); break;
+                        case "Release Date": releaseDate = value; break;
                     }
                 }
             }
 
-            // Validate that required fields are present
-            if (title == null) {
-                System.err.println("Song title is missing in file: " + metaFilePath);
-                return null;
-            }
-            if (views == null) {
-                System.err.println("Views are missing in file: " + metaFilePath);
+            if (title == null || views == null || releaseDate == null) {
+                System.err.println("Missing required metadata in file: " + metaFilePath);
                 return null;
             }
 
-            // Create and return a new SongDTO object
-            return new SongDTO(title, artistName, albumName, views, metaFilePath);
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid views format in file: " + metaFilePath + " - " + e.getMessage());
-            return null;
+            return new SongDTO(title, artistName, albumName, views, metaFilePath, releaseDate);
         } catch (Exception e) {
             System.err.println("Failed to load song from file: " + metaFilePath + " - " + e.getMessage());
             return null;
         }
+    }
+
+    public String loadLyrics(String metaFilePath) {
+        String lyricsFilePath = metaFilePath.replace(".txt", "_lyrics.txt");
+        File lyricsFile = new File(lyricsFilePath);
+        if (lyricsFile.exists()) {
+            List<String> lines = FileUtil.readFile(lyricsFilePath);
+            return String.join("\n", lines);
+        }
+        return null;
     }
 
     /**
@@ -178,7 +173,7 @@ public class SearchAndChartManager {
                 String artistPath = FileUtil.DATA_DIR + "artists/" + song.getArtistName();
                 // Avoid duplicate artist results
                 if (!results.stream().anyMatch(r -> r.getType() == SearchResultDTO.ResultType.ARTIST && r.getName().equals(song.getArtistName()))) {
-                    results.add(new SearchResultDTO(SearchResultDTO.ResultType.ARTIST, song.getArtistName(), artistPath));
+                    results.add(new SearchResultDTO(SearchResultDTO.ResultType.ARTIST, song.getArtistName(), artistPath, song.getViews()));
                 }
             }
 
@@ -187,13 +182,13 @@ public class SearchAndChartManager {
                 String albumPath = FileUtil.DATA_DIR + "artists/" + song.getArtistName() + "/albums/" + song.getAlbumName();
                 // Avoid duplicate album results
                 if (!results.stream().anyMatch(r -> r.getType() == SearchResultDTO.ResultType.ALBUM && r.getName().equals(song.getAlbumName()))) {
-                    results.add(new SearchResultDTO(SearchResultDTO.ResultType.ALBUM, song.getAlbumName(), albumPath));
+                    results.add(new SearchResultDTO(SearchResultDTO.ResultType.ALBUM, song.getAlbumName(), albumPath, song.getViews()));
                 }
             }
 
             // Search for songs
             if (song.getTitle().toLowerCase().contains(query)) {
-                results.add(new SearchResultDTO(SearchResultDTO.ResultType.SONG, song.getTitle(), song.getMetaFilePath()));
+                results.add(new SearchResultDTO(SearchResultDTO.ResultType.SONG, song.getTitle(), song.getMetaFilePath(), song.getViews()));
             }
         }
 

@@ -1,5 +1,9 @@
 package models.music;
 
+import utils.FileUtil;
+
+import java.io.File;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,7 +17,6 @@ public class SongDTO {
     private final String metaFilePath;
     private final String releaseDate;
 
-
     public SongDTO(String title, String artistName, String albumName, int views, String metaFilePath, String releaseDate) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be null or empty");
@@ -26,6 +29,9 @@ public class SongDTO {
         }
         if (metaFilePath == null || metaFilePath.trim().isEmpty()) {
             throw new IllegalArgumentException("Meta file path cannot be null or empty");
+        }
+        if (releaseDate == null || releaseDate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Release date cannot be null or empty");
         }
         this.title = title;
         this.artistName = artistName;
@@ -84,6 +90,21 @@ public class SongDTO {
         return releaseDate;
     }
 
+    /**
+     * Lazily loads the lyrics of the song from the lyrics file.
+     *
+     * @return The lyrics of the song, or null if the lyrics file does not exist.
+     */
+    public String getLyrics() {
+        String lyricsFilePath = metaFilePath.replace(".txt", "-current-lyrics.txt");
+        File lyricsFile = new File(lyricsFilePath);
+        if (lyricsFile.exists()) {
+            List<String> lines = FileUtil.readFile(lyricsFilePath);
+            return String.join("\n", lines);
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return title + " by " + artistName + (albumName != null ? " (Album: " + albumName + ")" : "") + " - Views: " + views;
@@ -98,11 +119,12 @@ public class SongDTO {
                 Objects.equals(title, songDTO.title) &&
                 Objects.equals(artistName, songDTO.artistName) &&
                 Objects.equals(albumName, songDTO.albumName) &&
-                Objects.equals(metaFilePath, songDTO.metaFilePath);
+                Objects.equals(metaFilePath, songDTO.metaFilePath) &&
+                Objects.equals(releaseDate, songDTO.releaseDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, artistName, albumName, views, metaFilePath);
+        return Objects.hash(title, artistName, albumName, views, metaFilePath, releaseDate);
     }
 }
