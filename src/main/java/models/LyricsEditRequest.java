@@ -1,9 +1,7 @@
 package models;
 
-/**
- * Represents a lyrics edit request with details such as artist nickname, email, song title, album name,
- * suggested lyrics, timestamp, and status.
- */
+import services.file.LyricsRequestManager;
+
 public class LyricsEditRequest {
     private final String email;
     private final String artistNickname;
@@ -13,17 +11,8 @@ public class LyricsEditRequest {
     private final String timestamp;
     private final String status;
 
-    /**
-     * Constructs a new LyricsEditRequest with the specified details.
-     *
-     * @param email            The email of the artist.
-     * @param artistNickname   The nickname of the artist.
-     * @param songTitle        The title of the song.
-     * @param albumName        The name of the album (null for singles).
-     * @param suggestedLyrics  The suggested lyrics.
-     * @param timestamp        The timestamp of the request.
-     * @param status           The status of the request (e.g., Pending, Approved, Rejected).
-     */
+    private LyricsRequestManager lyricsRequestManager;
+
     public LyricsEditRequest(String email, String artistNickname, String songTitle, String albumName,
                              String suggestedLyrics, String timestamp, String status) {
         this.email = email;
@@ -36,16 +25,56 @@ public class LyricsEditRequest {
     }
 
     // Getters
-    public String getEmail() { return email; }
-    public String getArtistNickname() { return artistNickname; }
-    public String getSongTitle() { return songTitle; }
-    public String getAlbumName() { return albumName; }
-    public String getSuggestedLyrics() { return suggestedLyrics; }
-    public String getTimestamp() { return timestamp; }
-    public String getStatus() { return status; }
+    public String getEmail() {
+        return email;
+    }
 
-    @Override
-    public String toString() {
-        return "Lyrics Edit Request: " + songTitle + " by " + artistNickname + " (" + status + ")";
+    public String getArtistNickname() {
+        return artistNickname;
+    }
+
+    public String getSongTitle() {
+        return songTitle;
+    }
+
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    public String getSuggestedLyrics() {
+        return suggestedLyrics;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String[][] getPendingLyricsEditRequests() {
+        if (lyricsRequestManager == null) {
+            throw new IllegalStateException("LyricsRequestManager is not set in LyricsEditRequest");
+        }
+        return lyricsRequestManager.getLyricsEditRequests("Pending");
+    }
+
+    public String[][] getApprovedLyricsEditRequests() {
+        if (lyricsRequestManager == null) {
+            throw new IllegalStateException("LyricsRequestManager is not set in LyricsEditRequest");
+        }
+        return lyricsRequestManager.getLyricsEditRequests("Approved");
+    }
+
+    public String[][] getRejectedLyricsEditRequests() {
+        if (lyricsRequestManager == null) {
+            throw new IllegalStateException("LyricsRequestManager is not set in LyricsEditRequest");
+        }
+        return lyricsRequestManager.getLyricsEditRequests("Rejected");
+    }
+
+    public void setLyricsRequestManager(LyricsRequestManager lyricsRequestManager) {
+        this.lyricsRequestManager = lyricsRequestManager;
     }
 }

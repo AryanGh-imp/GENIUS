@@ -42,6 +42,33 @@ public class Artist extends Account {
     }
 
     /**
+     * Sets the ArtistFileManager instance.
+     *
+     * @param artistFileManager The ArtistFileManager instance.
+     */
+    public void setArtistFileManager(ArtistFileManager artistFileManager) {
+        this.artistFileManager = artistFileManager;
+    }
+
+    /**
+     * Sets the SongFileManager instance.
+     *
+     * @param songFileManager The SongFileManager instance.
+     */
+    public void setSongFileManager(SongFileManager songFileManager) {
+        this.songFileManager = songFileManager;
+    }
+
+    /**
+     * Sets the UserFileManager instance.
+     *
+     * @param userFileManager The UserFileManager instance.
+     */
+    public void setUserFileManager(UserFileManager userFileManager) {
+        this.userFileManager = userFileManager;
+    }
+
+    /**
      * Checks if the artist is approved.
      *
      * @return True if the artist is approved, false otherwise.

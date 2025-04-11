@@ -3,6 +3,7 @@ package services.file;
 import models.account.Account;
 import models.account.User;
 import models.account.Artist;
+import utils.FileUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ import static utils.FileUtil.*;
 public class ArtistFileManager extends FileManager {
     private static final String FOLLOWERS_FILE_NAME = "followers.txt";
     private static final String FOLLOWERS_PREFIX = "Followers:";
+    private static final String ARTISTS_DIR = "data/artists/";
+    private static final String ARTISTS_INDEX_FILE = ARTISTS_DIR + "index_artists.txt";
     private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
     private UserFileManager userFileManager;
 
@@ -24,6 +27,15 @@ public class ArtistFileManager extends FileManager {
      */
     public void setUserFileManager(UserFileManager userFileManager) {
         this.userFileManager = userFileManager;
+    }
+
+    /**
+     * Gets the UserFileManager instance.
+     *
+     * @return The UserFileManager instance.
+     */
+    public UserFileManager getUserFileManager() {
+        return userFileManager;
     }
 
     @Override
@@ -158,5 +170,32 @@ public class ArtistFileManager extends FileManager {
 
     public void rejectLyricsEditRequest(String artistNickName, String songTitle, String timestamp) {
         lyricsRequestManager.rejectLyricsEditRequest(artistNickName, songTitle, timestamp);
+    }
+
+    public void saveArtistIndex(List<String> artistNicknames) {
+        // Create artists directory if it doesn't exist
+        File dir = new File(ARTISTS_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        try {
+            FileUtil.writeFile(ARTISTS_INDEX_FILE, artistNicknames);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to write artist index file: " + ARTISTS_INDEX_FILE, e);
+        }
+    }
+
+    public List<String> loadArtistIndex() {
+        File indexFile = new File(ARTISTS_INDEX_FILE);
+        if (!indexFile.exists()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            return FileUtil.readFile(ARTISTS_INDEX_FILE);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read artist index file: " + ARTISTS_INDEX_FILE, e);
+        }
     }
 }

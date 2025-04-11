@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.DashBoard.AdminDashboardController">
+    <children>
+        <!-- Header with Logo -->
+        <VBox alignment="CENTER" prefHeight="69.0" prefWidth="918.0" style="-fx-background-color: #FFFF64;">
+            <children>
+                <ImageView fitHeight="43.0" fitWidth="195.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../pics/Genius.com_logo_yellow2.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </VBox>
+
+        <!-- Menu Bar -->
+        <MenuBar prefHeight="26.0" prefWidth="750.0" style="-fx-background-color: #FFFF64;" VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="Admin Actions">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Manage Artist Requests">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#showPendingArtistRequests" text="Pending Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#showApprovedArtistRequests" text="Approved Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#showRejectedArtistRequests" text="Rejected Requests" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Manage Lyrics Edit Requests">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#showPendingLyricsRequests" text="Pending Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#showApprovedLyricsRequests" text="Approved Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#showRejectedLyricsRequests" text="Rejected Requests" />
+                            </items>
+                        </Menu>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+
+        <!-- Main Content -->
+        <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+            <items>
+                <!-- Left Panel: List of Requests -->
+                <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+                    <content>
+                        <AnchorPane fx:id="listPane" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+                            <children>
+                                <ListView fx:id="requestListView" layoutX="10" layoutY="10" prefHeight="525.0" prefWidth="410.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </ScrollPane>
+
+                <!-- Right Panel: Request Details -->
+                <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+                    <content>
+                        <AnchorPane fx:id="contentPane" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+                            <children>
+                                <VBox fx:id="artistDetailsPane" layoutX="10" layoutY="10" spacing="10" visible="false">
+                                    <children>
+                                        <Label style="-fx-font-weight: bold;" text="Artist Request Details" />
+                                        <Label fx:id="artistEmailLabel" text="Email: " />
+                                        <Label fx:id="artistNicknameLabel" text="Nickname: " />
+                                        <Label fx:id="artistPasswordLabel" text="Password: " />
+                                        <Label fx:id="artistStatusLabel" text="Status: " />
+                                        <Label fx:id="artistTimestampLabel" text="Timestamp: " />
+                                        <HBox fx:id="artistButtonsBox" spacing="10" visible="false">
+                                            <children>
+                                                <Button fx:id="approveArtistButton" onAction="#approveArtistRequest" text="Approve" />
+                                                <Button fx:id="rejectArtistButton" onAction="#rejectArtistRequest" text="Reject" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                                <VBox fx:id="lyricsDetailsPane" layoutX="10" layoutY="10" spacing="10" visible="false">
+                                    <children>
+                                        <Label style="-fx-font-weight: bold;" text="Lyrics Edit Request Details" />
+                                        <Label fx:id="lyricsArtistNicknameLabel" text="Artist: " />
+                                        <Label fx:id="lyricsSongTitleLabel" text="Song Title: " />
+                                        <Label fx:id="lyricsAlbumNameLabel" text="Album: " />
+                                        <Label fx:id="lyricsRequesterLabel" text="Requester: " /> <!-- Added for requester information -->
+                                        <TextArea fx:id="suggestedLyricsTextArea" editable="false" prefHeight="100.0" prefWidth="400.0" wrapText="true" />
+                                        <Label fx:id="lyricsTimestampLabel" text="Timestamp: " />
+                                        <Label fx:id="lyricsStatusLabel" text="Status: " />
+                                        <HBox fx:id="lyricsButtonsBox" spacing="10" visible="false">
+                                            <children>
+                                                <Button fx:id="approveLyricsButton" onAction="#approveLyricsEditRequest" text="Approve" />
+                                                <Button fx:id="rejectLyricsButton" onAction="#rejectLyricsEditRequest" text="Reject" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </children>
+</VBox>

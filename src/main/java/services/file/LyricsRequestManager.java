@@ -1,8 +1,11 @@
 package services.file;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static utils.FileUtil.*;
 
@@ -57,6 +60,116 @@ public class LyricsRequestManager {
         return requests;
     }
 
+    public String[][] getLyricsEditRequests(String status) {
+        List<String[]> requests = new ArrayList<>();
+        String dirPath;
+        switch (status) {
+            case "Pending":
+                dirPath = LYRICS_REQUESTS_PENDING;
+                break;
+            case "Approved":
+                dirPath = LYRICS_REQUESTS_APPROVED;
+                break;
+            case "Rejected":
+                dirPath = LYRICS_REQUESTS_REJECTED;
+                break;
+            default:
+                return new String[0][];
+        }
+
+        File requestsDir = new File(dirPath);
+        if (!requestsDir.exists() || !requestsDir.isDirectory()) {
+            return new String[0][];
+        }
+
+        File[] subDirs = requestsDir.listFiles(File::isDirectory);
+        if (subDirs == null) {
+            return new String[0][];
+        }
+
+        for (File subDir : subDirs) {
+            File[] songDirs = subDir.listFiles(File::isDirectory);
+            if (songDirs == null) {
+                continue;
+            }
+
+            for (File songDir : songDirs) {
+                File[] requestFiles = songDir.listFiles((dir, name) -> name.endsWith(".txt"));
+                if (requestFiles == null) {
+                    continue;
+                }
+
+                for (File requestFile : requestFiles) {
+                    try {
+                        List<String> lines = Files.readAllLines(requestFile.toPath());
+                        String[] requestData = parseLyricsEditRequest(lines, status);
+                        if (requestData != null) {
+                            requests.add(requestData);
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error reading file: " + requestFile.getPath());
+                    }
+                }
+            }
+        }
+
+        return requests.toArray(new String[0][]);
+    }
+
+    private String[] parseLyricsEditRequest(List<String> lines, String status) {
+        String artistNickname = null;
+        String songTitle = null;
+        String timestamp = null;
+        String suggestedLyrics = null;
+        String email = null;
+        String currentStatus = null;
+        String albumName = null;
+
+        for (String line : lines) {
+            int index = line.indexOf(": ");
+            if (index != -1) {
+                String key = line.substring(0, index);
+                String value = line.substring(index + 2);
+                switch (key) {
+                    case "Artist":
+                        artistNickname = value;
+                        break;
+                    case "Song":
+                        songTitle = value;
+                        break;
+                    case "Timestamp":
+                        timestamp = value;
+                        break;
+                    case "SuggestedLyrics":
+                        suggestedLyrics = value;
+                        break;
+                    case "Requester":
+                        email = value;
+                        break;
+                    case "Status":
+                        currentStatus = value;
+                        break;
+                    case "Album":
+                        albumName = value;
+                        break;
+                }
+            }
+        }
+
+        if (currentStatus != null && currentStatus.equals(status)) {
+            return new String[]{
+                    artistNickname,
+                    songTitle,
+                    timestamp,
+                    suggestedLyrics,
+                    email,
+                    currentStatus,
+                    albumName
+            };
+        }
+        return null;
+    }
+
     public synchronized List<String[]> loadAllLyricsEditRequests() {
         List<String[]> requests = new ArrayList<>();
         requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_PENDING));
@@ -78,32 +191,39 @@ public class LyricsRequestManager {
         }
 
         for (File subDir : subDirs) {
-            File[] requestFiles = subDir.listFiles((d, name) -> name.endsWith(".txt"));
-            if (requestFiles == null) {
+            File[] songDirs = subDir.listFiles(File::isDirectory);
+            if (songDirs == null) {
                 continue;
             }
 
-            for (File file : requestFiles) {
-                String[] requestData = new String[7]; // Artist, Song, Album, SuggestedLyrics, Requester, Status, Timestamp
-                List<String> lines = readFile(file.getPath());
-                for (String line : lines) {
-                    int index = line.indexOf(": ");
-                    if (index != -1) {
-                        String key = line.substring(0, index);
-                        String value = line.substring(index + 2);
-                        switch (key) {
-                            case "Artist": requestData[0] = value; break;
-                            case "Song": requestData[1] = value; break;
-                            case "Album": requestData[2] = value; break;
-                            case "SuggestedLyrics": requestData[3] = value; break;
-                            case "Requester": requestData[4] = value; break;
-                            case "Status": requestData[5] = value; break;
-                            case "Timestamp": requestData[6] = value; break;
+            for (File songDir : songDirs) {
+                File[] requestFiles = songDir.listFiles((d, name) -> name.endsWith(".txt"));
+                if (requestFiles == null) {
+                    continue;
+                }
+
+                for (File file : requestFiles) {
+                    String[] requestData = new String[7]; // Artist, Song, Album, SuggestedLyrics, Requester, Status, Timestamp
+                    List<String> lines = readFile(file.getPath());
+                    for (String line : lines) {
+                        int index = line.indexOf(": ");
+                        if (index != -1) {
+                            String key = line.substring(0, index);
+                            String value = line.substring(index + 2);
+                            switch (key) {
+                                case "Artist": requestData[0] = value; break;
+                                case "Song": requestData[1] = value; break;
+                                case "Album": requestData[2] = value; break;
+                                case "SuggestedLyrics": requestData[3] = value; break;
+                                case "Requester": requestData[4] = value; break;
+                                case "Status": requestData[5] = value; break;
+                                case "Timestamp": requestData[6] = value; break;
+                            }
                         }
                     }
-                }
-                if (requestData[0] != null && requestData[1] != null && requestData[5] != null) {
-                    requests.add(requestData);
+                    if (requestData[0] != null && requestData[1] != null && requestData[5] != null) {
+                        requests.add(requestData);
+                    }
                 }
             }
         }

@@ -19,7 +19,7 @@ public abstract class FileManager {
         return switch (role.toLowerCase()) {
             case "user" -> DATA_DIR + "users/index_users.txt";
             case "admin" -> DATA_DIR + "admin/index_admins.txt";
-            case "artist" -> DATA_DIR + "artist/index_artists.txt";
+            case "artist" -> DATA_DIR + "artists/index_artists.txt";  // Changed from "artist" to "artists"
             default -> DATA_DIR + "users/index.txt";
         };
     }

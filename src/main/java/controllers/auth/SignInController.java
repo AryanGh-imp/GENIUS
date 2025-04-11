@@ -5,13 +5,21 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import models.account.Account;
 import models.account.Admin;
-import services.file.UserFileManager;
+import models.account.Artist;
+import services.SessionManager;
 import services.file.ArtistFileManager;
+import services.file.UserFileManager;
 import utils.AlertUtil;
 import utils.SceneUtil;
+import utils.ConfigLoader;
 
 public class SignInController {
+    private static final String USER_DASHBOARD_FXML = "/fxml/dashboard.fxml";
+    private static final String ARTIST_DASHBOARD_FXML = "/fxml/artistDashboard.fxml";
+    private static final String ADMIN_DASHBOARD_FXML = "/fxml/adminDashboard.fxml";
+    private static final String SIGN_UP_FXML = "/fxml/signUp.fxml";
 
     @FXML
     private TextField emailField;
@@ -25,8 +33,23 @@ public class SignInController {
     @FXML
     private Label signUpLabel;
 
-    private final UserFileManager userManager = new UserFileManager();
-    private final ArtistFileManager artistManager = new ArtistFileManager();
+    private final UserFileManager userManager;
+    private final ArtistFileManager artistManager;
+    private final ConfigLoader configLoader;
+
+    public SignInController() {
+        this.userManager = new UserFileManager();
+        this.artistManager = new ArtistFileManager();
+        this.configLoader = ConfigLoader.getInstance();
+        this.artistManager.setUserFileManager(this.userManager);
+    }
+
+    public SignInController(UserFileManager userManager, ArtistFileManager artistManager, ConfigLoader configLoader) {
+        this.userManager = userManager;
+        this.artistManager = artistManager;
+        this.configLoader = configLoader;
+        this.artistManager.setUserFileManager(this.userManager);
+    }
 
     @FXML
     private void initialize() {
@@ -38,48 +61,104 @@ public class SignInController {
         String email = emailField.getText();
         String password = passwordField.getText();
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             AlertUtil.showError("Please fill in all fields.");
             return;
         }
 
-        // Check admin login
-        if (email.equals(Admin.getAdminEmail()) && password.equals(Admin.getAdminPassword())) {
-            AlertUtil.showSuccess("Login successful! Welcome, Admin");
-            SceneUtil.changeScene(loginButton, "/fxml/adminDashboard.fxml");
-            return;
-        }
+        email = email.toLowerCase().trim();
 
-        // Check user account
-        String userNickName = userManager.findNickNameByEmail(email);
-        if (userNickName != null) {
-            String[] userData = userManager.readUser(email, userNickName);
-            if (userData != null && userData[2].equals(password)) {
-                String nickname = userData[1];
-                AlertUtil.showSuccess("Login successful! Welcome, " + nickname);
-                SceneUtil.changeScene(loginButton, "/fxml/dashboard.fxml");
+        try {
+            if (tryAdminLogin(email, password) ||
+                    tryUserLogin(email, password) ||
+                    tryArtistLogin(email, password)) {
                 return;
             }
-        }
 
-        // Check artist account
-        String artistNickName = artistManager.findNickNameByEmail(email);
-        if (artistNickName != null) {
-            String[] artistData = artistManager.readArtist(email, artistNickName);
-            if (artistData != null && artistData[2].equals(password)) {
-                String nickname = artistData[1];
-                AlertUtil.showSuccess("Login successful! Welcome, " + nickname);
-                SceneUtil.changeScene(loginButton, "/fxml/artistDashboard.fxml");
-                return;
-            }
+            AlertUtil.showError("Invalid email or password.");
+        } catch (Exception e) {
+            AlertUtil.showError("Login error: " + e.getMessage());
         }
-
-        // If no account is found ->
-        AlertUtil.showError("Invalid email or password.");
     }
 
-    @FXML
+    private boolean tryAdminLogin(String email, String password) {
+        String adminEmail = configLoader.getAdminEmail();
+        String adminPassword = configLoader.getAdminPassword();
+
+        if (email.equals(adminEmail.toLowerCase()) && password.equals(adminPassword)) {
+            Account admin = new Admin(adminEmail, "admin", adminPassword);
+            SessionManager.getInstance().setCurrentAccount(admin);
+            AlertUtil.showSuccess("Login successful! Welcome, Admin");
+            SceneUtil.changeScene(loginButton, ADMIN_DASHBOARD_FXML);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean tryUserLogin(String email, String password) {
+        try {
+            String userNickName = userManager.findNickNameByEmail(email, "user");
+            if (userNickName == null) {
+                return false;
+            }
+
+            Account account = userManager.loadAccountByNickName(userNickName);
+            if (account == null) {
+                return false;
+            }
+
+            if (!password.equals(account.getPassword())) {
+                AlertUtil.showError("Incorrect password for user account.");
+                return false;
+            }
+
+            SessionManager.getInstance().setCurrentAccount(account);
+            AlertUtil.showSuccess("Login successful! Welcome, " + userNickName);
+            SceneUtil.changeScene(loginButton, USER_DASHBOARD_FXML);
+            return true;
+
+        } catch (Exception e) {
+            String errorMessage;
+            errorMessage = "Error loading user account: " + e.getMessage();
+            throw new RuntimeException(errorMessage, e);
+        }
+    }
+
+    private boolean tryArtistLogin(String email, String password) {
+        try {
+            String artistNickName = artistManager.findNickNameByEmail(email, "artist");
+            if (artistNickName == null) {
+                return false;
+            }
+
+            Account account = artistManager.loadAccountByNickName(artistNickName);
+            if (account == null) {
+                return false;
+            }
+
+            if (!password.equals(account.getPassword())) {
+                AlertUtil.showError("Incorrect password for artist account.");
+                return false;
+            }
+
+            if (account instanceof Artist artist && !artist.isApproved()) {
+                AlertUtil.showError("Your artist account is not yet approved.");
+                return false;
+            }
+
+            SessionManager.getInstance().setCurrentAccount(account);
+            AlertUtil.showSuccess("Login successful! Welcome, " + artistNickName);
+            SceneUtil.changeScene(loginButton, ARTIST_DASHBOARD_FXML);
+            return true;
+
+        } catch (Exception e) {
+            String errorMessage;
+            errorMessage = "Error loading artist account: " + e.getMessage();
+            throw new RuntimeException(errorMessage, e);
+        }
+    }
+
     private void handleSignUpRedirect() {
-        SceneUtil.changeScene(signUpLabel, "/fxml/signUp.fxml");
+        SceneUtil.changeScene(signUpLabel, SIGN_UP_FXML);
     }
 }
