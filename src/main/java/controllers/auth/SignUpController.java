@@ -1,5 +1,6 @@
 package controllers.auth;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -14,37 +15,23 @@ import java.util.Objects;
 
 public class SignUpController {
 
-    @FXML
-    private TextField nicknameField;
-
-    @FXML
-    private TextField emailField;
-
-    @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private GridPane roleGrid;
-
-    @FXML
-    private Button signUpButton;
-
-    @FXML
-    private Label signInLabel;
-
-    @FXML
-    private ToggleGroup roleGroup;
-
-    @FXML
-    private ToggleButton userBtn;
+    @FXML private TextField nicknameField;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+    @FXML private GridPane roleGrid;
+    @FXML private Button signUpButton;
+    @FXML private Label signInLabel;
+    @FXML private ToggleGroup roleGroup;
+    @FXML private ToggleButton userBtn;
 
     private String selectedRole = "User";
     private final AdminFileManager adminFileManager;
 
-    // Constructor with Dependency Injection
+    private final String SIGN_IN_FXML = "/FXML-files/signIn.fxml";
+    private final String CSS_STYLE = "/CSS/styles.css";
+
     public SignUpController() {
         this.adminFileManager = new AdminFileManager();
-        // Set dependencies
         UserFileManager userFileManager = new UserFileManager();
         ArtistFileManager artistFileManager = new ArtistFileManager();
         artistFileManager.setUserFileManager(userFileManager);
@@ -52,7 +39,6 @@ public class SignUpController {
         this.adminFileManager.setArtistFileManager(artistFileManager);
     }
 
-    // For testing or manual injection
     public SignUpController(AdminFileManager adminFileManager) {
         this.adminFileManager = adminFileManager;
     }
@@ -60,10 +46,19 @@ public class SignUpController {
     @FXML
     private void initialize() {
         setupRoleSelection();
-        roleGrid.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/styles.css")).toExternalForm());
         userBtn.setSelected(true);
         signUpButton.setOnAction(event -> handleSignUp());
         signInLabel.setOnMouseClicked(event -> handleSignInRedirect());
+
+        Platform.runLater(() -> {
+            try {
+                roleGrid.getScene().getStylesheets().add(
+                        Objects.requireNonNull(getClass().getResource(CSS_STYLE)).toExternalForm()
+                );
+            } catch (Exception e) {
+                System.err.println("Failed to load stylesheet: " + e.getMessage());
+            }
+        });
     }
 
     private void setupRoleSelection() {
@@ -93,7 +88,6 @@ public class SignUpController {
             return;
         }
 
-        // اعتبارسنجی رمز عبور
         if (!isValidPassword(password)) {
             AlertUtil.showWarning("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
             return;
@@ -106,15 +100,13 @@ public class SignUpController {
 
         try {
             if (selectedRole.equals("Artist")) {
-                // For the artist, the request is sent to the admin.
                 adminFileManager.saveArtistRequest(email, nickname, password);
                 AlertUtil.showSuccess("Your artist registration request has been submitted for approval.");
-                SceneUtil.changeScene(signUpButton, "/fxml/signIn.fxml");
+                SceneUtil.changeScene(signUpButton, SIGN_IN_FXML);
             } else {
-                // For regular users, registration is done directly.
                 AccountManager.registerUser(email, nickname, password, selectedRole);
                 AlertUtil.showSuccess("Sign-up successful for: " + email);
-                SceneUtil.changeScene(signUpButton, "/fxml/signIn.fxml");
+                SceneUtil.changeScene(signUpButton, SIGN_IN_FXML);
             }
         } catch (Exception e) {
             AlertUtil.showError("Sign-up error: " + e.getMessage());
@@ -126,6 +118,6 @@ public class SignUpController {
     }
 
     private void handleSignInRedirect() {
-        SceneUtil.changeScene(signInLabel, "/fxml/signIn.fxml");
+        SceneUtil.changeScene(signInLabel, SIGN_IN_FXML);
     }
 }

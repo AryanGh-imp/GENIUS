@@ -6,5 +6,5 @@
 
 .toggle-button:selected {
     -fx-background-color: #FFFF64;
-    -fx-text-fill: black;
+    -fx-text-fill: #FFFF64;
 }

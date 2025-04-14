@@ -20,14 +20,14 @@
    <children>
       <BorderPane prefHeight="38.0" prefWidth="877.0" style="-fx-background-color: #FFFF64;">
          <center>
-            <ImageView fitHeight="38.0" fitWidth="111.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+            <ImageView fitHeight="28.0" fitWidth="213.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                <image>
-                  <Image url="@../pics/Genius.com_logo_yellow.png" />
+                  <Image url="@../pics/Genius.com_logo_yellow2.png" />
                </image>
             </ImageView>
          </center>
       </BorderPane>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="260.0" layoutY="38.0" prefHeight="94.0" prefWidth="358.0" text="SIGN UP" textFill="#ffff64">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="259.0" layoutY="38.0" prefHeight="94.0" prefWidth="358.0" text="SIGN UP" textFill="#ffff64">
          <font>
             <Font name="DIN Medium" size="50.0" />
          </font>
@@ -37,7 +37,7 @@
             <Font name="Oswald Regular" size="25.0" />
          </font>
       </Label>
-      <GridPane fx:id="roleGrid" alignment="CENTER" layoutX="168.0" layoutY="150.0" prefHeight="523.0" prefWidth="542.0" style="-fx-background-color: #99999920;">
+      <GridPane fx:id="roleGrid" alignment="CENTER" layoutX="167.0" layoutY="149.0" prefHeight="523.0" prefWidth="542.0" style="-fx-background-color: #99999920;">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
             <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />

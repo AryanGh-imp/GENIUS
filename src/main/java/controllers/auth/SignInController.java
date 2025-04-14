@@ -16,22 +16,15 @@ import utils.SceneUtil;
 import utils.ConfigLoader;
 
 public class SignInController {
-    private static final String USER_DASHBOARD_FXML = "/fxml/dashboard.fxml";
-    private static final String ARTIST_DASHBOARD_FXML = "/fxml/artistDashboard.fxml";
-    private static final String ADMIN_DASHBOARD_FXML = "/fxml/adminDashboard.fxml";
-    private static final String SIGN_UP_FXML = "/fxml/signUp.fxml";
+    private static final String USER_DASHBOARD_FXML = "/FXML-files/ArtistDashboard.fxml"; // فرض می‌کنیم برای کاربر عادی
+    private static final String ARTIST_DASHBOARD_FXML = "/FXML-files/ArtistDashboard.fxml";
+    private static final String ADMIN_DASHBOARD_FXML = "/FXML-files/AdminDashboard.fxml";
+    private static final String SIGN_UP_FXML = "/FXML-files/signUp.fxml";
 
-    @FXML
-    private TextField emailField;
-
-    @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private Button loginButton;
-
-    @FXML
-    private Label signUpLabel;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+    @FXML private Button loginButton;
+    @FXML private Label signUpLabel;
 
     private final UserFileManager userManager;
     private final ArtistFileManager artistManager;
@@ -118,8 +111,7 @@ public class SignInController {
             return true;
 
         } catch (Exception e) {
-            String errorMessage;
-            errorMessage = "Error loading user account: " + e.getMessage();
+            String errorMessage = "Error loading user account: " + e.getMessage();
             throw new RuntimeException(errorMessage, e);
         }
     }
@@ -152,8 +144,7 @@ public class SignInController {
             return true;
 
         } catch (Exception e) {
-            String errorMessage;
-            errorMessage = "Error loading artist account: " + e.getMessage();
+            String errorMessage = "Error loading artist account: " + e.getMessage();
             throw new RuntimeException(errorMessage, e);
         }
     }

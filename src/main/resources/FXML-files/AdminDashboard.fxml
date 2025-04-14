@@ -15,9 +15,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.DashBoard.AdminDashboardController">
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.admin.AdminDashboardController">
     <children>
-        <!-- Header with Logo -->
         <VBox alignment="CENTER" prefHeight="69.0" prefWidth="918.0" style="-fx-background-color: #FFFF64;">
             <children>
                 <ImageView fitHeight="43.0" fitWidth="195.0" pickOnBounds="true" preserveRatio="true">
@@ -28,7 +27,6 @@
             </children>
         </VBox>
 
-        <!-- Menu Bar -->
         <MenuBar prefHeight="26.0" prefWidth="750.0" style="-fx-background-color: #FFFF64;" VBox.vgrow="NEVER">
             <menus>
                 <Menu mnemonicParsing="false" text="Admin Actions">
@@ -52,10 +50,8 @@
             </menus>
         </MenuBar>
 
-        <!-- Main Content -->
         <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
             <items>
-                <!-- Left Panel: List of Requests -->
                 <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
                     <content>
                         <AnchorPane fx:id="listPane" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
@@ -66,7 +62,6 @@
                     </content>
                 </ScrollPane>
 
-                <!-- Right Panel: Request Details -->
                 <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
                     <content>
                         <AnchorPane fx:id="contentPane" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">

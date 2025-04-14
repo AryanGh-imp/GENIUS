@@ -1,4 +1,4 @@
-package controllers.DashBoard;
+package controllers.dashBoard.admin;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +10,7 @@ import models.account.Admin;
 import models.ArtistRequest;
 import models.LyricsEditRequest;
 import services.file.LyricsRequestManager;
+import utils.AlertUtil;
 
 import java.util.Arrays;
 
@@ -179,7 +180,7 @@ public class AdminDashboardController {
                 ));
             }
         } catch (Exception e) {
-            showErrorAlert("Error loading artist requests: " + e.getMessage());
+            AlertUtil.showError("Error loading artist requests: " + e.getMessage());
         }
     }
 
@@ -216,7 +217,7 @@ public class AdminDashboardController {
                 }
             }
         } catch (Exception e) {
-            showErrorAlert("Error loading lyrics edit requests: " + e.getMessage());
+            AlertUtil.showError("Error loading lyrics edit requests: " + e.getMessage());
         }
     }
 
@@ -239,11 +240,11 @@ public class AdminDashboardController {
         if (selectedArtistRequest != null) {
             try {
                 admin.approveArtist(selectedArtistRequest.getEmail(), selectedArtistRequest.getNickname());
-                showInfoAlert("Artist request approved successfully");
+                AlertUtil.showSuccess("Artist request approved successfully");
                 showPendingArtistRequests();
                 selectedArtistRequest = null;
             } catch (Exception e) {
-                showErrorAlert("Error approving artist request: " + e.getMessage());
+                AlertUtil.showError("Error approving artist request: " + e.getMessage());
             }
         }
     }
@@ -253,11 +254,11 @@ public class AdminDashboardController {
         if (selectedArtistRequest != null) {
             try {
                 admin.rejectArtist(selectedArtistRequest.getEmail());
-                showInfoAlert("Artist request rejected successfully");
+                AlertUtil.showSuccess("Artist request rejected successfully");
                 showPendingArtistRequests();
                 selectedArtistRequest = null;
             } catch (Exception e) {
-                showErrorAlert("Error rejecting artist request: " + e.getMessage());
+                AlertUtil.showError("Error rejecting artist request: " + e.getMessage());
             }
         }
     }
@@ -273,11 +274,11 @@ public class AdminDashboardController {
                         selectedLyricsEditRequest.getSuggestedLyrics(),
                         selectedLyricsEditRequest.getAlbumName()
                 );
-                showInfoAlert("Lyrics edit request approved successfully");
+                AlertUtil.showSuccess("Lyrics edit request approved successfully");
                 showPendingLyricsRequests();
                 selectedLyricsEditRequest = null;
             } catch (Exception e) {
-                showErrorAlert("Error approving lyrics edit request: " + e.getMessage());
+                AlertUtil.showError("Error approving lyrics edit request: " + e.getMessage());
             }
         }
     }
@@ -291,28 +292,12 @@ public class AdminDashboardController {
                         selectedLyricsEditRequest.getSongTitle(),
                         selectedLyricsEditRequest.getTimestamp()
                 );
-                showInfoAlert("Lyrics edit request rejected successfully");
+                AlertUtil.showSuccess("Lyrics edit request rejected successfully");
                 showPendingLyricsRequests();
                 selectedLyricsEditRequest = null;
             } catch (Exception e) {
-                showErrorAlert("Error rejecting lyrics edit request: " + e.getMessage());
+                AlertUtil.showError("Error rejecting lyrics edit request: " + e.getMessage());
             }
         }
-    }
-
-    private void showInfoAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showErrorAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }
