@@ -1,24 +1,30 @@
 package controllers.auth;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import models.account.Account;
 import models.account.Admin;
 import models.account.Artist;
 import services.SessionManager;
+import services.file.AdminFileManager;
 import services.file.ArtistFileManager;
 import services.file.UserFileManager;
 import utils.AlertUtil;
-import utils.SceneUtil;
 import utils.ConfigLoader;
+import controllers.dashBoard.admin.AdminDashboardController;
+import utils.SceneUtil;
 
 public class SignInController {
-    private static final String USER_DASHBOARD_FXML = "/FXML-files/ArtistDashboard.fxml"; // فرض می‌کنیم برای کاربر عادی
-    private static final String ARTIST_DASHBOARD_FXML = "/FXML-files/ArtistDashboard.fxml";
-    private static final String ADMIN_DASHBOARD_FXML = "/FXML-files/AdminDashboard.fxml";
+    private static final String USER_DASHBOARD_FXML = "/FXML-files/artist/ArtistDashboard.fxml";
+    private static final String ARTIST_DASHBOARD_FXML = "/FXML-files/artist/ArtistDashboard.fxml";
+    private static final String ADMIN_DASHBOARD_FXML = "/FXML-files/admin/AdminDashboard.fxml";
     private static final String SIGN_UP_FXML = "/FXML-files/signUp.fxml";
 
     @FXML private TextField emailField;
@@ -28,20 +34,27 @@ public class SignInController {
 
     private final UserFileManager userManager;
     private final ArtistFileManager artistManager;
+    private final AdminFileManager adminFileManager;
     private final ConfigLoader configLoader;
 
     public SignInController() {
         this.userManager = new UserFileManager();
         this.artistManager = new ArtistFileManager();
+        this.adminFileManager = new AdminFileManager();
         this.configLoader = ConfigLoader.getInstance();
         this.artistManager.setUserFileManager(this.userManager);
+        this.adminFileManager.setArtistFileManager(this.artistManager);
+        this.adminFileManager.setUserFileManager(this.userManager);
     }
 
-    public SignInController(UserFileManager userManager, ArtistFileManager artistManager, ConfigLoader configLoader) {
+    public SignInController(UserFileManager userManager, ArtistFileManager artistManager, AdminFileManager adminFileManager, ConfigLoader configLoader) {
         this.userManager = userManager;
         this.artistManager = artistManager;
+        this.adminFileManager = adminFileManager;
         this.configLoader = configLoader;
         this.artistManager.setUserFileManager(this.userManager);
+        this.adminFileManager.setArtistFileManager(this.artistManager);
+        this.adminFileManager.setUserFileManager(this.userManager);
     }
 
     @FXML
@@ -77,12 +90,28 @@ public class SignInController {
     private boolean tryAdminLogin(String email, String password) {
         String adminEmail = configLoader.getAdminEmail();
         String adminPassword = configLoader.getAdminPassword();
+        String adminNickName = configLoader.getAdminNickname();
 
         if (email.equals(adminEmail.toLowerCase()) && password.equals(adminPassword)) {
-            Account admin = new Admin(adminEmail, "admin", adminPassword);
+            Admin admin = new Admin(adminEmail, adminNickName, adminPassword);
+            admin.setAdminFileManager(adminFileManager);
             SessionManager.getInstance().setCurrentAccount(admin);
-            AlertUtil.showSuccess("Login successful! Welcome, Admin");
-            SceneUtil.changeScene(loginButton, ADMIN_DASHBOARD_FXML);
+            AlertUtil.showSuccess("Login successful! Welcome, " + adminNickName);
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(ADMIN_DASHBOARD_FXML));
+                Parent root = loader.load();
+                AdminDashboardController controller = loader.getController();
+                controller.setAdmin(admin);
+
+                Stage stage = (Stage) loginButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Admin Dashboard");
+                stage.show();
+            } catch (Exception e) {
+                AlertUtil.showError("Error loading admin dashboard: " + e.getMessage());
+                return false;
+            }
             return true;
         }
         return false;

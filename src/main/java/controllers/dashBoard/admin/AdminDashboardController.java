@@ -11,12 +11,17 @@ import models.ArtistRequest;
 import models.LyricsEditRequest;
 import services.file.LyricsRequestManager;
 import utils.AlertUtil;
+import utils.SceneUtil;
 
 import java.util.Arrays;
 
 public class AdminDashboardController {
     // FXML injected controls
     @FXML private ListView<Object> requestListView;
+    @FXML private Button approveArtistButton;
+    @FXML private Button rejectArtistButton;
+    @FXML private Button signOutButton;
+    @FXML private Label welcomeLabel;
 
     // Artist request controls
     @FXML private VBox artistDetailsPane;
@@ -97,6 +102,10 @@ public class AdminDashboardController {
             throw new IllegalArgumentException("Admin cannot be null");
         }
         this.admin = admin;
+        // Setting the welcome label text with the admin account name
+        if (welcomeLabel != null) {
+            welcomeLabel.setText("Welcome, " + admin.getNickName() + "!");
+        }
         showPendingArtistRequests();
     }
 
@@ -141,16 +150,28 @@ public class AdminDashboardController {
 
     @FXML
     private void showPendingArtistRequests() {
+        if (admin == null) {
+            AlertUtil.showError("Admin is not set. Please ensure admin is initialized.");
+            return;
+        }
         loadArtistRequests("Pending");
     }
 
     @FXML
     private void showApprovedArtistRequests() {
+        if (admin == null) {
+            AlertUtil.showError("Admin is not set. Please ensure admin is initialized.");
+            return;
+        }
         loadArtistRequests("Approved");
     }
 
     @FXML
     private void showRejectedArtistRequests() {
+        if (admin == null) {
+            AlertUtil.showError("Admin is not set. Please ensure admin is initialized.");
+            return;
+        }
         loadArtistRequests("Rejected");
     }
 
@@ -299,5 +320,11 @@ public class AdminDashboardController {
                 AlertUtil.showError("Error rejecting lyrics edit request: " + e.getMessage());
             }
         }
+    }
+
+    @FXML
+    private void signOut() {
+        services.SessionManager.getInstance().clearSession();
+        SceneUtil.changeScene(signOutButton, "/FXML-files/signIn.fxml");
     }
 }
