@@ -27,24 +27,26 @@
                         <Image url="@../../pics/Genius.com_logo_yellow3.png" />
                     </image>
                 </ImageView>
-            <HBox alignment="CENTER" prefHeight="16.0" prefWidth="900.0" spacing="10.0" style="-fx-padding: 0 20 0 20;">
-               <children>
-                  <Label fx:id="welcomeLabel" prefHeight="16.0" prefWidth="222.0" text="Welcome, Admin!" textFill="BLACK">
+                <HBox alignment="CENTER" prefHeight="16.0" prefWidth="900.0" spacing="10.0" style="-fx-padding: 0 20 0 20;">
+                    <children>
+                        <Label fx:id="welcomeLabel" prefHeight="16.0" prefWidth="222.0" text="Welcome, Admin!" textFill="BLACK">
+                            <font>
+                                <Font name="Arial Bold" size="16.0" />
+                            </font>
+                        </Label>
+                        <Region prefHeight="18.0" prefWidth="554.0" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="signOutButton" alignment="CENTER_RIGHT" onAction="#signOut" prefHeight="30.0" prefWidth="83.0" style="-fx-background-color: #363636;" text="Sign Out" textFill="WHITE">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
                      <font>
-                        <Font name="DIN Medium" size="14.0" />
+                        <Font name="Arial" size="14.0" />
                      </font>
-                  </Label>
-                  <Region prefHeight="18.0" prefWidth="554.0" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="signOutButton" alignment="CENTER_RIGHT" onAction="#signOut" style="-fx-background-color: #363636;" text="Sign Out" textFill="WHITE">
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                  </Button>
-               </children>
-            </HBox>
+                        </Button>
+                    </children>
+                </HBox>
             </children>
         </VBox>
-
         <MenuBar prefHeight="26.0" prefWidth="750.0" style="-fx-background-color: #FFFF64;" VBox.vgrow="NEVER">
             <menus>
                 <Menu mnemonicParsing="false" text="Admin Actions">
@@ -67,53 +69,144 @@
                 </Menu>
             </menus>
         </MenuBar>
-
-        <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+        <SplitPane dividerPositions="0.5" focusTraversable="true" style="-fx-background-color: black;" VBox.vgrow="ALWAYS">
             <items>
-                <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+                <ScrollPane fitToHeight="true" fitToWidth="true">
                     <content>
-                        <AnchorPane fx:id="listPane" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+                        <AnchorPane fx:id="listPane" minHeight="0.0" minWidth="0.0" style="-fx-background-color: black;">
                             <children>
-                                <ListView fx:id="requestListView" layoutX="10" layoutY="10" prefHeight="525.0" prefWidth="410.0" />
+                                <VBox alignment="TOP_CENTER" minHeight="0.0" minWidth="0.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                    <children>
+                                        <Label text="Requests List" textFill="#ffff64">
+                                            <font>
+                                                <Font name="Arial Bold" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <ListView fx:id="requestListView" minHeight="0.0" minWidth="0.0" style="-fx-background-color: #363636; -fx-border-color: #FFFF64; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
                             </children>
                         </AnchorPane>
                     </content>
                 </ScrollPane>
-
-                <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+                <ScrollPane fitToHeight="true" fitToWidth="true">
                     <content>
-                        <AnchorPane fx:id="contentPane" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+                        <AnchorPane fx:id="contentPane" minHeight="0.0" minWidth="0.0" style="-fx-background-color: black;">
                             <children>
-                                <VBox fx:id="artistDetailsPane" layoutX="10" layoutY="10" spacing="10" visible="false">
+                                <VBox fx:id="artistDetailsPane" minHeight="0.0" minWidth="0.0" spacing="15.0" style="-fx-background-color: #363636; -fx-background-radius: 10; -fx-padding: 15;" visible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                     <children>
-                                        <Label style="-fx-font-weight: bold;" text="Artist Request Details" />
-                                        <Label fx:id="artistEmailLabel" text="Email: " />
-                                        <Label fx:id="artistNicknameLabel" text="Nickname: " />
-                                        <Label fx:id="artistPasswordLabel" text="Password: " />
-                                        <Label fx:id="artistStatusLabel" text="Status: " />
-                                        <Label fx:id="artistTimestampLabel" text="Timestamp: " />
-                                        <HBox fx:id="artistButtonsBox" spacing="10" visible="false">
+                                        <Label text="Artist Request Details" textFill="#ffff64">
+                                            <font>
+                                                <Font name="Arial Bold" size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="artistEmailLabel" text="Email: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="artistNicknameLabel" text="Nickname: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="artistPasswordLabel" text="Password: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="artistStatusLabel" text="Status: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="artistTimestampLabel" text="Timestamp: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox fx:id="artistButtonsBox" spacing="15.0" visible="false">
                                             <children>
-                                                <Button fx:id="approveArtistButton" onAction="#approveArtistRequest" text="Approve" />
-                                                <Button fx:id="rejectArtistButton" onAction="#rejectArtistRequest" text="Reject" />
+                                                <Button fx:id="approveArtistButton" onAction="#approveArtistRequest" style="-fx-background-color: #28A745; -fx-background-radius: 5;" text="Approve" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="14.0" />
+                                                    </font>
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
+                                                <Button fx:id="rejectArtistButton" onAction="#rejectArtistRequest" style="-fx-background-color: #DC3545; -fx-background-radius: 5;" text="Reject" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="14.0" />
+                                                    </font>
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
                                             </children>
                                         </HBox>
                                     </children>
                                 </VBox>
-                                <VBox fx:id="lyricsDetailsPane" layoutX="10" layoutY="10" spacing="10" visible="false">
+                                <VBox fx:id="lyricsDetailsPane" minHeight="0.0" minWidth="0.0" spacing="15.0" style="-fx-background-color: #363636; -fx-background-radius: 10; -fx-padding: 15;" visible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                     <children>
-                                        <Label style="-fx-font-weight: bold;" text="Lyrics Edit Request Details" />
-                                        <Label fx:id="lyricsArtistNicknameLabel" text="Artist: " />
-                                        <Label fx:id="lyricsSongTitleLabel" text="Song Title: " />
-                                        <Label fx:id="lyricsAlbumNameLabel" text="Album: " />
-                                        <Label fx:id="lyricsRequesterLabel" text="Requester: " /> <!-- Added for requester information -->
-                                        <TextArea fx:id="suggestedLyricsTextArea" editable="false" prefHeight="100.0" prefWidth="400.0" wrapText="true" />
-                                        <Label fx:id="lyricsTimestampLabel" text="Timestamp: " />
-                                        <Label fx:id="lyricsStatusLabel" text="Status: " />
-                                        <HBox fx:id="lyricsButtonsBox" spacing="10" visible="false">
+                                        <Label text="Lyrics Edit Request Details" textFill="#ffff64">
+                                            <font>
+                                                <Font name="Arial Bold" size="18.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lyricsArtistNicknameLabel" text="Artist: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lyricsSongTitleLabel" text="Song Title: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lyricsAlbumNameLabel" text="Album: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lyricsRequesterLabel" text="Requester: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <TextArea fx:id="suggestedLyricsTextArea" editable="false" minHeight="100.0" prefHeight="150.0" style="-fx-background-color: #3C4649; -fx-text-fill: #FFFFFF;" wrapText="true" VBox.vgrow="ALWAYS">
+                                            <font>
+                                                <Font name="Arial" size="12.0" />
+                                            </font>
+                                        </TextArea>
+                                        <Label fx:id="lyricsTimestampLabel" text="Timestamp: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="lyricsStatusLabel" text="Status: " textFill="#FFFFFF">
+                                            <font>
+                                                <Font name="Arial" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox fx:id="lyricsButtonsBox" spacing="15.0" visible="false">
                                             <children>
-                                                <Button fx:id="approveLyricsButton" onAction="#approveLyricsEditRequest" text="Approve" />
-                                                <Button fx:id="rejectLyricsButton" onAction="#rejectLyricsEditRequest" text="Reject" />
+                                                <Button fx:id="approveLyricsButton" onAction="#approveLyricsEditRequest" style="-fx-background-color: #28A745; -fx-background-radius: 5;" text="Approve" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="14.0" />
+                                                    </font>
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
+                                                <Button fx:id="rejectLyricsButton" onAction="#rejectLyricsEditRequest" style="-fx-background-color: #DC3545; -fx-background-radius: 5;" text="Reject" textFill="WHITE">
+                                                    <font>
+                                                        <Font name="Arial Bold" size="14.0" />
+                                                    </font>
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
                                             </children>
                                         </HBox>
                                     </children>
