@@ -14,10 +14,12 @@ public class SceneUtil {
             FXMLLoader loader = new FXMLLoader(SceneUtil.class.getResource(fxmlPath));
             Parent root = loader.load();
             Stage stage = (Stage) node.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            System.err.println("Error loading scene: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error loading scene: " + fxmlPath, e);
         }
     }
 }

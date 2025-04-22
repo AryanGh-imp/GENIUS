@@ -6,10 +6,13 @@ import models.music.Album;
 import utils.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static utils.FileUtil.*;
@@ -32,13 +35,6 @@ public class SongFileManager extends FileManager {
         }
     }
 
-    /**
-     * Saves the songs and albums for the specified artist to the file system.
-     *
-     * @param artist The artist whose songs and albums should be saved.
-     * @throws IllegalArgumentException if the artist is null.
-     * @throws IllegalStateException if saving fails.
-     */
     public synchronized void saveSongsAndAlbumsForArtist(Artist artist) {
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
@@ -91,21 +87,7 @@ public class SongFileManager extends FileManager {
                 .toList();
         for (String existingAlbum : existingAlbums) {
             if (!currentAlbums.contains(existingAlbum)) {
-                File albumFolder = new File(albumsDir, existingAlbum);
-                File albumFile = new File(albumFolder.getPath() + "/album.txt");
-                if (albumFile.exists()) {
-                    List<String> albumData = readFile(albumFile.getPath());
-                    List<String> songTitles = new ArrayList<>();
-                    for (String line : albumData) {
-                        if (line.startsWith("Songs: ") && !line.equals("Songs: ")) {
-                            songTitles = List.of(line.substring("Songs: ".length()).split(","));
-                        }
-                    }
-                    for (String songTitle : songTitles) {
-                        deleteSong(artist.getNickName(), songTitle, existingAlbum);
-                    }
-                }
-                FileUtil.deleteDirectory(albumFolder);
+                deleteAlbum(artist.getNickName(), existingAlbum);
             }
         }
 
@@ -113,7 +95,7 @@ public class SongFileManager extends FileManager {
         List<String> artistNickNames = Collections.singletonList(artist.getNickName());
         for (Song single : artist.getSingles()) {
             if (single.isDirty()) {
-                saveSong(artistNickNames, single.getTitle(), null, single.getLyrics(), single.getReleaseDate());
+                saveSong(artistNickNames, single.getTitle(), null, single.getLyrics(), single.getReleaseDate(), single.getLikes(), single.getViews(), single.getAlbumArtPath());
                 single.setDirty(false);
             }
         }
@@ -124,12 +106,12 @@ public class SongFileManager extends FileManager {
                 List<String> songTitles = album.getSongs().stream()
                         .map(Song::getTitle)
                         .collect(Collectors.toList());
-                saveAlbum(artist.getNickName(), album.getTitle(), album.getReleaseDate(), songTitles);
+                saveAlbum(artist.getNickName(), album.getTitle(), album.getReleaseDate(), songTitles, album.getAlbumArtPath());
                 album.setDirty(false);
             }
             for (Song song : album.getSongs()) {
                 if (song.isDirty()) {
-                    saveSong(artistNickNames, song.getTitle(), album.getTitle(), song.getLyrics(), song.getReleaseDate());
+                    saveSong(artistNickNames, song.getTitle(), album.getTitle(), song.getLyrics(), song.getReleaseDate(), song.getLikes(), song.getViews(), song.getAlbumArtPath());
                     song.setDirty(false);
                 }
             }
@@ -146,7 +128,7 @@ public class SongFileManager extends FileManager {
         return null;
     }
 
-    public synchronized void saveSong(List<String> artistNickNames, String songTitle, String albumName, String lyrics, String releaseDate) {
+    public synchronized void saveSong(List<String> artistNickNames, String songTitle, String albumName, String lyrics, String releaseDate, int likes, int views, String albumArtPath) {
         if (artistNickNames == null || artistNickNames.isEmpty()) {
             throw new IllegalArgumentException("Artist nicknames list cannot be null or empty");
         }
@@ -170,9 +152,12 @@ public class SongFileManager extends FileManager {
         List<String> songData = new ArrayList<>();
         songData.add("Song Name: " + songTitle);
         songData.add("Artists: " + String.join(",", artistNickNames));
-        songData.add("Likes: 0");
-        songData.add("Views: 0");
+        songData.add("Likes: " + likes);
+        songData.add("Views: " + views);
         songData.add("Release Date: " + releaseDate);
+        if (albumArtPath != null) {
+            songData.add("AlbumArtPath: " + albumArtPath);
+        }
         try {
             writeFile(songFile, songData);
         } catch (Exception e) {
@@ -190,6 +175,10 @@ public class SongFileManager extends FileManager {
         // Save lyrics history
         String lyricsHistoryFile = songDir + safeSongTitle + "-lyrics-history.txt";
         List<String> lyricsHistory = new ArrayList<>();
+        File historyFile = new File(lyricsHistoryFile);
+        if (historyFile.exists()) {
+            lyricsHistory = readFile(lyricsHistoryFile);
+        }
         lyricsHistory.add("Lyrics: " + lyrics + " | Timestamp: " + System.currentTimeMillis());
         try {
             writeFile(lyricsHistoryFile, lyricsHistory);
@@ -198,7 +187,7 @@ public class SongFileManager extends FileManager {
         }
     }
 
-    public synchronized void saveAlbum(String artistNickName, String albumTitle, String releaseDate, List<String> songTitles) {
+    public synchronized void saveAlbum(String artistNickName, String albumTitle, String releaseDate, List<String> songTitles, String albumArtPath) {
         if (artistNickName == null || artistNickName.isEmpty()) {
             throw new IllegalArgumentException("Artist nickname cannot be null or empty");
         }
@@ -217,6 +206,9 @@ public class SongFileManager extends FileManager {
         albumData.add("Album Title: " + albumTitle);
         albumData.add("Release Date: " + releaseDate);
         albumData.add("Songs: " + (songTitles != null ? String.join(",", songTitles) : ""));
+        if (albumArtPath != null && !albumArtPath.isEmpty()) {
+            albumData.add("AlbumArtPath: " + albumArtPath);
+        }
         try {
             writeFile(albumFile, albumData);
         } catch (Exception e) {
@@ -385,6 +377,7 @@ public class SongFileManager extends FileManager {
         File singlesDir = new File(artistDir + "singles/");
         File albumsDir = new File(artistDir + "albums/");
 
+        // Load singles
         if (singlesDir.exists() && singlesDir.isDirectory()) {
             File[] songFolders = singlesDir.listFiles(File::isDirectory);
             if (songFolders != null) {
@@ -392,7 +385,8 @@ public class SongFileManager extends FileManager {
                     File songFile = new File(songFolder, songFolder.getName() + ".txt");
                     if (songFile.exists()) {
                         List<String> songData = readFile(songFile.getPath());
-                        Song song = parseSongFromFile(songData, null);
+                        String lyrics = loadLyrics(songFile.getPath());
+                        Song song = parseSongFromFile(songData, null, lyrics);
                         List<String> artistNickNames = parseArtistNickNames(songData);
                         for (String nickName : artistNickNames) {
                             if (nickName.equals(artist.getNickName())) {
@@ -405,6 +399,7 @@ public class SongFileManager extends FileManager {
             }
         }
 
+        // Load albums
         if (albumsDir.exists() && albumsDir.isDirectory()) {
             File[] albumFolders = albumsDir.listFiles(File::isDirectory);
             if (albumFolders != null) {
@@ -413,6 +408,7 @@ public class SongFileManager extends FileManager {
                     File albumFile = new File(albumFilePath);
                     String albumTitle = albumFolder.getName();
                     String releaseDate = "Not set";
+                    String albumArtPath = null;
                     List<String> songTitles = new ArrayList<>();
 
                     if (albumFile.exists()) {
@@ -426,19 +422,25 @@ public class SongFileManager extends FileManager {
                                     releaseDate = value;
                                 } else if (key.equals("Songs") && !value.isEmpty()) {
                                     songTitles = List.of(value.split(","));
+                                } else if (key.equals("AlbumArtPath")) {
+                                    albumArtPath = value;
                                 }
                             }
                         }
                     }
 
                     Album album = new Album(albumTitle, releaseDate, artist);
+                    if (albumArtPath != null) {
+                        album.setAlbumArtPath(albumArtPath);
+                    }
                     File[] songFolders = albumFolder.listFiles(File::isDirectory);
                     if (songFolders != null) {
                         for (File songFolder : songFolders) {
                             File songFile = new File(songFolder, songFolder.getName() + ".txt");
                             if (songFile.exists()) {
                                 List<String> songData = readFile(songFile.getPath());
-                                Song song = parseSongFromFile(songData, album);
+                                String lyrics = loadLyrics(songFile.getPath());
+                                Song song = parseSongFromFile(songData, album, lyrics);
                                 List<String> artistNickNames = parseArtistNickNames(songData);
                                 for (String nickName : artistNickNames) {
                                     if (nickName.equals(artist.getNickName())) {
@@ -456,45 +458,162 @@ public class SongFileManager extends FileManager {
     }
 
     public synchronized void deleteSong(String artistNickName, String songTitle, String albumName) {
+        if (artistNickName == null || artistNickName.isEmpty()) {
+            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
+        }
+        if (songTitle == null || songTitle.isEmpty()) {
+            throw new IllegalArgumentException("Song title cannot be null or empty");
+        }
+
         String songDir = getSongDir(artistNickName, songTitle, albumName);
-        String safeSongTitle = sanitizeFileName(songTitle);
-
-        // Delete the song information file
-        File songFile = new File(songDir + safeSongTitle + ".txt");
-        if (songFile.exists()) {
-            songFile.delete();
-        }
-
-        // Delete the lyrics file
-        File lyricsFile = new File(songDir + safeSongTitle + "_lyrics.txt");
-        if (lyricsFile.exists()) {
-            lyricsFile.delete();
-        }
-
-        // Delete the lyrics history file
-        File lyricsHistoryFile = new File(songDir + safeSongTitle + "-lyrics-history.txt");
-        if (lyricsHistoryFile.exists()) {
-            lyricsHistoryFile.delete();
-        }
-
-        // Delete the comments file
-        File commentsFile = new File(songDir + safeSongTitle + "-comments.txt");
-        if (commentsFile.exists()) {
-            commentsFile.delete();
-        }
-
-        // Delete the song directory if it is empty
         File songDirFile = new File(songDir);
-        if (songDirFile.exists() && Objects.requireNonNull(songDirFile.listFiles()).length == 0) {
-            songDirFile.delete();
+        if (!songDirFile.exists()) {
+            throw new IllegalStateException("Song directory not found: " + songDir);
+        }
+
+        // Get the album art path before deleting the song directory
+        String albumArtPath = null;
+        File songFile = new File(songDir + sanitizeFileName(songTitle) + ".txt");
+        if (songFile.exists()) {
+            List<String> songData = readFile(songFile.getPath());
+            for (String line : songData) {
+                if (line.startsWith("AlbumArtPath: ")) {
+                    albumArtPath = line.substring("AlbumArtPath: ".length());
+                    break;
+                }
+            }
+        }
+
+        // Delete the song directory
+        FileUtil.deleteDirectory(songDirFile);
+
+        // Delete the album art file if it exists
+        if (albumArtPath != null && !albumArtPath.isEmpty()) {
+            File albumArtFile = new File(albumArtPath);
+            if (albumArtFile.exists()) {
+                albumArtFile.delete();
+            }
+        }
+
+        // If the song belongs to an album, remove it from the album's song list
+        if (albumName != null && !albumName.isEmpty()) {
+            String albumDir = getAlbumDir(artistNickName, albumName);
+            File albumFile = new File(albumDir + "album.txt");
+            if (albumFile.exists()) {
+                List<String> albumData = readFile(albumFile.getPath());
+                List<String> updatedAlbumData = new ArrayList<>();
+                for (String line : albumData) {
+                    if (line.startsWith("Songs: ") && !line.equals("Songs: ")) {
+                        List<String> songTitles = new ArrayList<>(List.of(line.substring("Songs: ".length()).split(",")));
+                        songTitles.remove(songTitle);
+                        updatedAlbumData.add("Songs: " + String.join(",", songTitles));
+                    } else {
+                        updatedAlbumData.add(line);
+                    }
+                }
+                try {
+                    writeFile(albumFile.getPath(), updatedAlbumData);
+                } catch (Exception e) {
+                    throw new IllegalStateException("Failed to update album file: " + albumFile.getPath(), e);
+                }
+            }
         }
     }
 
-    private Song parseSongFromFile(List<String> songData, Album album) {
+    public synchronized void deleteAlbum(String artistNickName, String albumTitle) {
+        if (artistNickName == null || artistNickName.isEmpty()) {
+            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
+        }
+        if (albumTitle == null || albumTitle.isEmpty()) {
+            throw new IllegalArgumentException("Album title cannot be null or empty");
+        }
+
+        String albumDir = getAlbumDir(artistNickName, albumTitle);
+        File albumDirFile = new File(albumDir);
+        if (!albumDirFile.exists()) {
+            throw new IllegalStateException("Album directory not found: " + albumDir);
+        }
+
+        // Get the album art path before deleting the album directory
+        String albumArtPath = null;
+        File albumFile = new File(albumDir + "album.txt");
+        if (albumFile.exists()) {
+            List<String> albumData = readFile(albumFile.getPath());
+            for (String line : albumData) {
+                if (line.startsWith("AlbumArtPath: ")) {
+                    albumArtPath = line.substring("AlbumArtPath: ".length());
+                    break;
+                }
+            }
+        }
+
+        // Delete the album directory
+        FileUtil.deleteDirectory(albumDirFile);
+
+        // Delete the album art file if it exists
+        if (albumArtPath != null && !albumArtPath.isEmpty()) {
+            File albumArtFile = new File(albumArtPath);
+            if (albumArtFile.exists()) {
+                albumArtFile.delete();
+            }
+        }
+    }
+
+    public synchronized String saveAlbumArt(String artistNickName, String albumTitle, File imageFile) throws IOException {
+        if (artistNickName == null || artistNickName.isEmpty()) {
+            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
+        }
+        if (albumTitle == null || albumTitle.isEmpty()) {
+            throw new IllegalArgumentException("Album title cannot be null or empty");
+        }
+        if (imageFile == null || !imageFile.exists()) {
+            throw new IllegalArgumentException("Image file cannot be null or does not exist");
+        }
+
+        String albumDir = getAlbumDir(artistNickName, albumTitle);
+        ensureDataDirectoryExists(albumDir);
+        String fileExtension = imageFile.getName().substring(imageFile.getName().lastIndexOf("."));
+        String artFile = albumDir + "album_art" + fileExtension;
+        Files.copy(imageFile.toPath(), Paths.get(artFile), StandardCopyOption.REPLACE_EXISTING);
+
+        // Update album.txt with the album art path
+        File albumFile = new File(albumDir + "album.txt");
+        if (!albumFile.exists()) {
+            throw new IllegalStateException("album.txt not found in: " + albumDir);
+        }
+
+        List<String> albumData = readFile(albumFile.getPath());
+        List<String> updatedAlbumData = new ArrayList<>();
+        boolean albumArtPathUpdated = false;
+
+        for (String line : albumData) {
+            if (line.startsWith("AlbumArtPath: ")) {
+                updatedAlbumData.add("AlbumArtPath: " + artFile);
+                albumArtPathUpdated = true;
+            } else {
+                updatedAlbumData.add(line);
+            }
+        }
+
+        if (!albumArtPathUpdated) {
+            updatedAlbumData.add("AlbumArtPath: " + artFile);
+        }
+
+        try {
+            writeFile(albumFile.getPath(), updatedAlbumData);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to update album file with album art path: " + albumFile.getPath(), e);
+        }
+
+        return artFile; // مسیر تصویر را برمی‌گرداند
+    }
+
+    private Song parseSongFromFile(List<String> songData, Album album, String lyrics) {
         String title = null;
         String releaseDate = "Not set";
         int likes = 0;
         int views = 0;
+        String albumArtPath = null;
 
         for (String line : songData) {
             int index = line.indexOf(": ");
@@ -518,6 +637,7 @@ public class SongFileManager extends FileManager {
                         }
                         break;
                     case "Release Date": releaseDate = value; break;
+                    case "AlbumArtPath": albumArtPath = value; break;
                 }
             }
         }
@@ -526,13 +646,16 @@ public class SongFileManager extends FileManager {
             throw new IllegalStateException("Failed to parse song: Song title is missing in data: " + songData);
         }
 
-        // Lyrics will be loaded lazily, so we pass an empty string here
-        Song song = new Song(title, "", releaseDate);
+        Song song = new Song(title, lyrics != null ? lyrics : "", releaseDate);
         song.setLikes(likes);
         song.setViews(views);
         if (album != null) {
             song.setAlbum(album);
         }
+        if (albumArtPath != null) {
+            song.setAlbumArtPath(albumArtPath);
+        }
+        song.setDirty(false);
         return song;
     }
 
