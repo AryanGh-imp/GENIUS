@@ -39,10 +39,6 @@ public class SignUpController {
         this.adminFileManager.setArtistFileManager(artistFileManager);
     }
 
-    public SignUpController(AdminFileManager adminFileManager) {
-        this.adminFileManager = adminFileManager;
-    }
-
     @FXML
     private void initialize() {
         setupRoleSelection();
