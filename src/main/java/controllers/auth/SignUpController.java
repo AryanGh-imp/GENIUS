@@ -35,8 +35,6 @@ public class SignUpController {
         UserFileManager userFileManager = new UserFileManager();
         ArtistFileManager artistFileManager = new ArtistFileManager();
         artistFileManager.setUserFileManager(userFileManager);
-        this.adminFileManager.setUserFileManager(userFileManager);
-        this.adminFileManager.setArtistFileManager(artistFileManager);
     }
 
     @FXML

@@ -19,20 +19,24 @@ public abstract class FileManager {
         return switch (role.toLowerCase()) {
             case "user" -> DATA_DIR + "users/index_users.txt";
             case "admin" -> DATA_DIR + "admin/index_admins.txt";
-            case "artist" -> DATA_DIR + "artists/index_artists.txt";  // Changed from "artist" to "artists"
+            case "artist" -> DATA_DIR + "artists/index_artists.txt";
             default -> DATA_DIR + "users/index.txt";
         };
     }
 
     public boolean isEmailOrNickNameTaken(String email, String nickName) {
-        String safeNickName = FileUtil.sanitizeFileName(nickName);
-        String userDir = DATA_DIR + "users/" + safeNickName + "/";
-        String artistDir = DATA_DIR + "artists/" + safeNickName + "/";
-        String adminDir = DATA_DIR + "admin/" + safeNickName + "/";
-        String userFileName = safeNickName + "-" + email + ".txt";
-        return new File(userDir, userFileName).exists() ||
-                new File(artistDir, userFileName).exists() ||
-                new File(adminDir, userFileName).exists();
+        String[] rolesToCheck = {"user", "artist", "admin"};
+        for (String role : rolesToCheck) {
+            String indexFile = findIndexFile(role);
+            List<String> indexData = FileUtil.readFile(indexFile);
+            for (String line : indexData) {
+                String[] parts = line.split(":");
+                if (parts.length == 2 && (parts[0].equals(email) || parts[1].equals(nickName))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void saveAccount(Account account) throws RuntimeException {
@@ -58,19 +62,41 @@ public abstract class FileManager {
 
     public Account loadAccountByNickName(String nickName) throws IllegalStateException {
         String safeNickName = FileUtil.sanitizeFileName(nickName);
-        File userFile = new File(DATA_DIR + "users/" + safeNickName + "/" + safeNickName + "-" + nickName + ".txt");
-        if (userFile.exists()) {
-            return loadAccountFromFile(userFile);
+
+        String email = null;
+        String role = null;
+        String[] rolesToCheck = {"user", "artist", "admin"};
+        for (String r : rolesToCheck) {
+            email = findEmailByNickName(nickName, r);
+            if (email != null) {
+                role = r;
+                break;
+            }
         }
-        File artistFile = new File(DATA_DIR + "artists/" + safeNickName + "/" + safeNickName + "-" + nickName + ".txt");
-        if (artistFile.exists()) {
-            return loadAccountFromFile(artistFile);
+
+        if (email == null) {
+            throw new IllegalStateException("Account with nickname '" + nickName + "' not found in any index file.");
         }
-        File adminFile = new File(DATA_DIR + "admin/" + safeNickName + "/" + safeNickName + "-" + nickName + ".txt");
-        if (adminFile.exists()) {
-            return loadAccountFromFile(adminFile);
+
+
+        String dir = switch (role.toLowerCase()) {
+            case "artist" -> DATA_DIR + "artists/" + safeNickName + "/";
+            case "admin" -> DATA_DIR + "admin/" + safeNickName + "/";
+            default -> DATA_DIR + "users/" + safeNickName + "/";
+        };
+
+        File accountDir = new File(dir);
+        if (!accountDir.exists() || !accountDir.isDirectory()) {
+            throw new IllegalStateException("Directory not found for account with nickname '" + nickName + "': " + dir);
         }
-        throw new IllegalStateException("Account with nickname " + nickName + " not found.");
+
+        String fileName = safeNickName + "-" + email + ".txt";
+        File accountFile = new File(dir, fileName);
+        if (!accountFile.exists()) {
+            throw new IllegalStateException("Account file not found for nickname '" + nickName + "' at: " + accountFile.getPath());
+        }
+
+        return loadAccountFromFile(accountFile);
     }
 
     protected Account loadAccountFromFile(File file) throws IllegalStateException {
@@ -84,31 +110,29 @@ public abstract class FileManager {
                 String key = line.substring(0, index);
                 String value = line.substring(index + 2);
                 switch (key) {
-                    case "Email": email = value; break;
-                    case "Nickname": nickName = value; break;
-                    case "Password": password = value; break;
-                    case "Role": role = value; break;
-                    case "Approved": approved = Boolean.parseBoolean(value); break;
+                    case "Email" -> email = value;
+                    case "Nickname" -> nickName = value;
+                    case "Password" -> password = value;
+                    case "Role" -> role = value;
+                    case "Approved" -> approved = Boolean.parseBoolean(value);
                 }
             }
         }
 
         if (email == null || nickName == null || password == null || role == null) {
-            throw new IllegalStateException("Corrupted user data in file: " + file.getPath());
+            throw new IllegalStateException("Corrupted account data in file: " + file.getPath());
         }
 
-        switch (role.toLowerCase()) {
-            case "user":
-                return new User(email, nickName, password);
-            case "artist":
+        return switch (role.toLowerCase()) {
+            case "user" -> new User(email, nickName, password);
+            case "artist" -> {
                 Artist artist = new Artist(email, nickName, password);
                 artist.setApproved(approved);
-                return artist;
-            case "admin":
-                return new Admin(email, nickName, password);
-            default:
-                throw new IllegalStateException("Invalid role in file: " + file.getPath());
-        }
+                yield artist;
+            }
+            case "admin" -> new Admin(email, nickName, password);
+            default -> throw new IllegalStateException("Invalid role in file: " + file.getPath());
+        };
     }
 
     public String findNickNameByEmail(String email, String role) {
@@ -118,6 +142,18 @@ public abstract class FileManager {
             String[] parts = line.split(":");
             if (parts.length == 2 && parts[0].equals(email)) {
                 return parts[1];
+            }
+        }
+        return null;
+    }
+
+    private String findEmailByNickName(String nickName, String role) {
+        String indexFile = findIndexFile(role);
+        List<String> indexData = FileUtil.readFile(indexFile);
+        for (String line : indexData) {
+            String[] parts = line.split(":");
+            if (parts.length == 2 && parts[1].equals(nickName)) {
+                return parts[0];
             }
         }
         return null;

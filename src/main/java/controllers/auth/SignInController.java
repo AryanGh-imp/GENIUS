@@ -38,8 +38,6 @@ public class SignInController {
         this.adminFileManager = new AdminFileManager();
         this.configLoader = ConfigLoader.getInstance();
         this.artistManager.setUserFileManager(this.userManager);
-        this.adminFileManager.setArtistFileManager(this.artistManager);
-        this.adminFileManager.setUserFileManager(this.userManager);
     }
 
     @FXML
