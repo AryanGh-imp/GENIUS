@@ -44,6 +44,10 @@ public class Lyrics {
         return approvedEdits.isEmpty() ? originalLyrics : approvedEdits.getLast();
     }
 
+    public List<String> getApprovedEdits() {
+        return new ArrayList<>(approvedEdits);
+    }
+
     @Override
     public String toString() {
         return "Lyrics: " + originalLyrics +

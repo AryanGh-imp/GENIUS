@@ -1,7 +1,8 @@
 package models.music;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
+import static utils.FileUtil.formatter;
 
 public class Comment {
     private final String userNickName;
@@ -18,6 +19,21 @@ public class Comment {
         this.userNickName = userNickName;
         this.text = text;
         this.timestamp = LocalDateTime.now();
+    }
+
+    public Comment(String userNickName, String text, LocalDateTime timestamp) {
+        if (userNickName == null || userNickName.trim().isEmpty()) {
+            throw new IllegalArgumentException("User nickname cannot be null or empty");
+        }
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Comment text cannot be null or empty");
+        }
+        if (timestamp == null) {
+            throw new IllegalArgumentException("Timestamp cannot be null");
+        }
+        this.userNickName = userNickName;
+        this.text = text;
+        this.timestamp = timestamp;
     }
 
     public String getUserNickName() {
@@ -41,7 +57,6 @@ public class Comment {
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return "User: " + userNickName + " | Time: " + timestamp.format(formatter) + " | Comment: " + text;
+        return "User: " + getUserNickName() + " | Time: " + timestamp.format(formatter) + " | Comment: " + text;
     }
 }

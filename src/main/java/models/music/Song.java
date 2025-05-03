@@ -1,32 +1,22 @@
 package models.music;
 
 import models.account.Artist;
+import services.file.SongFileManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Represents a song in the system.
- */
 public class Song {
     private final String title;
     private String lyrics;
-    private String releaseDate;
+    private final String releaseDate;
     private int likes;
     private int views;
     private Album album;
+    private String albumArtPath;
     private final List<Artist> artists;
 
-    private boolean isDirty = true; // Defaults to true, because it's a new song
-
-    /**
-     * Constructs a new Song with the specified title, lyrics, and release date.
-     *
-     * @param title       The title of the song.
-     * @param lyrics      The lyrics of the song.
-     * @param releaseDate The release date of the song.
-     */
     public Song(String title, String lyrics, String releaseDate) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Song title cannot be null or empty");
@@ -39,132 +29,107 @@ public class Song {
         this.artists = new ArrayList<>();
     }
 
-    /**
-     * Adds an artist to the song.
-     *
-     * @param artist The artist to add.
-     * @throws IllegalArgumentException if the artist is null.
-     */
     public void addArtist(Artist artist) {
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
         }
         if (!artists.contains(artist)) {
             artists.add(artist);
+            saveChanges();
         }
     }
 
-    /**
-     * Gets the title of the song.
-     *
-     * @return The song title.
-     */
+    // TODO : Should be used to add multiple artists
+    public void removeArtist(Artist artist) {
+        if (artist == null) {
+            throw new IllegalArgumentException("Artist cannot be null");
+        }
+        if (artists.remove(artist)) {
+            saveChanges();
+        }
+    }
+
+    public void incrementLikes() {
+        this.likes++;
+        saveChanges();
+    }
+
+    public void incrementViews() {
+        this.views++;
+        saveChanges();
+    }
+
+    private int validateNonNegative(int value) {
+        return Math.max(0, value);
+    }
+
     public String getTitle() {
         return title;
     }
 
-    /**
-     * Gets the lyrics of the song.
-     *
-     * @return The song lyrics.
-     */
     public String getLyrics() {
         return lyrics;
     }
 
-    /**
-     * Gets the release date of the song.
-     *
-     * @return The release date.
-     */
+    public void setLyrics(String lyrics) {
+        this.lyrics = lyrics != null ? lyrics : "";
+        saveChanges();
+    }
+
     public String getReleaseDate() {
         return releaseDate;
     }
 
-    /**
-     * Sets the release date of the song.
-     *
-     * @param releaseDate The new release date.
-     */
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate != null ? releaseDate : "Not set";
-    }
-
-    /**
-     * Gets the number of likes for the song.
-     *
-     * @return The number of likes.
-     */
     public int getLikes() {
         return likes;
     }
 
-    /**
-     * Sets the number of likes for the song.
-     *
-     * @param likes The new number of likes.
-     */
     public void setLikes(int likes) {
-        this.likes = Math.max(0, likes);
+        this.likes = validateNonNegative(likes);
+        saveChanges();
     }
 
-    /**
-     * Gets the number of views for the song.
-     *
-     * @return The number of views.
-     */
     public int getViews() {
         return views;
     }
 
-    /**
-     * Sets the number of views for the song.
-     *
-     * @param views The new number of views.
-     */
     public void setViews(int views) {
-        this.views = Math.max(0, views);
+        this.views = validateNonNegative(views);
+        saveChanges();
     }
 
-    /**
-     * Gets the album the song belongs to.
-     *
-     * @return The album, or null if the song is a single.
-     */
     public Album getAlbum() {
         return album;
     }
 
-    /**
-     * Sets the album the song belongs to.
-     *
-     * @param album The album.
-     */
     public void setAlbum(Album album) {
         this.album = album;
+        saveChanges();
     }
 
-    public boolean isDirty() {
-        return isDirty;
+    public String getAlbumArtPath() {
+        return albumArtPath;
     }
 
-    public void setDirty(boolean dirty) {
-        this.isDirty = dirty;
+    public void setAlbumArtPath(String albumArtPath) {
+        this.albumArtPath = albumArtPath;
+        saveChanges();
     }
 
-    // Set the flag whenever the song changes (e.g. song change or likes)
-    public void setLyrics(String lyrics) {
-        this.lyrics = lyrics;
-        this.isDirty = true;
-    }
-
-    /**
-     * Gets a copy of the list of artists for the song.
-     *
-     * @return A new list containing the artists.
-     */
     public List<Artist> getArtists() {
         return new ArrayList<>(artists);
+    }
+
+    private void saveChanges() {
+        if (artists.isEmpty()) {
+            throw new IllegalStateException("Cannot save song without at least one artist");
+        }
+        SongFileManager songFileManager = new SongFileManager();
+        List<String> artistNickNames = artists.stream()
+                .map(Artist::getNickName)
+                .collect(Collectors.toList());
+        songFileManager.saveSong(artistNickNames, title, album != null ? album.getTitle() : null,
+                lyrics, releaseDate, likes, views, albumArtPath);
     }
 
     @Override
