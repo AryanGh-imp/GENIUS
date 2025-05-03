@@ -18,7 +18,7 @@ public class SceneUtil {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading scene: " + fxmlPath);
             throw new RuntimeException("Error loading scene: " + fxmlPath, e);
         }
     }

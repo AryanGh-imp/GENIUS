@@ -2,10 +2,13 @@ package utils;
 
 import java.io.*;
 import java.nio.file.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class FileUtil {
-    public static final String DATA_DIR = "data/";
+    public static final String DATA_DIR = ConfigLoader.getInstance().getDataDirectory();
+
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void ensureDataDirectoryExists(String dir) {
         try {
@@ -17,7 +20,7 @@ public class FileUtil {
     }
 
     public static String sanitizeFileName(String name) {
-        return name != null ? name.replaceAll("[^a-zA-Z0-9_-]", "_") : "";
+        return name != null ? name.replaceAll("[^a-zA-Z0-9 _.-]", "_") : "";
     }
 
     public static synchronized List<String> readFile(String fileName) {
@@ -42,6 +45,15 @@ public class FileUtil {
     public static synchronized void writeFile(String filePath, List<String> data) {
         try {
             Files.write(Paths.get(filePath), data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            System.err.println("Error writing file: " + filePath + " - " + e.getMessage());
+            AlertUtil.showError("Failed to write file: " + filePath);
+        }
+    }
+
+    public static synchronized void writeFile(String filePath, String data) {
+        try {
+            Files.write(Paths.get(filePath), data.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             System.err.println("Error writing file: " + filePath + " - " + e.getMessage());
             AlertUtil.showError("Failed to write file: " + filePath);
