@@ -180,7 +180,7 @@ public abstract class FileManager {
         return null;
     }
 
-    protected void moveRequestToDir(List<String> requestData, String targetDirPath, String targetFileName, String newStatus, Path pendingFile) throws IOException {
+    protected void moveRequestToDir(List<String> requestData, String targetDirPath, String targetFileName, String newStatus, Path pendingFile) {
         FileUtil.ensureDataDirectoryExists(targetDirPath);
         String targetFilePath = targetDirPath + targetFileName;
 
@@ -192,18 +192,23 @@ public abstract class FileManager {
         deletePendingFileAndDir(pendingFile);
     }
 
-    protected void deletePendingFileAndDir(Path pendingFile) throws IOException {
+    protected void deletePendingFileAndDir(Path pendingFile) {
         Path pendingDirPath = pendingFile.getParent();
-        Files.deleteIfExists(pendingFile);
-        File pendingDir = pendingDirPath.toFile();
-        File[] files = pendingDir.listFiles();
-        if (files == null || files.length == 0) {
-            deleteDirectory(pendingDir);
-        } else {
-            System.err.println("Warning: Directory " + pendingDirPath + " is not empty after deleting the request file. Remaining files: ");
-            for (File file : files) {
-                System.err.println(" - " + file);
+        try {
+            Files.deleteIfExists(pendingFile);
+
+            File pendingDir = pendingDirPath.toFile();
+            File[] files = pendingDir.listFiles();
+            if (files == null || files.length == 0) {
+                deleteDirectory(pendingDir);
+            } else {
+                System.err.println("Warning: Directory " + pendingDirPath + " is not empty after deleting the request file. Remaining files: ");
+                for (File file : files) {
+                    System.err.println(" - " + file);
+                }
             }
+        } catch (IOException e) {
+            System.err.println("Error while deleting file or directory: " + pendingFile + " - " + e.getMessage());
         }
     }
 

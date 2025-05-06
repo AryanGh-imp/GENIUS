@@ -6,8 +6,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import services.AccountManager;
 import services.file.AdminFileManager;
-import services.file.ArtistFileManager;
-import services.file.UserFileManager;
 import utils.AlertUtil;
 import utils.SceneUtil;
 
@@ -32,9 +30,6 @@ public class SignUpController {
 
     public SignUpController() {
         this.adminFileManager = new AdminFileManager();
-        UserFileManager userFileManager = new UserFileManager();
-        ArtistFileManager artistFileManager = new ArtistFileManager();
-        artistFileManager.setUserFileManager(userFileManager);
     }
 
     @FXML
