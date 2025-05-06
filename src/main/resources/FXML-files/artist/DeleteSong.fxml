@@ -17,7 +17,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="912.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.artist.DeleteSongController">
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="912.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.artist.DeleteSongController" fx:id="root" id="deleteSongRoot">
     <children>
         <VBox alignment="CENTER" prefHeight="80.0" prefWidth="900.0" style="-fx-background-color: #FFFF64;">
             <children>
@@ -107,9 +107,9 @@
                                             <cursor>
                                                 <Cursor fx:constant="HAND" />
                                             </cursor>
-                                 <VBox.margin>
-                                    <Insets top="10.0" />
-                                 </VBox.margin>
+                                            <VBox.margin>
+                                                <Insets top="10.0" />
+                                            </VBox.margin>
                                         </Button>
                                     </children>
                                 </VBox>
@@ -120,15 +120,15 @@
                                                 <Font name="DIN Medium" size="15.0" />
                                             </font>
                                         </Label>
-                              <VBox alignment="CENTER" prefHeight="250.0" prefWidth="338.0">
-                                 <children>
-                                              <ImageView fx:id="albumArtImageView" fitHeight="301.0" fitWidth="333.0" pickOnBounds="true" preserveRatio="true">
-                                                  <image>
-                                                      <Image url="@../../pics/Genius.com_logo_yellow.png" />
-                                                  </image>
-                                              </ImageView>
-                                 </children>
-                              </VBox>
+                                        <VBox alignment="CENTER" prefHeight="250.0" prefWidth="338.0">
+                                            <children>
+                                                <ImageView fx:id="albumArtImageView" fitHeight="301.0" fitWidth="333.0" pickOnBounds="true" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@../../pics/Genius.com_logo_yellow.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </VBox>
                                         <Label fx:id="titleLabel" text="Title: " textFill="WHITE">
                                             <font>
                                                 <Font name="DIN Medium" size="13.0" />

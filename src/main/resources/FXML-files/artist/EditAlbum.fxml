@@ -3,6 +3,7 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -19,7 +20,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox id="createAlbumRoot" fx:id="root" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="912.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.artist.CreateAlbumController">
+<VBox id="editAlbumRoot" fx:id="root" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="912.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.artist.EditAlbumController">
     <children>
         <VBox alignment="CENTER" prefHeight="80.0" prefWidth="900.0" style="-fx-background-color: #FFFF64;">
             <children>
@@ -82,81 +83,80 @@
                 </MenuBar>
             </children>
         </VBox>
-        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+        <HBox alignment="CENTER" prefHeight="674.0" prefWidth="912.0">
             <children>
                 <AnchorPane prefHeight="722.0" prefWidth="912.0">
                     <children>
-                        <Label layoutX="65.0" layoutY="14.0" prefHeight="52.0" prefWidth="250.0" text="Create Album" textAlignment="CENTER" textFill="WHITE">
+                        <Label layoutX="65.0" layoutY="14.0" prefHeight="52.0" prefWidth="250.0" text="Edit Album" textAlignment="CENTER" textFill="WHITE">
                             <font>
                                 <Font name="DINCondensedRegular" size="35.0" />
                             </font>
                         </Label>
-                        <Label layoutX="65.0" layoutY="66.0" prefHeight="15.0" prefWidth="100.0" text="Album Info" textAlignment="CENTER" textFill="WHITE">
+                        <Label layoutX="65.0" layoutY="66.0" prefHeight="15.0" prefWidth="100.0" text="Album List" textAlignment="CENTER" textFill="WHITE">
                             <font>
                                 <Font name="DINCondensedRegular" size="18.0" />
                             </font>
                         </Label>
                         <Line endX="681.199951171875" layoutX="166.0" layoutY="97.0" startX="-100.0" stroke="WHITE" />
-                        <HBox layoutX="65.0" layoutY="105.0" prefHeight="546.0" prefWidth="782.0">
+                        <HBox layoutX="65.0" layoutY="105.0" prefHeight="562.0" prefWidth="782.0" spacing="20.0">
                             <children>
-                                <VBox prefHeight="599.0" prefWidth="392.0">
+                                <VBox prefHeight="562.0" prefWidth="392.0">
                                     <children>
-                                        <GridPane prefHeight="558.0" prefWidth="360.0">
+                                        <ListView fx:id="albumListView" prefHeight="500.0" prefWidth="383.0" style="-fx-background-color: #363636; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" />
+                                    </children>
+                                </VBox>
+                                <VBox prefHeight="599.0" prefWidth="400.0">
+                                    <children>
+                                        <Label alignment="CENTER" prefHeight="52.0" prefWidth="400.0" text="Edit Album Details" textAlignment="CENTER" textFill="WHITE">
+                                            <font>
+                                                <Font name="DINCondensedRegular" size="20.0" />
+                                            </font>
+                                        </Label>
+                                        <GridPane prefHeight="559.0" prefWidth="400.0">
                                             <columnConstraints>
-                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="20.0" prefWidth="20.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
+                                                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="250.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
                                             </columnConstraints>
                                             <rowConstraints>
-                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="200.0" valignment="CENTER" vgrow="SOMETIMES" />
+                                                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                             <children>
-                                                <Label alignment="BOTTOM_LEFT" prefHeight="58.0" prefWidth="383.0" text="Album Title" textFill="WHITE">
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="66.0" prefWidth="174.0" text="Album Title" textFill="WHITE">
                                                     <font>
                                                         <Font name="DIN Medium" size="15.0" />
                                                     </font>
                                                 </Label>
-                                                <TextField fx:id="albumTitleField" prefHeight="26.0" prefWidth="383.0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="titleField" prefHeight="26.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="94.0" prefWidth="222.0" text="Album Art" textFill="WHITE" GridPane.rowIndex="2">
+                                                    <font>
+                                                        <Font name="DIN Medium" size="15.0" />
+                                                    </font>
+                                                </Label>
+                                                <Button fx:id="chooseImageButton" alignment="CENTER" onAction="#chooseImage" style="-fx-background-color: #363636;" text="Choose File" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
+                                                <ImageView fx:id="albumArtImageView" fitHeight="250.0" fitWidth="250.0" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                    <image>
+                                                        <Image url="@../../pics/Genius.com_logo_yellow.png" />
+                                                    </image>
+                                                </ImageView>
+                                                <Button fx:id="submitButton" alignment="CENTER" contentDisplay="CENTER" onAction="#editAlbum" style="-fx-background-color: #363636;" text="Save Changes" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                    <cursor>
+                                                        <Cursor fx:constant="HAND" />
+                                                    </cursor>
+                                                </Button>
                                             </children>
                                         </GridPane>
                                     </children>
                                 </VBox>
-                                <GridPane prefHeight="559.0" prefWidth="400.0">
-                                    <columnConstraints>
-                                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="20.0" prefWidth="20.0" />
-                                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                    </columnConstraints>
-                                    <rowConstraints>
-                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
-                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" valignment="CENTER" vgrow="SOMETIMES" />
-                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
-                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="350.0" vgrow="SOMETIMES" />
-                                        <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
-                                    </rowConstraints>
-                                    <children>
-                                        <Label alignment="BOTTOM_LEFT" contentDisplay="CENTER" prefHeight="136.0" prefWidth="406.0" text="Image" textFill="WHITE" GridPane.columnIndex="1">
-                                            <font>
-                                                <Font name="DIN Medium" size="15.0" />
-                                            </font>
-                                        </Label>
-                                        <Label alignment="BOTTOM_LEFT" contentDisplay="CENTER" prefHeight="136.0" prefWidth="406.0" text="Image Preview" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                            <font>
-                                                <Font name="DIN Medium" size="15.0" />
-                                            </font>
-                                        </Label>
-                                        <Button fx:id="chooseImageButton" alignment="CENTER" contentDisplay="CENTER" onAction="#chooseImage" style="-fx-background-color: #363636;" text="Choose File" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                            <cursor>
-                                                <Cursor fx:constant="HAND" />
-                                            </cursor>
-                                        </Button>
-                                        <Button fx:id="submitButton" alignment="CENTER" contentDisplay="CENTER" onAction="#createAlbum" style="-fx-background-color: #363636;" text="Create Album" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                            <cursor>
-                                                <Cursor fx:constant="HAND" />
-                                            </cursor>
-                                        </Button>
-                                        <ImageView fx:id="imagePreview" fitHeight="353.0" fitWidth="369.0" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                    </children>
-                                </GridPane>
                             </children>
                         </HBox>
                     </children>

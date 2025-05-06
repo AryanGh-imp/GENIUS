@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.artist.ArtistManagementController">
+<VBox id="artistManagementRoot" fx:id="root" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.artist.ArtistManagementController">
    <children>
       <VBox alignment="CENTER" prefHeight="80.0" prefWidth="900.0" style="-fx-background-color: #FFFF64;">
          <children>
@@ -29,13 +29,13 @@
             </ImageView>
             <HBox alignment="CENTER" prefHeight="30.0" prefWidth="900.0" spacing="20.0" style="-fx-padding: 5 20 5 20;">
                <children>
-                  <Label fx:id="welcomeLabel1" prefHeight="20.0" prefWidth="250.0" text="Welcome, Artist!" textFill="#333333">
+                  <Label fx:id="welcomeLabel" prefHeight="20.0" prefWidth="250.0" text="Welcome, Artist!" textFill="#333333">
                      <font>
                         <Font name="Arial Bold" size="16.0" />
                      </font>
                   </Label>
                   <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="signOutButton1" alignment="CENTER_RIGHT" onAction="#signOut" style="-fx-background-color: #363636; -fx-background-radius: 5;" text="Sign Out" textFill="WHITE">
+                  <Button fx:id="signOutButton" alignment="CENTER_RIGHT" onAction="#signOut" style="-fx-background-color: #363636; -fx-background-radius: 5;" text="Sign Out" textFill="WHITE">
                      <font>
                         <Font name="Arial" size="14.0" />
                      </font>
@@ -89,12 +89,12 @@
                      <children>
                         <VBox alignment="TOP_CENTER" minHeight="0.0" minWidth="0.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                            <children>
-                              <Label text="Lyrics Edit Requests" textFill="#ffff64">
+                              <Label text="Lyrics Edit Requests" textFill="WHITE">
                                  <font>
                                     <Font name="Arial Bold" size="20.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="requestListView" minHeight="0.0" minWidth="0.0" style="-fx-background-color: #363636; -fx-border-color: #FFFF64; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" VBox.vgrow="ALWAYS" />
+                              <ListView fx:id="requestListView" minHeight="0.0" minWidth="0.0" style="-fx-background-color: #363636; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" VBox.vgrow="ALWAYS" />
                            </children>
                         </VBox>
                      </children>
