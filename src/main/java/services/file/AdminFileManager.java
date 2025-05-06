@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static utils.FileUtil.extractField;
+
 public class AdminFileManager extends FileManager {
     // Directory paths for artist requests
     private static final String ARTIST_REQUESTS_DIR = DATA_DIR + "admin/artist_requests/";

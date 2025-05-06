@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<VBox id="chartsPageRoot" fx:id="root" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="912.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.user.ChartsPageController">
+    <children>
+        <VBox alignment="CENTER" prefHeight="80.0" prefWidth="900.0" style="-fx-background-color: #FFFF64;">
+            <children>
+                <ImageView fitHeight="50.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../../pics/Genius.com_logo_yellow3.png" />
+                    </image>
+                </ImageView>
+                <HBox alignment="CENTER" prefHeight="30.0" prefWidth="900.0" spacing="20.0" style="-fx-padding: 5 20 5 20;">
+                    <children>
+                        <Label fx:id="welcomeLabel" prefHeight="20.0" prefWidth="250.0" text="Welcome, User!" textFill="#333333">
+                            <font>
+                                <Font name="Arial Bold" size="16.0" />
+                            </font>
+                        </Label>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="signOutButton" alignment="CENTER_RIGHT" onAction="#signOut" style="-fx-background-color: #363636; -fx-background-radius: 5;" text="Sign Out" textFill="WHITE">
+                            <font>
+                                <Font name="Arial" size="14.0" />
+                            </font>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+                    </children>
+                </HBox>
+                <MenuBar prefHeight="25.0" prefWidth="900.0" style="-fx-background-color: #FFFF64; -fx-border-color: #CCCCCC; -fx-border-width: 0 0 1 0;">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#goToProfile" text="Checkout Profile" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Search">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#goToSearch" text="Search Page" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Charts">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#goToCharts" text="Top Songs by Views" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+            </children>
+        </VBox>
+        <HBox alignment="CENTER" prefHeight="674.0" prefWidth="912.0">
+            <children>
+                <AnchorPane prefHeight="722.0" prefWidth="912.0">
+                    <children>
+                        <Label layoutX="65.0" layoutY="14.0" prefHeight="52.0" prefWidth="250.0" text="Top Songs by Views" textAlignment="CENTER" textFill="WHITE">
+                            <font>
+                                <Font name="DINCondensedRegular" size="35.0" />
+                            </font>
+                        </Label>
+                        <Line endX="681.199951171875" layoutX="166.0" layoutY="97.0" startX="-100.0" stroke="WHITE" />
+                        <HBox layoutX="65.0" layoutY="105.0" prefHeight="562.0" prefWidth="782.0" spacing="20.0">
+                            <children>
+                                <VBox prefHeight="562.0" prefWidth="782.0" spacing="10.0">
+                                    <children>
+                                        <Label fx:id="song1Label" text="1. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" top="20.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song2Label" text="2. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song3Label" text="3. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song4Label" text="4. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song5Label" text="5. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song6Label" text="6. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song7Label" text="7. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song8Label" text="8. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song9Label" text="9. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                        <Label fx:id="song10Label" text="10. Song Title - Artist (Views: 0)" textFill="WHITE">
+                                            <font>
+                                                <Font name="DIN Medium" size="20.0" />
+                                            </font>
+                                            <padding>
+                                                <Insets bottom="10.0" />
+                                            </padding>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <ImageView fitHeight="479.0" fitWidth="468.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../pics/Genius_logo_black.jpg" />
+                                    </image>
+                                </ImageView>
+                            </children>
+                        </HBox>
+                        <HBox layoutX="647.0" layoutY="16.0" prefHeight="100.0" prefWidth="200.0" />
+                    </children>
+                </AnchorPane>
+            </children>
+        </HBox>
+    </children>
+</VBox>
