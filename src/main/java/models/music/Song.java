@@ -2,6 +2,7 @@ package models.music;
 
 import models.account.Artist;
 import services.file.SongFileManager;
+import utils.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class Song {
         }
     }
 
-    // TODO : Should be used to add multiple artists
+    // TODO : In the future ...
     public void removeArtist(Artist artist) {
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
@@ -118,6 +119,18 @@ public class Song {
 
     public List<Artist> getArtists() {
         return new ArrayList<>(artists);
+    }
+
+    public String getMetaFilePath() {
+        if (artists.isEmpty()) {
+            throw new IllegalStateException("Cannot determine meta file path without at least one artist");
+        }
+        String safeArtistNickName = FileUtil.sanitizeFileName(artists.getFirst().getNickName());
+        String safeSongTitle = FileUtil.sanitizeFileName(title);
+        String songDir = album != null
+                ? FileUtil.DATA_DIR + "artists/" + safeArtistNickName + "/albums/" + FileUtil.sanitizeFileName(album.getTitle()) + "/" + safeSongTitle + "/"
+                : FileUtil.DATA_DIR + "artists/" + safeArtistNickName + "/singles/" + safeSongTitle + "/";
+        return songDir + safeSongTitle + ".txt";
     }
 
     private void saveChanges() {
