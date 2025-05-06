@@ -39,9 +39,9 @@
                             <cursor>
                                 <Cursor fx:constant="HAND" />
                             </cursor>
-                     <font>
-                        <Font name="Arial" size="14.0" />
-                     </font>
+                            <font>
+                                <Font name="Arial" size="14.0" />
+                            </font>
                         </Button>
                     </children>
                 </HBox>
@@ -53,16 +53,16 @@
                     <items>
                         <Menu mnemonicParsing="false" text="Manage Artist Requests">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#showPendingArtistRequests" text="Pending Requests" />
-                                <MenuItem mnemonicParsing="false" onAction="#showApprovedArtistRequests" text="Approved Requests" />
-                                <MenuItem mnemonicParsing="false" onAction="#showRejectedArtistRequests" text="Rejected Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleMenuAction" text="Pending Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleMenuAction" text="Approved Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleMenuAction" text="Rejected Requests" />
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Manage Lyrics Edit Requests">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#showPendingLyricsRequests" text="Pending Requests" />
-                                <MenuItem mnemonicParsing="false" onAction="#showApprovedLyricsRequests" text="Approved Requests" />
-                                <MenuItem mnemonicParsing="false" onAction="#showRejectedLyricsRequests" text="Rejected Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleMenuAction" text="Pending Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleMenuAction" text="Approved Requests" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleMenuAction" text="Rejected Requests" />
                             </items>
                         </Menu>
                     </items>
@@ -77,12 +77,12 @@
                             <children>
                                 <VBox alignment="TOP_CENTER" minHeight="0.0" minWidth="0.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                     <children>
-                                        <Label text="Requests List" textFill="#ffff64">
+                                        <Label text="Requests List" textFill="WHITE">
                                             <font>
                                                 <Font name="Arial Bold" size="20.0" />
                                             </font>
                                         </Label>
-                                        <ListView fx:id="requestListView" minHeight="0.0" minWidth="0.0" style="-fx-background-color: #363636; -fx-border-color: #FFFF64; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" VBox.vgrow="ALWAYS" />
+                                        <ListView fx:id="requestListView" minHeight="0.0" minWidth="0.0" style="-fx-background-color: #363636; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" VBox.vgrow="ALWAYS" />
                                     </children>
                                 </VBox>
                             </children>

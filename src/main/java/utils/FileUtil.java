@@ -98,4 +98,13 @@ public class FileUtil {
             throw new IllegalStateException("Failed to update file: " + filePath, e);
         }
     }
+
+    public static String extractField(List<String> data, String fieldPrefix) {
+        for (String line : data) {
+            if (line.startsWith(fieldPrefix)) {
+                return line.substring(fieldPrefix.length());
+            }
+        }
+        return null;
+    }
 }

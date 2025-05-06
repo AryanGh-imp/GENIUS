@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static utils.FileUtil.deleteDirectory;
+import static utils.FileUtil.extractField;
 
 public abstract class FileManager {
     protected static final String DATA_DIR = FileUtil.DATA_DIR;
@@ -210,14 +211,6 @@ public abstract class FileManager {
         } catch (IOException e) {
             System.err.println("Error while deleting file or directory: " + pendingFile + " - " + e.getMessage());
         }
-    }
-
-    protected String extractField(List<String> requestData, String fieldPrefix) {
-        return requestData.stream()
-                .filter(line -> line.startsWith(fieldPrefix))
-                .map(line -> line.substring(fieldPrefix.length()))
-                .findFirst()
-                .orElse(null);
     }
 
     public String findNickNameByEmail(String email, String role) {

@@ -1,8 +1,8 @@
-package models;
+package models.DTO;
 
 import services.file.LyricsRequestManager;
 
-public class LyricsEditRequest {
+public class LyricsEditRequestDTO {
     private final String email;
     private final String artistNickname;
     private final String songTitle;
@@ -12,8 +12,8 @@ public class LyricsEditRequest {
     private final String status;
     private LyricsRequestManager lyricsRequestManager;
 
-    public LyricsEditRequest(String email, String artistNickname, String songTitle, String albumName,
-                             String suggestedLyrics, String timestamp, String status) {
+    public LyricsEditRequestDTO(String email, String artistNickname, String songTitle, String albumName,
+                                String suggestedLyrics, String timestamp, String status) {
         this.email = email;
         this.artistNickname = artistNickname;
         this.songTitle = songTitle;

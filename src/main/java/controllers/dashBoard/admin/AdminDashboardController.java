@@ -2,28 +2,33 @@ package controllers.dashBoard.admin;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import models.DTO.ArtistRequestDTO;
+import models.DTO.LyricsEditRequestDTO;
 import models.account.Admin;
-import models.ArtistRequest;
-import models.LyricsEditRequest;
+import models.music.Lyrics;
 import services.file.LyricsRequestManager;
+import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.SceneUtil;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.List;
+
+import static utils.FileUtil.*;
 
 public class AdminDashboardController {
-    // FXML injected controls
     @FXML private ListView<Object> requestListView;
     @FXML private Button approveArtistButton;
     @FXML private Button rejectArtistButton;
     @FXML private Button signOutButton;
     @FXML private Label welcomeLabel;
 
-    // Artist request controls
     @FXML private VBox artistDetailsPane;
     @FXML private Label artistEmailLabel;
     @FXML private Label artistNicknameLabel;
@@ -32,7 +37,6 @@ public class AdminDashboardController {
     @FXML private Label artistTimestampLabel;
     @FXML private HBox artistButtonsBox;
 
-    // Lyrics request controls
     @FXML private VBox lyricsDetailsPane;
     @FXML private Label lyricsArtistNicknameLabel;
     @FXML private Label lyricsSongTitleLabel;
@@ -44,17 +48,15 @@ public class AdminDashboardController {
     @FXML private HBox lyricsButtonsBox;
     @FXML private Button approveLyricsButton;
     @FXML private Button rejectLyricsButton;
+    @FXML private TextArea originalLyricsTextArea;
+    @FXML private TextArea allSuggestedEditsTextArea;
 
     private Admin admin;
-    private ArtistRequest selectedArtistRequest;
-    private LyricsEditRequest selectedLyricsEditRequest;
+    private ArtistRequestDTO selectedArtistRequestDTO;
+    private LyricsEditRequestDTO selectedLyricsEditRequestDTO;
     private ObservableList<Object> requests;
 
-    private final LyricsRequestManager lyricsRequestManager;
-
-    public AdminDashboardController() {
-        this.lyricsRequestManager = new LyricsRequestManager();
-    }
+    private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
 
     @FXML
     private void initialize() {
@@ -71,15 +73,13 @@ public class AdminDashboardController {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
-                } else if (item instanceof ArtistRequest artistRequest) {
-                    setText(String.format("Artist: %s (%s)",
-                            artistRequest.getNickname(),
-                            artistRequest.getStatus()));
-                } else if (item instanceof LyricsEditRequest lyricsRequest) {
+                } else if (item instanceof ArtistRequestDTO artistRequestDTO) {
+                    setText(artistRequestDTO.toString());
+                } else if (item instanceof LyricsEditRequestDTO lyricsRequest) {
                     setText(String.format("Lyrics Edit: %s by %s (%s)",
-                            lyricsRequest.getSongTitle(),
-                            lyricsRequest.getArtistNickname(),
-                            lyricsRequest.getStatus()));
+                            lyricsRequest.songTitle(),
+                            lyricsRequest.artistNickname(),
+                            lyricsRequest.status()));
                 }
             }
         });
@@ -87,13 +87,7 @@ public class AdminDashboardController {
 
     private void setupListViewListener() {
         requestListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection instanceof ArtistRequest) {
-                displayArtistRequest((ArtistRequest) newSelection);
-            } else if (newSelection instanceof LyricsEditRequest) {
-                displayLyricsEditRequest((LyricsEditRequest) newSelection);
-            } else {
-                hideAllPanes();
-            }
+            displayRequestDetails(newSelection);
         });
     }
 
@@ -102,43 +96,54 @@ public class AdminDashboardController {
             throw new IllegalArgumentException("Admin cannot be null");
         }
         this.admin = admin;
-        // Setting the welcome label text with the admin account name
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome, " + admin.getNickName() + "!");
+        welcomeLabel.setText("Welcome, " + admin.getNickName() + "!");
+        showRequests(true, "Pending");
+    }
+
+    private void displayRequestDetails(Object request) {
+        hideAllPanes();
+        if (request instanceof ArtistRequestDTO artistRequest) {
+            selectedArtistRequestDTO = artistRequest;
+            selectedLyricsEditRequestDTO = null;
+            artistEmailLabel.setText("Email: " + artistRequest.email());
+            artistNicknameLabel.setText("Nickname: " + artistRequest.nickname());
+            artistPasswordLabel.setText("Password: " + artistRequest.password());
+            artistStatusLabel.setText("Status: " + artistRequest.status());
+            artistTimestampLabel.setText("Timestamp: " + artistRequest.timestamp());
+            artistDetailsPane.setVisible(true);
+            artistButtonsBox.setVisible("Pending".equals(artistRequest.status()));
+        } else if (request instanceof LyricsEditRequestDTO lyricsRequest) {
+            selectedLyricsEditRequestDTO = lyricsRequest;
+            selectedArtistRequestDTO = null;
+            lyricsArtistNicknameLabel.setText("Artist: " + lyricsRequest.artistNickname());
+            lyricsSongTitleLabel.setText("Song Title: " + lyricsRequest.songTitle());
+            lyricsAlbumNameLabel.setText("Album: " + (lyricsRequest.albumName() != null && !lyricsRequest.albumName().equals("Single") ? lyricsRequest.albumName() : "N/A"));
+            lyricsRequesterLabel.setText("Requester: " + lyricsRequest.email());
+            suggestedLyricsTextArea.setText(lyricsRequest.suggestedLyrics());
+            lyricsTimestampLabel.setText("Timestamp: " + lyricsRequest.timestamp());
+            lyricsStatusLabel.setText("Status: " + lyricsRequest.status());
+            loadLyricsDetails(lyricsRequest);
+            lyricsDetailsPane.setVisible(true);
+            lyricsButtonsBox.setVisible("Pending".equals(lyricsRequest.status()));
         }
-        showPendingArtistRequests();
     }
 
-    private void displayArtistRequest(ArtistRequest request) {
-        hideAllPanes();
-        selectedArtistRequest = request;
-        selectedLyricsEditRequest = null;
-
-        artistEmailLabel.setText("Email: " + request.getEmail());
-        artistNicknameLabel.setText("Nickname: " + request.getNickname());
-        artistPasswordLabel.setText("Password: " + request.getPassword());
-        artistStatusLabel.setText("Status: " + request.getStatus());
-        artistTimestampLabel.setText("Timestamp: " + request.getTimestamp());
-
-        artistDetailsPane.setVisible(true);
-        artistButtonsBox.setVisible("Pending".equals(request.getStatus()));
-    }
-
-    private void displayLyricsEditRequest(LyricsEditRequest request) {
-        hideAllPanes();
-        selectedLyricsEditRequest = request;
-        selectedArtistRequest = null;
-
-        lyricsArtistNicknameLabel.setText("Artist: " + request.getArtistNickname());
-        lyricsSongTitleLabel.setText("Song Title: " + request.getSongTitle());
-        lyricsAlbumNameLabel.setText("Album: " + (request.getAlbumName() != null && !request.getAlbumName().equals("Single") ? request.getAlbumName() : "N/A"));
-        lyricsRequesterLabel.setText("Requester: " + request.getEmail());
-        suggestedLyricsTextArea.setText(request.getSuggestedLyrics());
-        lyricsTimestampLabel.setText("Timestamp: " + request.getTimestamp());
-        lyricsStatusLabel.setText("Status: " + request.getStatus());
-
-        lyricsDetailsPane.setVisible(true);
-        lyricsButtonsBox.setVisible("Pending".equals(request.getStatus()));
+    private void loadLyricsDetails(LyricsEditRequestDTO request) {
+        if (originalLyricsTextArea != null || allSuggestedEditsTextArea != null) {
+            String songDir = new SongFileManager().getSongDir(request.artistNickname(), request.songTitle(), request.albumName());
+            File songFile = new File(songDir + sanitizeFileName(request.songTitle()) + ".txt");
+            if (songFile.exists()) {
+                List<String> songData = readFile(songFile.getPath());
+                String originalLyrics = extractField(songData, "Lyrics: ") != null ? extractField(songData, "Lyrics: ") : "";
+                Lyrics lyrics = new Lyrics(originalLyrics);
+                originalLyricsTextArea.setText(lyrics.getOriginalLyrics());
+                String suggestedEdits = extractField(songData, "# Suggested Edits: ");
+                allSuggestedEditsTextArea.setText(suggestedEdits != null ? suggestedEdits.replace("# Suggested Edits: ", "") : "No suggested edits available.");
+            } else {
+                originalLyricsTextArea.setText("Lyrics not found.");
+                allSuggestedEditsTextArea.setText("No suggested edits available.");
+            }
+        }
     }
 
     private void hideAllPanes() {
@@ -146,179 +151,117 @@ public class AdminDashboardController {
         lyricsDetailsPane.setVisible(false);
         artistButtonsBox.setVisible(false);
         lyricsButtonsBox.setVisible(false);
+        originalLyricsTextArea.clear();
+        allSuggestedEditsTextArea.clear();
     }
 
-    @FXML
-    private void showPendingArtistRequests() {
+    private void showRequests(boolean isArtistRequest, String status) {
         if (admin == null) {
             AlertUtil.showError("Admin is not set. Please ensure admin is initialized.");
             return;
         }
-        loadArtistRequests("Pending");
-    }
 
-    @FXML
-    private void showApprovedArtistRequests() {
-        if (admin == null) {
-            AlertUtil.showError("Admin is not set. Please ensure admin is initialized.");
-            return;
-        }
-        loadArtistRequests("Approved");
-    }
+        requests.clear();
+        hideAllPanes();
 
-    @FXML
-    private void showRejectedArtistRequests() {
-        if (admin == null) {
-            AlertUtil.showError("Admin is not set. Please ensure admin is initialized.");
-            return;
-        }
-        loadArtistRequests("Rejected");
-    }
-
-    private void loadArtistRequests(String status) {
         try {
-            requests.clear();
-            hideAllPanes();
-
-            String[][] requestsData = switch (status) {
+            String[][] requestsData = isArtistRequest
+                    ? switch (status) {
                 case "Pending" -> admin.getPendingArtistRequests();
                 case "Approved" -> admin.getApprovedArtistRequests();
                 case "Rejected" -> admin.getRejectedArtistRequests();
                 default -> new String[0][];
-            };
+            }
+                    : lyricsRequestManager.getLyricsEditRequests(status);
 
             for (String[] requestData : requestsData) {
-                if (requestData.length < 5) {
-                    System.err.println("Invalid artist request data: " + Arrays.toString(requestData));
-                    continue;
+                if (isArtistRequest && requestData.length >= 5) {
+                    requests.add(new ArtistRequestDTO(requestData[0], requestData[1], requestData[2], status, requestData[4]));
+                } else if (!isArtistRequest && requestData.length >= 7) {
+                    requests.add(createLyricsEditRequest(requestData));
+                } else {
+                    System.err.println("Invalid request data: " + Arrays.toString(requestData));
                 }
-                requests.add(new ArtistRequest(
-                        requestData[0],  // email
-                        requestData[1],  // nickname
-                        requestData[2],  // password
-                        status,
-                        requestData[4]   // timestamp
-                ));
             }
         } catch (Exception e) {
-            AlertUtil.showError("Error loading artist requests: " + e.getMessage());
+            System.err.println("Error loading requests: " + e.getMessage());
+            AlertUtil.showError("Error loading requests: " + e.getMessage());
         }
     }
 
     @FXML
-    private void showPendingLyricsRequests() {
-        loadLyricsRequests("Pending");
+    private void handleMenuAction(ActionEvent event) {
+        MenuItem menuItem = (MenuItem) event.getSource();
+        String menuText = menuItem.getText();
+        boolean isArtistRequest = menuItem.getParentMenu().getText().contains("Artist");
+        String status = switch (menuText) {
+            case "Pending Requests" -> "Pending";
+            case "Approved Requests" -> "Approved";
+            case "Rejected Requests" -> "Rejected";
+            default -> "Pending";
+        };
+        showRequests(isArtistRequest, status);
     }
 
-    @FXML
-    private void showApprovedLyricsRequests() {
-        loadLyricsRequests("Approved");
-    }
-
-    @FXML
-    private void showRejectedLyricsRequests() {
-        loadLyricsRequests("Rejected");
-    }
-
-    private void loadLyricsRequests(String status) {
-        try {
-            requests.clear();
-            hideAllPanes();
-
-            var allRequests = lyricsRequestManager.loadAllLyricsEditRequests();
-            for (String[] requestData : allRequests) {
-                if (requestData.length < 7) {
-                    System.err.println("Invalid lyrics edit request data: " + Arrays.toString(requestData));
-                    continue;
-                }
-
-                if (requestData[5].equals(status)) {
-                    LyricsEditRequest lyricsRequest = getLyricsEditRequest(requestData);
-                    requests.add(lyricsRequest);
-                }
-            }
-        } catch (Exception e) {
-            AlertUtil.showError("Error loading lyrics edit requests: " + e.getMessage());
-        }
-    }
-
-    private LyricsEditRequest getLyricsEditRequest(String[] requestData) {
-        LyricsEditRequest lyricsRequest = new LyricsEditRequest(
-                requestData[4],  // email (requester)
-                requestData[0],  // artistNickname
-                requestData[1],  // songTitle
-                requestData[2],  // albumName
-                requestData[3],  // suggestedLyrics
-                requestData[6],  // timestamp
-                requestData[5]   // status
+    private LyricsEditRequestDTO createLyricsEditRequest(String[] requestData) {
+        LyricsEditRequestDTO request = new LyricsEditRequestDTO(
+                requestData[4], requestData[0], requestData[1], requestData[2], requestData[3], requestData[6], requestData[5]
         );
-        lyricsRequest.setLyricsRequestManager(lyricsRequestManager);
-        return lyricsRequest;
+        request.setLyricsRequestManager(lyricsRequestManager);
+        return request;
+    }
+
+    private void executeRequestOperation(String successMessage, Runnable operation) {
+        try {
+            operation.run();
+            AlertUtil.showSuccess(successMessage);
+            if (selectedArtistRequestDTO != null) showRequests(true, "Pending");
+            else if (selectedLyricsEditRequestDTO != null) showRequests(false, "Pending");
+            selectedArtistRequestDTO = null;
+            selectedLyricsEditRequestDTO = null;
+        } catch (Exception e) {
+            System.err.println("Error executing operation: " + e.getMessage());
+            AlertUtil.showError("Error executing operation: " + e.getMessage());
+        }
     }
 
     @FXML
     private void approveArtistRequest() {
-        if (selectedArtistRequest != null) {
-            try {
-                admin.approveArtist(selectedArtistRequest.getEmail(), selectedArtistRequest.getNickname());
-                AlertUtil.showSuccess("Artist request approved successfully");
-                showPendingArtistRequests();
-                selectedArtistRequest = null;
-            } catch (Exception e) {
-                AlertUtil.showError("Error approving artist request: " + e.getMessage());
-            }
+        if (selectedArtistRequestDTO != null) {
+            executeRequestOperation("Artist request approved successfully", () -> admin.approveArtist(selectedArtistRequestDTO.email(), selectedArtistRequestDTO.nickname()));
         }
     }
 
     @FXML
     private void rejectArtistRequest() {
-        if (selectedArtistRequest != null) {
-            try {
-                admin.rejectArtist(selectedArtistRequest.getEmail());
-                AlertUtil.showSuccess("Artist request rejected successfully");
-                showPendingArtistRequests();
-                selectedArtistRequest = null;
-            } catch (Exception e) {
-                AlertUtil.showError("Error rejecting artist request: " + e.getMessage());
-            }
+        if (selectedArtistRequestDTO != null) {
+            executeRequestOperation("Artist request rejected successfully", () -> admin.rejectArtist(selectedArtistRequestDTO.email(), selectedArtistRequestDTO.nickname()));
         }
     }
 
     @FXML
     private void approveLyricsEditRequest() {
-        if (selectedLyricsEditRequest != null) {
-            try {
-                lyricsRequestManager.approveLyricsEditRequest(
-                        selectedLyricsEditRequest.getArtistNickname(),
-                        selectedLyricsEditRequest.getSongTitle(),
-                        selectedLyricsEditRequest.getTimestamp(),
-                        selectedLyricsEditRequest.getSuggestedLyrics(),
-                        selectedLyricsEditRequest.getAlbumName()
-                );
-                AlertUtil.showSuccess("Lyrics edit request approved successfully");
-                showPendingLyricsRequests();
-                selectedLyricsEditRequest = null;
-            } catch (Exception e) {
-                AlertUtil.showError("Error approving lyrics edit request: " + e.getMessage());
-            }
+        if (selectedLyricsEditRequestDTO != null) {
+            executeRequestOperation("Lyrics edit request approved successfully", () ->
+                    lyricsRequestManager.approveLyricsEditRequest(
+                            selectedLyricsEditRequestDTO.artistNickname(),
+                            selectedLyricsEditRequestDTO.songTitle(),
+                            selectedLyricsEditRequestDTO.timestamp(),
+                            selectedLyricsEditRequestDTO.suggestedLyrics(),
+                            selectedLyricsEditRequestDTO.albumName()
+                    ));
         }
     }
 
     @FXML
     private void rejectLyricsEditRequest() {
-        if (selectedLyricsEditRequest != null) {
-            try {
-                lyricsRequestManager.rejectLyricsEditRequest(
-                        selectedLyricsEditRequest.getArtistNickname(),
-                        selectedLyricsEditRequest.getSongTitle(),
-                        selectedLyricsEditRequest.getTimestamp()
-                );
-                AlertUtil.showSuccess("Lyrics edit request rejected successfully");
-                showPendingLyricsRequests();
-                selectedLyricsEditRequest = null;
-            } catch (Exception e) {
-                AlertUtil.showError("Error rejecting lyrics edit request: " + e.getMessage());
-            }
+        if (selectedLyricsEditRequestDTO != null) {
+            executeRequestOperation("Lyrics edit request rejected successfully", () ->
+                    lyricsRequestManager.rejectLyricsEditRequest(
+                            selectedLyricsEditRequestDTO.artistNickname(),
+                            selectedLyricsEditRequestDTO.songTitle(),
+                            selectedLyricsEditRequestDTO.timestamp()
+                    ));
         }
     }
 
