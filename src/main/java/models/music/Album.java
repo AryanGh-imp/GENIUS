@@ -3,7 +3,6 @@ package models.music;
 import models.account.Artist;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +23,7 @@ public class Album {
         this.title = title;
         this.releaseDate = releaseDate != null ? releaseDate : "Not set";
         this.artist = artist;
-        this.songs = Collections.synchronizedList(new ArrayList<>());
+        this.songs = new ArrayList<>();
     }
 
     public void addSong(Song song) {

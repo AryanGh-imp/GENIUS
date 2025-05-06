@@ -4,7 +4,6 @@ import models.music.Album;
 import models.music.Song;
 import services.file.ArtistFileManager;
 import services.file.SongFileManager;
-import services.file.UserFileManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +13,6 @@ public class Artist extends Account {
     private final List<User> followers;
     private final List<Song> singles;
     private final List<Album> albums;
-    private ArtistFileManager artistFileManager;
-    private SongFileManager songFileManager;
-    private UserFileManager userFileManager;
 
     public Artist(String email, String nickName, String password) {
         super(email, nickName, password);
@@ -24,9 +20,6 @@ public class Artist extends Account {
         this.followers = new ArrayList<>();
         this.singles = new ArrayList<>();
         this.albums = new ArrayList<>();
-        this.artistFileManager = null;
-        this.songFileManager = null;
-        this.userFileManager = null;
     }
 
     public boolean isApproved() {
@@ -35,18 +28,6 @@ public class Artist extends Account {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
-    }
-
-    public void setArtistFileManager(ArtistFileManager artistFileManager) {
-        this.artistFileManager = artistFileManager;
-    }
-
-    public void setSongFileManager(SongFileManager songFileManager) {
-        this.songFileManager = songFileManager;
-    }
-
-    public void setUserFileManager(UserFileManager userFileManager) {
-        this.userFileManager = userFileManager;
     }
 
     public void addSingle(Song song) {
@@ -87,64 +68,50 @@ public class Artist extends Account {
         return new ArrayList<>(albums);
     }
 
-    public ArtistFileManager getArtistFileManager() {
-        return artistFileManager;
-    }
-
-    public SongFileManager getSongFileManager() {
-        return songFileManager;
-    }
-
-    public UserFileManager getUserFileManager() {
-        return userFileManager;
-    }
-
     @Override
     public final String getRole() {
         return "Artist";
     }
 
-    public void loadFollowersFromFile() {
-        if (artistFileManager == null) {
-            throw new IllegalStateException("ArtistFileManager is not set for artist '" + getNickName() + "'.");
+    public void loadSongsAndAlbums(SongFileManager songFileManager, ArtistFileManager artistFileManager) {
+        if (!approved) {
+            throw new IllegalStateException("Cannot load songs and albums for an unapproved artist.");
         }
-        if (userFileManager == null) {
-            throw new IllegalStateException("UserFileManager is not set for artist '" + getNickName() + "'.");
+        if (songFileManager == null) {
+            throw new IllegalArgumentException("SongFileManager cannot be null.");
+        }
+        if (artistFileManager == null) {
+            throw new IllegalArgumentException("ArtistFileManager cannot be null.");
         }
         try {
-            artistFileManager.setUserFileManager(userFileManager);
-            followers.clear();
-            followers.addAll(artistFileManager.loadFollowers(this));
+            songFileManager.loadSongsAndAlbumsForArtist(this);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load followers for artist '" + getNickName() + "': " + e.getMessage(), e);
+            System.err.println("Failed to load songs and albums for artist '" + getNickName() + "': " + e.getMessage());
+            throw new IllegalStateException("Failed to load songs and albums for artist '" + getNickName() + "': " + e.getMessage(), e);
         }
+    }
+
+    public void loadFollowers(ArtistFileManager artistFileManager, List<User> allUsers) {
+        if (artistFileManager == null) {
+            throw new IllegalArgumentException("ArtistFileManager cannot be null.");
+        }
+        if (allUsers == null) {
+            throw new IllegalArgumentException("All users list cannot be null.");
+        }
+        followers.clear();
+        followers.addAll(artistFileManager.loadFollowers(this, allUsers));
     }
 
     private void saveSongsAndAlbums() {
         if (!approved) {
             throw new IllegalStateException("Cannot save songs and albums for an unapproved artist.");
         }
-        if (songFileManager == null) {
-            throw new IllegalStateException("SongFileManager is not set for artist '" + getNickName() + "'.");
-        }
+        SongFileManager songFileManager = new SongFileManager();
         try {
             songFileManager.saveSongsAndAlbumsForArtist(this);
         } catch (Exception e) {
+            System.err.println("Failed to save songs and albums for artist '" + getNickName() + "': " + e.getMessage());
             throw new IllegalStateException("Failed to save songs and albums for artist '" + getNickName() + "': " + e.getMessage(), e);
-        }
-    }
-
-    public void loadSongsAndAlbums() {
-        if (!approved) {
-            throw new IllegalStateException("Cannot load songs and albums for an unapproved artist.");
-        }
-        if (songFileManager == null) {
-            throw new IllegalStateException("SongFileManager is not set for artist '" + getNickName() + "'.");
-        }
-        try {
-            songFileManager.loadSongsAndAlbumsForArtist(this);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to load songs and albums for artist '" + getNickName() + "': " + e.getMessage(), e);
         }
     }
 

@@ -5,15 +5,19 @@ import models.account.User;
 import models.account.Artist;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static utils.FileUtil.*;
 
 public class UserFileManager extends FileManager {
+    private static final String USERS_DIR = DATA_DIR + "users/";
     private static final String FOLLOWINGS_FILE_NAME = "followings.txt";
     private static final String FOLLOWING_PREFIX = "Following:";
+
+    private Map<String, User> userMapCache;
 
     @Override
     public synchronized void saveAccount(Account account) {
@@ -23,113 +27,150 @@ public class UserFileManager extends FileManager {
         if (!account.getRole().equalsIgnoreCase("user")) {
             throw new IllegalArgumentException("UserFileManager can only save users, not " + account.getRole());
         }
-
         if (isEmailOrNickNameTaken(account.getEmail(), account.getNickName())) {
             throw new IllegalStateException("This email or nickname is already registered. Please try another one.");
         }
 
-        super.saveAccount(account);
-
-        String safeNickName = sanitizeFileName(account.getNickName());
-        String userDir = DATA_DIR + "users/" + safeNickName + "/";
-        ensureDataDirectoryExists(userDir);
-        saveFollowingArtists(account.getNickName(), new ArrayList<>());
+        try {
+            super.saveAccount(account);
+            String userDir = getUserDir(account.getNickName());
+            ensureDataDirectoryExists(userDir);
+            saveFollowingArtists(account.getNickName(), new ArrayList<>());
+            invalidateUserCache();
+        } catch (Exception e) {
+            System.err.println("Failed to save account for user: " + account.getNickName() + ", error: " + e.getMessage());
+            throw new RuntimeException("Failed to save account", e);
+        }
     }
 
     public synchronized void saveFollowingArtists(String nickName, List<Artist> followingArtists) {
-        if (nickName == null || nickName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nickname cannot be null or empty");
-        }
+        validateInput(nickName, "Nickname");
         if (followingArtists == null) {
             throw new IllegalArgumentException("Following artists list cannot be null");
         }
 
-        String safeNickName = sanitizeFileName(nickName);
-        String fileName = DATA_DIR + "users/" + safeNickName + "/" + FOLLOWINGS_FILE_NAME;
-        ensureDataDirectoryExists(DATA_DIR + "users/" + safeNickName + "/");
-
-        List<String> data = new ArrayList<>();
-        if (followingArtists.isEmpty()) {
-            data.add(FOLLOWING_PREFIX + " (None)");
-        } else {
-            data.add(FOLLOWING_PREFIX + followingArtists.stream()
-                    .map(Artist::getNickName)
-                    .collect(Collectors.joining(",")));
+        try {
+            String filePath = getFollowingsFilePath(nickName);
+            List<String> data = new ArrayList<>();
+            if (followingArtists.isEmpty()) {
+                data.add(FOLLOWING_PREFIX + " (None)");
+            } else {
+                String artistNames = followingArtists.stream()
+                        .map(Artist::getNickName)
+                        .collect(Collectors.joining(","));
+                data.add(FOLLOWING_PREFIX + artistNames);
+            }
+            writeFile(filePath, data);
+            invalidateUserCache();
+        } catch (Exception e) {
+            System.err.println("Failed to save following artists for user: " + nickName + ", error: " + e.getMessage());
+            throw new RuntimeException("Failed to save following artists", e);
         }
-        writeFile(fileName, data);
     }
 
-    public List<Artist> loadFollowingArtists(String nickName, List<Artist> allArtists) {
-        if (nickName == null || nickName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nickname cannot be null or empty");
-        }
-        if (allArtists == null) {
-            throw new IllegalArgumentException("All artists list cannot be null");
-        }
-
-        // ایجاد یک map برای دسترسی سریع به هنرمندان بر اساس نام مستعار
-        var artistMap = allArtists.stream()
-                .collect(Collectors.toMap(Artist::getNickName, a -> a, (a1, a2) -> a1));
-
-        String safeNickName = sanitizeFileName(nickName);
-        String fileName = DATA_DIR + "users/" + safeNickName + "/" + FOLLOWINGS_FILE_NAME;
-        File followFile = new File(fileName);
-        if (!followFile.exists()) {
+    public List<Artist> loadFollowingArtistsFromFile(String nickName, List<Artist> allArtists) {
+        validateInput(nickName, "Nickname");
+        String filePath = getFollowingsFilePath(nickName);
+        if (!Files.exists(Paths.get(filePath))) {
             return new ArrayList<>();
         }
 
-        List<String> artistData = readFile(fileName);
-        List<Artist> followingArtists = new ArrayList<>();
+        try {
+            if (allArtists == null || allArtists.isEmpty()) {
+                System.err.println("No artists provided for user: " + nickName + ", returning empty list");
+                return new ArrayList<>();
+            }
 
-        for (String line : artistData) {
-            if (line.startsWith(FOLLOWING_PREFIX)) {
-                String[] artistNames = line.replace(FOLLOWING_PREFIX, "").split(",");
-                for (String artistName : artistNames) {
-                    String trimmedName = artistName.trim();
-                    if (!trimmedName.isEmpty() && !" (None)".equals(trimmedName)) {
-                        Artist artist = artistMap.get(trimmedName);
-                        if (artist != null) {
-                            followingArtists.add(artist);
+            Map<String, Artist> artistMap = allArtists.stream()
+                    .collect(Collectors.toMap(Artist::getNickName, a -> a, (a1, a2) -> a1));
+
+            List<String> artistData = readFile(filePath);
+            List<Artist> followingArtists = new ArrayList<>();
+            for (String line : artistData) {
+                if (line.startsWith(FOLLOWING_PREFIX)) {
+                    String[] artistNames = line.replace(FOLLOWING_PREFIX, "").split(",");
+                    for (String artistName : artistNames) {
+                        String trimmedName = artistName.trim();
+                        if (!trimmedName.isEmpty() && !" (None)".equals(trimmedName)) {
+                            Artist artist = artistMap.get(trimmedName);
+                            if (artist != null) {
+                                followingArtists.add(artist);
+                            } else {
+                                System.err.println("Artist not found: " + trimmedName + " for user: " + nickName);
+                            }
                         }
                     }
                 }
             }
+            return followingArtists;
+        } catch (Exception e) {
+            System.err.println("Failed to load following artists for user: " + nickName + ", error: " + e.getMessage());
+            throw new RuntimeException("Failed to load following artists", e);
         }
-        return followingArtists;
     }
 
     public List<User> loadAllUsers() {
-        List<User> users = new ArrayList<>();
-        String usersDir = DATA_DIR + "users/";
-        File dir = new File(usersDir);
-        if (!dir.exists() || !dir.isDirectory()) {
-            return users;
-        }
+        Map<String, User> userMap = getUserMap();
+        return new ArrayList<>(userMap.values());
+    }
 
-        File[] userDirs = dir.listFiles(File::isDirectory);
-        if (userDirs == null) {
-            return users;
-        }
+    private Map<String, User> getUserMap() {
+        if (userMapCache == null) {
+            try {
+                List<User> users = new ArrayList<>();
+                File usersDir = new File(USERS_DIR);
+                if (!usersDir.exists() || !usersDir.isDirectory()) {
+                    System.err.println("Users directory does not exist or is not a directory: " + USERS_DIR);
+                } else {
+                    File[] userDirs = usersDir.listFiles(File::isDirectory);
+                    if (userDirs == null) {
+                        System.err.println("Failed to list user directories: " + USERS_DIR);
+                        throw new IllegalStateException("Failed to list user directories: " + USERS_DIR);
+                    }
 
-        for (File userDir : userDirs) {
-            File[] userFiles = userDir.listFiles((d, name) -> name.endsWith(".txt"));
-            if (userFiles == null) {
-                continue;
-            }
-
-            for (File file : userFiles) {
-                if (!file.getName().equals(FOLLOWINGS_FILE_NAME)) {
-                    try {
-                        Account account = loadAccountFromFile(file);
-                        if (account instanceof User user) {
-                            users.add(user);
+                    for (File userDir : userDirs) {
+                        File[] userFiles = userDir.listFiles((d, name) -> name.endsWith(".txt") && !name.equals(FOLLOWINGS_FILE_NAME));
+                        if (userFiles == null) {
+                            System.err.println("Failed to list files in user directory: " + userDir.getPath());
+                            throw new IllegalStateException("Failed to list files in user directory: " + userDir.getPath());
                         }
-                    } catch (IllegalStateException e) {
-                        System.err.println("Failed to load user from file: " + file.getPath() + " - " + e.getMessage());
+
+                        for (File file : userFiles) {
+                            try {
+                                Account account = loadAccountFromFile(file);
+                                if (account instanceof User user) {
+                                    users.add(user);
+                                }
+                            } catch (IllegalStateException e) {
+                                System.err.println("Failed to load user from file: " + file.getPath() + ", error: " + e.getMessage());
+                            }
+                        }
                     }
                 }
+                userMapCache = users.stream()
+                        .collect(Collectors.toMap(User::getNickName, u -> u, (u1, u2) -> u1));
+                System.err.println("User map cache initialized with " + userMapCache.size() + " users");
+            } catch (Exception e) {
+                System.err.println("Failed to load users for cache: " + e.getMessage());
+                throw new RuntimeException("Failed to load users", e);
             }
         }
-        return users;
+        return userMapCache;
+    }
+
+    public void invalidateUserCache() {
+        userMapCache = null;
+        System.err.println("User cache invalidated");
+    }
+
+    private String getUserDir(String nickName) {
+        String safeNickName = sanitizeFileName(nickName);
+        return USERS_DIR + safeNickName + "/";
+    }
+
+    private String getFollowingsFilePath(String nickName) {
+        String userDir = getUserDir(nickName);
+        ensureDataDirectoryExists(userDir);
+        return userDir + FOLLOWINGS_FILE_NAME;
     }
 }

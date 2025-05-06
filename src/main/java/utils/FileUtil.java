@@ -61,18 +61,41 @@ public class FileUtil {
     }
 
     public static void deleteDirectory(File directory) {
-        if (directory.exists()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        deleteDirectory(file);
-                    } else {
-                        file.delete();
+        try {
+            if (directory.exists()) {
+                File[] files = directory.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isDirectory()) {
+                            deleteDirectory(file);
+                        } else if (!file.delete()) {
+                            throw new IOException("Failed to delete file: " + file.getPath());
+                        }
                     }
                 }
+                if (!directory.delete()) {
+                    throw new IOException("Failed to delete directory: " + directory.getPath());
+                }
             }
-            directory.delete();
+        } catch (IOException e) {
+            System.err.println("Error deleting directory or file: " + e.getMessage());
+        }
+    }
+
+    public static File ensureAndGetFile(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new IllegalStateException("File not found: " + filePath);
+        }
+        return file;
+    }
+
+    public static synchronized void readAndUpdateFile(String filePath, List<String> updatedData) {
+        try {
+            writeFile(filePath, updatedData);
+            readFile(filePath);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to update file: " + filePath, e);
         }
     }
 }

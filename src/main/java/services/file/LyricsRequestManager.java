@@ -1,299 +1,177 @@
 package services.file;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.music.Lyrics;
 import static utils.FileUtil.*;
 
-public class LyricsRequestManager {
+public class LyricsRequestManager extends FileManager {
     private static final String LYRICS_REQUESTS_DIR = DATA_DIR + "lyrics_requests/";
     private static final String LYRICS_REQUESTS_PENDING = LYRICS_REQUESTS_DIR + "pending/";
     private static final String LYRICS_REQUESTS_APPROVED = LYRICS_REQUESTS_DIR + "approved/";
     private static final String LYRICS_REQUESTS_REJECTED = LYRICS_REQUESTS_DIR + "rejected/";
 
+    // Constants for request file keys
+    private static final String ARTIST_KEY = "Artist: ";
+    private static final String SONG_KEY = "Song: ";
+    private static final String ALBUM_KEY = "Album: ";
+    private static final String SUGGESTED_LYRICS_KEY = "SuggestedLyrics: ";
+    private static final String REQUESTER_KEY = "Requester: ";
+    private static final String STATUS_KEY = "Status: ";
+    private static final String TIMESTAMP_KEY = "Timestamp: ";
+
     private final SongFileManager songFileManager = new SongFileManager();
 
     public synchronized void saveLyricsEditRequest(String artistNickName, String songTitle, String albumName, String suggestedLyrics, String requester) {
-        if (artistNickName == null || artistNickName.isEmpty()) {
-            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
-        }
-        if (songTitle == null || songTitle.isEmpty()) {
-            throw new IllegalArgumentException("Song title cannot be null or empty");
-        }
-        if (suggestedLyrics == null || suggestedLyrics.isEmpty()) {
-            throw new IllegalArgumentException("Suggested lyrics cannot be null or empty");
-        }
-        if (requester == null || requester.isEmpty()) {
-            throw new IllegalArgumentException("Requester cannot be null or empty");
-        }
+        validateInputs(artistNickName, songTitle, suggestedLyrics, requester);
 
         String safeArtistNickName = sanitizeFileName(artistNickName);
         String safeSongTitle = sanitizeFileName(songTitle);
         String requestDir = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/";
         ensureDataDirectoryExists(requestDir);
-        String requestFile = requestDir + safeSongTitle + "-" + System.currentTimeMillis() + ".txt";
-        List<String> requestData = new ArrayList<>();
-        requestData.add("Artist: " + artistNickName);
-        requestData.add("Song: " + songTitle);
-        requestData.add("Album: " + (albumName != null ? albumName : "Single"));
-        requestData.add("SuggestedLyrics: " + suggestedLyrics);
-        requestData.add("Requester: " + requester);
-        requestData.add("Status: Pending");
-        requestData.add("Timestamp: " + System.currentTimeMillis());
+        String timestamp = LocalDateTime.now().format(formatter);
+        String requestFile = requestDir + safeSongTitle + "-" + timestamp.replace(":", "-") + ".txt";
+
+        // Load current lyrics
+        String songDir = songFileManager.getSongDir(artistNickName, songTitle, albumName);
+        Path songFilePath = Paths.get(songDir + safeSongTitle + ".txt");
+        if (!Files.exists(songFilePath)) {
+            throw new IllegalStateException("Song file not found: " + songFilePath);
+        }
+        List<String> songData = readFile(songFilePath.toString());
+        String currentLyrics = extractField(songData, "Lyrics: ") != null ? extractField(songData, "Lyrics: ") : "";
+        Lyrics lyrics = new Lyrics(currentLyrics);
+        lyrics.suggestEdit(suggestedLyrics);
+
+        // Save request
+        List<String> requestData = createRequestData(artistNickName, songTitle, albumName, suggestedLyrics, requester, timestamp);
         writeFile(requestFile, requestData);
+
+        // No update to song file here, only on approval
     }
 
     public synchronized List<String[]> loadLyricsEditRequestsForArtist(String artistNickName) {
-        if (artistNickName == null || artistNickName.isEmpty()) {
-            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
-        }
-
+        validateInput(artistNickName, "Artist nickname");
         String safeArtistNickName = sanitizeFileName(artistNickName);
-        List<String[]> requests = new ArrayList<>();
-        requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_PENDING + safeArtistNickName + "/"));
-        requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_APPROVED + safeArtistNickName + "/"));
-        requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_REJECTED + safeArtistNickName + "/"));
-        return requests;
+        return loadRequestsFromMultipleDirs(
+                LYRICS_REQUESTS_PENDING + safeArtistNickName + "/",
+                LYRICS_REQUESTS_APPROVED + safeArtistNickName + "/",
+                LYRICS_REQUESTS_REJECTED + safeArtistNickName + "/"
+        );
     }
 
     public String[][] getLyricsEditRequests(String status) {
-        List<String[]> requests = new ArrayList<>();
-        String dirPath;
-        switch (status) {
-            case "Pending":
-                dirPath = LYRICS_REQUESTS_PENDING;
-                break;
-            case "Approved":
-                dirPath = LYRICS_REQUESTS_APPROVED;
-                break;
-            case "Rejected":
-                dirPath = LYRICS_REQUESTS_REJECTED;
-                break;
-            default:
-                return new String[0][];
-        }
-
-        File requestsDir = new File(dirPath);
-        if (!requestsDir.exists() || !requestsDir.isDirectory()) {
-            return new String[0][];
-        }
-
-        File[] subDirs = requestsDir.listFiles(File::isDirectory);
-        if (subDirs == null) {
-            return new String[0][];
-        }
-
-        for (File subDir : subDirs) {
-            File[] songDirs = subDir.listFiles(File::isDirectory);
-            if (songDirs == null) {
-                continue;
-            }
-
-            for (File songDir : songDirs) {
-                File[] requestFiles = songDir.listFiles((dir, name) -> name.endsWith(".txt"));
-                if (requestFiles == null) {
-                    continue;
-                }
-
-                for (File requestFile : requestFiles) {
-                    try {
-                        List<String> lines = Files.readAllLines(requestFile.toPath());
-                        String[] requestData = parseLyricsEditRequest(lines, status);
-                        if (requestData != null) {
-                            requests.add(requestData);
-                        }
-                    } catch (IOException e) {
-                        System.err.println("Error reading file: " + requestFile.getPath());
-                    }
-                }
-            }
-        }
-
-        return requests.toArray(new String[0][]);
-    }
-
-    private String[] parseLyricsEditRequest(List<String> lines, String status) {
-        String artistNickname = null;
-        String songTitle = null;
-        String timestamp = null;
-        String suggestedLyrics = null;
-        String email = null;
-        String currentStatus = null;
-        String albumName = null;
-
-        for (String line : lines) {
-            int index = line.indexOf(": ");
-            if (index != -1) {
-                String key = line.substring(0, index);
-                String value = line.substring(index + 2);
-                switch (key) {
-                    case "Artist":
-                        artistNickname = value;
-                        break;
-                    case "Song":
-                        songTitle = value;
-                        break;
-                    case "Timestamp":
-                        timestamp = value;
-                        break;
-                    case "SuggestedLyrics":
-                        suggestedLyrics = value;
-                        break;
-                    case "Requester":
-                        email = value;
-                        break;
-                    case "Status":
-                        currentStatus = value;
-                        break;
-                    case "Album":
-                        albumName = value;
-                        break;
-                }
-            }
-        }
-
-        if (currentStatus != null && currentStatus.equals(status)) {
-            return new String[]{
-                    artistNickname,
-                    songTitle,
-                    timestamp,
-                    suggestedLyrics,
-                    email,
-                    currentStatus,
-                    albumName
-            };
-        }
-        return null;
+        String dirPath = switch (status) {
+            case "Pending" -> LYRICS_REQUESTS_PENDING;
+            case "Approved" -> LYRICS_REQUESTS_APPROVED;
+            case "Rejected" -> LYRICS_REQUESTS_REJECTED;
+            default -> null;
+        };
+        if (dirPath == null) return new String[0][];
+        return loadRequestsFromDir(dirPath).toArray(new String[0][]);
     }
 
     public synchronized List<String[]> loadAllLyricsEditRequests() {
-        List<String[]> requests = new ArrayList<>();
-        requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_PENDING));
-        requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_APPROVED));
-        requests.addAll(loadRequestsFromDir(LYRICS_REQUESTS_REJECTED));
-        return requests;
-    }
-
-    private List<String[]> loadRequestsFromDir(String dirPath) {
-        List<String[]> requests = new ArrayList<>();
-        File requestsDir = new File(dirPath);
-        if (!requestsDir.exists() || !requestsDir.isDirectory()) {
-            return requests;
-        }
-
-        File[] subDirs = requestsDir.listFiles(File::isDirectory);
-        if (subDirs == null) {
-            return requests;
-        }
-
-        for (File subDir : subDirs) {
-            File[] songDirs = subDir.listFiles(File::isDirectory);
-            if (songDirs == null) {
-                continue;
-            }
-
-            for (File songDir : songDirs) {
-                File[] requestFiles = songDir.listFiles((d, name) -> name.endsWith(".txt"));
-                if (requestFiles == null) {
-                    continue;
-                }
-
-                for (File file : requestFiles) {
-                    String[] requestData = new String[7]; // Artist, Song, Album, SuggestedLyrics, Requester, Status, Timestamp
-                    List<String> lines = readFile(file.getPath());
-                    for (String line : lines) {
-                        int index = line.indexOf(": ");
-                        if (index != -1) {
-                            String key = line.substring(0, index);
-                            String value = line.substring(index + 2);
-                            switch (key) {
-                                case "Artist": requestData[0] = value; break;
-                                case "Song": requestData[1] = value; break;
-                                case "Album": requestData[2] = value; break;
-                                case "SuggestedLyrics": requestData[3] = value; break;
-                                case "Requester": requestData[4] = value; break;
-                                case "Status": requestData[5] = value; break;
-                                case "Timestamp": requestData[6] = value; break;
-                            }
-                        }
-                    }
-                    if (requestData[0] != null && requestData[1] != null && requestData[5] != null) {
-                        requests.add(requestData);
-                    }
-                }
-            }
-        }
-        return requests;
+        return loadRequestsFromMultipleDirs(LYRICS_REQUESTS_PENDING, LYRICS_REQUESTS_APPROVED, LYRICS_REQUESTS_REJECTED);
     }
 
     public synchronized void approveLyricsEditRequest(String artistNickName, String songTitle, String timestamp, String suggestedLyrics, String albumName) {
-        if (artistNickName == null || artistNickName.isEmpty()) {
-            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
-        }
-        if (songTitle == null || songTitle.isEmpty()) {
-            throw new IllegalArgumentException("Song title cannot be null or empty");
-        }
-        if (timestamp == null || timestamp.isEmpty()) {
-            throw new IllegalArgumentException("Timestamp cannot be null or empty");
+        String[] safeParams = validateAndSanitize(artistNickName, songTitle, timestamp);
+        String safeArtistNickName = safeParams[0];
+        String safeSongTitle = safeParams[1];
+
+        String pendingFilePath = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + timestamp + ".txt";
+        Path pendingFile = Paths.get(pendingFilePath);
+        if (!Files.exists(pendingFile)) {
+            throw new IllegalStateException("Lyrics edit request not found for song: " + songTitle + " at timestamp: " + timestamp);
         }
 
-        String safeArtistNickName = sanitizeFileName(artistNickName);
-        String safeSongTitle = sanitizeFileName(songTitle);
-        String pendingFile = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + timestamp + ".txt";
-        File file = new File(pendingFile);
-        if (!file.exists()) {
-            throw new IllegalStateException("Lyrics edit request not found for " + songTitle);
+        // Load and update lyrics
+        String songDir = songFileManager.getSongDir(artistNickName, songTitle, albumName);
+        Path songFilePath = Paths.get(songDir + safeSongTitle + ".txt");
+        if (!Files.exists(songFilePath)) {
+            throw new IllegalStateException("Song file not found: " + songFilePath);
         }
+        List<String> songData = readFile(songFilePath.toString());
+        String currentLyrics = extractField(songData, "Lyrics: ") != null ? extractField(songData, "Lyrics: ") : "";
+        Lyrics lyrics = new Lyrics(currentLyrics);
+        lyrics.approveEdit(suggestedLyrics);
+        String approvedLyrics = lyrics.getApprovedLyrics();
 
-        songFileManager.approveLyricEdit(artistNickName, songTitle, albumName, suggestedLyrics);
+        // Update song file with only the approved lyrics
+        List<String> updatedSongData = new ArrayList<>(songData);
+        updatedSongData.removeIf(line -> line.startsWith("Lyrics: "));
+        updatedSongData.add("Lyrics: " + approvedLyrics);
+        updatedSongData.removeIf(line -> line.startsWith("# Suggested Edits: "));
+        writeFile(songFilePath.toString(), updatedSongData);
 
-        String approvedDir = LYRICS_REQUESTS_APPROVED + safeArtistNickName + "/" + safeSongTitle + "/";
-        ensureDataDirectoryExists(approvedDir);
-        String approvedFile = approvedDir + safeSongTitle + "-" + timestamp + ".txt";
-        List<String> requestData = readFile(pendingFile);
-        requestData = new ArrayList<>(requestData);
-        requestData.removeIf(line -> line.startsWith("Status:"));
-        requestData.add("Status: Approved");
-        writeFile(approvedFile, requestData);
-
-        if (!file.delete()) {
-            System.err.println("Warning: Failed to delete pending artist request file: " + pendingFile);
-        }
+        // Move request to approved directory
+        moveRequest(pendingFile, safeArtistNickName, safeSongTitle, LYRICS_REQUESTS_APPROVED, "Approved");
     }
 
     public synchronized void rejectLyricsEditRequest(String artistNickName, String songTitle, String timestamp) {
-        if (artistNickName == null || artistNickName.isEmpty()) {
-            throw new IllegalArgumentException("Artist nickname cannot be null or empty");
-        }
-        if (songTitle == null || songTitle.isEmpty()) {
-            throw new IllegalArgumentException("Song title cannot be null or empty");
-        }
-        if (timestamp == null || timestamp.isEmpty()) {
-            throw new IllegalArgumentException("Timestamp cannot be null or empty");
+        String[] safeParams = validateAndSanitize(artistNickName, songTitle, timestamp);
+        String safeArtistNickName = safeParams[0];
+        String safeSongTitle = safeParams[1];
+
+        String pendingFilePath = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + timestamp + ".txt";
+        Path pendingFile = Paths.get(pendingFilePath);
+        if (!Files.exists(pendingFile)) {
+            throw new IllegalStateException("Lyrics edit request not found for song: " + songTitle + " at timestamp: " + timestamp);
         }
 
-        String safeArtistNickName = sanitizeFileName(artistNickName);
-        String safeSongTitle = sanitizeFileName(songTitle);
-        String pendingFile = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + timestamp + ".txt";
-        File file = new File(pendingFile);
-        if (!file.exists()) {
-            throw new IllegalStateException("Lyrics edit request not found for " + songTitle);
-        }
+        // Move request to rejected directory
+        moveRequest(pendingFile, safeArtistNickName, safeSongTitle, LYRICS_REQUESTS_REJECTED, "Rejected");
+    }
 
-        String rejectedDir = LYRICS_REQUESTS_REJECTED + safeArtistNickName + "/" + safeSongTitle + "/";
-        ensureDataDirectoryExists(rejectedDir);
-        String rejectedFile = rejectedDir + safeSongTitle + "-" + timestamp + ".txt";
-        List<String> requestData = readFile(pendingFile);
-        requestData = new ArrayList<>(requestData);
-        requestData.removeIf(line -> line.startsWith("Status:"));
-        requestData.add("Status: Rejected");
-        writeFile(rejectedFile, requestData);
+    // Helper methods
+    private void validateInputs(String artistNickName, String songTitle, String suggestedLyrics, String requester) {
+        validateInput(artistNickName, "Artist nickname");
+        validateInput(songTitle, "Song title");
+        validateInput(suggestedLyrics, "Suggested lyrics");
+        validateInput(requester, "Requester");
+    }
 
-        if (!file.delete()) {
-            System.err.println("Warning: Failed to delete pending artist request file: " + pendingFile);
+    private String[] validateAndSanitize(String artistNickName, String songTitle, String timestamp) {
+        validateInput(artistNickName, "Artist nickname");
+        validateInput(songTitle, "Song title");
+        validateInput(timestamp, "Timestamp");
+        return new String[]{sanitizeFileName(artistNickName), sanitizeFileName(songTitle)};
+    }
+
+    private List<String> createRequestData(String artistNickName, String songTitle, String albumName, String suggestedLyrics, String requester, String timestamp) {
+        List<String> requestData = new ArrayList<>();
+        requestData.add(ARTIST_KEY + artistNickName);
+        requestData.add(SONG_KEY + songTitle);
+        requestData.add(ALBUM_KEY + (albumName != null ? albumName : "Single"));
+        requestData.add(SUGGESTED_LYRICS_KEY + suggestedLyrics);
+        requestData.add(REQUESTER_KEY + requester);
+        requestData.add(STATUS_KEY + "Pending");
+        requestData.add(TIMESTAMP_KEY + timestamp);
+        return requestData;
+    }
+
+    private List<String[]> loadRequestsFromMultipleDirs(String... dirs) {
+        List<String[]> allRequests = new ArrayList<>();
+        for (String dir : dirs) {
+            allRequests.addAll(loadRequestsFromDir(dir));
         }
+        return allRequests;
+    }
+
+    private void moveRequest(Path sourceFile, String safeArtistNickName, String safeSongTitle, String targetDir, String newStatus) {
+        List<String> requestData = readFile(sourceFile.toString());
+        List<String> updatedRequestData = new ArrayList<>(requestData);
+        updatedRequestData.removeIf(line -> line.startsWith("Status: "));
+        updatedRequestData.add("Status: " + newStatus);
+
+        String targetDirPath = targetDir + safeArtistNickName + "/" + safeSongTitle + "/";
+        String targetFileName = sourceFile.getFileName().toString();
+        moveRequestToDir(updatedRequestData, targetDirPath, targetFileName, newStatus, sourceFile);
     }
 }

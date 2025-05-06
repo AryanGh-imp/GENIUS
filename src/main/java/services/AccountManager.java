@@ -51,6 +51,7 @@ public class AccountManager {
         }
     }
 
+    // TODO: This should be further investigated for optimization in the future.
     public static Account findByUsername(String username) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
@@ -87,6 +88,7 @@ public class AccountManager {
         return account;
     }
 
+    // TODO: This should be further investigated for optimization in the future.
     public static Account findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
