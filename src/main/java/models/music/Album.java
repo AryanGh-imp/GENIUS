@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Album {
     private static final String DEFAULT_RELEASE_DATE = "Not set";
 
-    private final String title;
+    private String title;
     private String releaseDate;
     private final Artist artist;
     private final List<Song> songs;
@@ -24,6 +24,13 @@ public class Album {
         this.artist = Objects.requireNonNull(artist, "Artist cannot be null");
         this.releaseDate = releaseDate != null ? releaseDate : DEFAULT_RELEASE_DATE;
         this.songs = new ArrayList<>();
+    }
+
+    public void setTitle(String newTitle) {
+        this.title = Objects.requireNonNull(newTitle, "New album title cannot be null").trim();
+        if (this.title.isEmpty()) {
+            throw new IllegalArgumentException("New album title cannot be empty");
+        }
     }
 
     public Album addSong(Song song) {
@@ -63,7 +70,7 @@ public class Album {
     }
 
     public List<Song> getSongs() {
-        return Collections.unmodifiableList(songs); // لیست غیرقابل‌تغییر برای جلوگیری از تغییرات ناخواسته
+        return Collections.unmodifiableList(songs);
     }
 
     public int getSongCount() {

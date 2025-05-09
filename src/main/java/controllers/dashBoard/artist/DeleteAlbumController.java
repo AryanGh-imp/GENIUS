@@ -4,20 +4,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import services.SessionManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
-public class DeleteAlbumController {
+public class DeleteAlbumController extends BaseArtistController {
 
     @FXML private Label welcomeLabel;
     @FXML private ListView<String> albumListView;
@@ -28,56 +23,19 @@ public class DeleteAlbumController {
 
     private String currentArtistNickName;
     private final SongFileManager songFileManager = new SongFileManager();
-    private final Map<String, String> albumToPathMap = new HashMap<>();
-    private ArtistMenuBarHandler menuBarHandler;
-    private static final String DEFAULT_ALBUM_ART_PATH = "/pics/Genius.com_logo_yellow.png";
 
     @FXML
     public void initialize() {
-        initializeSessionAndUI();
-    }
-
-    private void initializeSessionAndUI() {
-        if (!validateSession()) return;
+        if (!validateSession(signOutButton)) return;
         initializeUI();
     }
 
-    private boolean validateSession() {
-        try {
-            if (!SessionManager.getInstance().isLoggedIn()) {
-                throw new IllegalStateException("No user is logged in. Please sign in first.");
-            }
-            if (!SessionManager.getInstance().isArtist()) {
-                throw new IllegalStateException("Only artists can access this page.");
-            }
-            this.currentArtistNickName = SessionManager.getInstance().getCurrentAccount().getNickName();
-            this.menuBarHandler = new ArtistMenuBarHandler(signOutButton);
-            return true;
-        } catch (IllegalStateException e) {
-            AlertUtil.showError(e.getMessage());
-            menuBarHandler.signOut();
-            return false;
-        }
-    }
-
     private void initializeUI() {
-        setArtistInfo();
+        setArtistInfo(welcomeLabel);
+        currentArtistNickName = artist.getNickName();
         loadAlbums();
         addAlbumSelectionListener();
-        clearMetadata();
-    }
-
-    private void checkComponent(Object component, String name) {
-        if (component == null) {
-            System.err.println(name + " is null. Check FXML file.");
-        }
-    }
-
-    private void setArtistInfo() {
-        checkComponent(welcomeLabel, "welcomeLabel");
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome, " + currentArtistNickName + "!");
-        }
+        loadDefaultImage(albumArtImageView);
     }
 
     private void loadAlbums() {
@@ -85,41 +43,35 @@ public class DeleteAlbumController {
         if (albumListView == null) return;
 
         albumListView.getItems().clear();
-        albumToPathMap.clear();
-
         String safeNickName = FileUtil.sanitizeFileName(currentArtistNickName);
-        File albumsDir = new File(FileUtil.DATA_DIR + "artists/" + safeNickName + "/albums/");
+        String albumsDir = FileUtil.DATA_DIR + "artists/" + safeNickName + "/albums/";
+        File albumsDirFile = new File(albumsDir);
 
-        if (!albumsDir.exists() || !albumsDir.isDirectory()) {
+        if (!albumsDirFile.exists() || !albumsDirFile.isDirectory()) {
+            System.out.println("Albums directory not found or not a directory: " + albumsDir);
             return;
         }
 
-        File[] albumFolders = albumsDir.listFiles(File::isDirectory);
-        if (albumFolders == null) {
+        File[] albumFolders = albumsDirFile.listFiles(File::isDirectory);
+        if (albumFolders == null || albumFolders.length == 0) {
+            System.out.println("No album folders found in: " + albumsDir);
             return;
         }
 
         for (File albumFolder : albumFolders) {
             File albumFile = new File(albumFolder, "album.txt");
-            if (!albumFile.exists()) {
-                continue;
-            }
-
-            List<String> albumData = FileUtil.readFile(albumFile.getPath());
-            String albumTitle = parseAlbumTitle(albumData);
-            if (albumTitle != null && !albumTitle.isEmpty()) {
-                albumListView.getItems().add(albumTitle);
-                albumToPathMap.put(albumTitle, albumFolder.getPath());
+            if (albumFile.exists()) {
+                List<String> albumData = FileUtil.readFile(albumFile.getPath());
+                String albumTitle = albumData.stream()
+                        .filter(line -> line.trim().startsWith("Album Title: "))
+                        .map(line -> line.trim().substring("Album Title: ".length()).trim())
+                        .findFirst()
+                        .orElse(null);
+                if (albumTitle != null && !albumTitle.isEmpty()) {
+                    albumListView.getItems().add(albumTitle);
+                }
             }
         }
-    }
-
-    private String parseAlbumTitle(List<String> albumData) {
-        return albumData.stream()
-                .filter(line -> line.trim().startsWith("Album Title: "))
-                .map(line -> line.trim().substring("Album Title: ".length()).trim())
-                .findFirst()
-                .orElse(null);
     }
 
     private void addAlbumSelectionListener() {
@@ -136,76 +88,37 @@ public class DeleteAlbumController {
     }
 
     private void displayAlbumMetadata(String selectedAlbum) {
-        String albumPath = albumToPathMap.get(selectedAlbum);
-        if (albumPath == null) {
-            clearMetadata();
-            return;
-        }
-
-        File albumFile = new File(albumPath, "album.txt");
+        String albumDir = songFileManager.getAlbumDir(currentArtistNickName, selectedAlbum);
+        File albumFile = new File(albumDir + "album.txt");
         if (albumFile.exists()) {
             List<String> albumData = FileUtil.readFile(albumFile.getPath());
-            updateMetadata(albumData, selectedAlbum);
+            String releaseDate = "N/A";
+            String albumArtPath = null;
+
+            for (String line : albumData) {
+                if (line.startsWith("Release Date: ")) {
+                    releaseDate = line.substring("Release Date: ".length());
+                } else if (line.startsWith("AlbumArtPath: ")) {
+                    albumArtPath = line.substring("AlbumArtPath: ".length());
+                }
+            }
+
+            checkComponent(titleLabel, "titleLabel");
+            checkComponent(releaseDateLabel, "releaseDateLabel");
+            if (titleLabel != null) titleLabel.setText("Title: " + selectedAlbum);
+            if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + releaseDate);
+            updateImageView(albumArtImageView, albumArtPath);
         } else {
             clearMetadata();
         }
     }
 
-    private void updateMetadata(List<String> albumData, String albumTitle) {
-        String releaseDate = "N/A";
-        String albumArtPath = null;
-
-        for (String line : albumData) {
-            if (line.startsWith("Release Date: ")) {
-                releaseDate = line.substring("Release Date: ".length());
-            } else if (line.startsWith("AlbumArtPath: ")) {
-                albumArtPath = line.substring("AlbumArtPath: ".length());
-            }
-        }
-
-        updateLabels(albumTitle, releaseDate);
-        updateImageView(albumArtPath);
-    }
-
-    private void updateLabels(String albumTitle, String releaseDate) {
+    private void clearMetadata() {
         checkComponent(titleLabel, "titleLabel");
         checkComponent(releaseDateLabel, "releaseDateLabel");
-
-        if (titleLabel != null) titleLabel.setText("Title: " + albumTitle);
-        if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + releaseDate);
-    }
-
-    private void updateImageView(String albumArtPath) {
-        checkComponent(albumArtImageView, "albumArtImageView");
-        if (albumArtImageView == null) return;
-
-        try {
-            if (albumArtPath != null && !albumArtPath.isEmpty()) {
-                File albumArtFile = new File(albumArtPath);
-                if (albumArtFile.exists()) {
-                    albumArtImageView.setImage(new Image(albumArtFile.toURI().toString()));
-                } else {
-                    loadDefaultImage();
-                }
-            } else {
-                loadDefaultImage();
-            }
-        } catch (Exception e) {
-            loadDefaultImage();
-        }
-    }
-
-    private void loadDefaultImage() {
-        try {
-            albumArtImageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_ALBUM_ART_PATH)).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Failed to load default image: " + e.getMessage());
-        }
-    }
-
-    private void clearMetadata() {
-        updateLabels("", "N/A");
-        loadDefaultImage();
+        if (titleLabel != null) titleLabel.setText("Title: ");
+        if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: N/A");
+        loadDefaultImage(albumArtImageView);
     }
 
     @FXML
@@ -223,15 +136,15 @@ public class DeleteAlbumController {
         AlertUtil.showSuccess("Deleted album: " + selectedAlbum);
     }
 
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToAddSong() { menuBarHandler.goToAddSong(); }
-    @FXML public void goToDeleteSong() { menuBarHandler.goToDeleteSong(); }
-    @FXML public void goToEditSong() { menuBarHandler.goToEditSong(); }
-    @FXML public void goToCreateAlbum() { menuBarHandler.goToCreateAlbum(); }
-    @FXML public void goToDeleteAlbum() { menuBarHandler.goToDeleteAlbum(); }
-    @FXML public void goToEditAlbum() { menuBarHandler.goToEditAlbum(); }
-    @FXML public void goToPendingRequests() { menuBarHandler.goToPendingRequests(); }
-    @FXML public void goToApprovedRequests() { menuBarHandler.goToApprovedRequests(); }
-    @FXML public void goToRejectedRequests() { menuBarHandler.goToRejectedRequests(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
+    @FXML public void goToProfile() { super.goToProfile(); }
+    @FXML public void goToAddSong() { super.goToAddSong(); }
+    @FXML public void goToDeleteSong() { super.goToDeleteSong(); }
+    @FXML public void goToEditSong() { super.goToEditSong(); }
+    @FXML public void goToCreateAlbum() { super.goToCreateAlbum(); }
+    @FXML public void goToDeleteAlbum() { super.goToDeleteAlbum(); }
+    @FXML public void goToEditAlbum() { super.goToEditAlbum(); }
+    @FXML public void goToPendingRequests() { super.goToPendingRequests(); }
+    @FXML public void goToApprovedRequests() { super.goToApprovedRequests(); }
+    @FXML public void goToRejectedRequests() { super.goToRejectedRequests(); }
+    @FXML public void signOut() { super.signOut(); }
 }

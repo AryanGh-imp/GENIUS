@@ -5,8 +5,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import models.account.Artist;
-import services.SessionManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
@@ -15,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class EditSongController {
+public class EditSongController extends BaseArtistController {
 
     @FXML private Label welcomeLabel;
     @FXML private ListView<String> songListView;
@@ -26,59 +24,22 @@ public class EditSongController {
     @FXML private Button chooseImageButton;
     @FXML private Button submitButton;
 
-    private Artist artist;
     private final SongFileManager songFileManager = new SongFileManager();
     private final Map<String, String> songToPathMap = new HashMap<>();
     private File selectedImageFile;
-    private ArtistMenuBarHandler menuBarHandler;
     private static final String DEFAULT_IMAGE_PATH = "/pics/Genius.com_logo_yellow.png";
 
     @FXML
     public void initialize() {
-        initializeSessionAndUI();
-    }
-
-    private void initializeSessionAndUI() {
-        if (!validateSession()) return;
+        if (!validateSession(signOutButton)) return;
         initializeUI();
     }
 
-    private boolean validateSession() {
-        try {
-            if (!SessionManager.getInstance().isLoggedIn()) {
-                throw new IllegalStateException("No user is logged in. Please sign in first.");
-            }
-            if (!SessionManager.getInstance().isArtist()) {
-                throw new IllegalStateException("Only artists can access this page.");
-            }
-            this.artist = (Artist) SessionManager.getInstance().getCurrentAccount();
-            this.menuBarHandler = new ArtistMenuBarHandler(signOutButton);
-            return true;
-        } catch (IllegalStateException e) {
-            AlertUtil.showError(e.getMessage());
-            signOut();
-            return false;
-        }
-    }
-
     private void initializeUI() {
-        setArtistInfo();
+        setArtistInfo(welcomeLabel);
         loadSongs();
         addSongSelectionListener();
         updateImageView(null); // Set default image
-    }
-
-    private void checkComponent(Object component, String name) {
-        if (component == null) {
-            System.err.println(name + " is null. Check FXML file.");
-        }
-    }
-
-    private void setArtistInfo() {
-        checkComponent(welcomeLabel, "welcomeLabel");
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome, " + artist.getNickName() + "!");
-        }
     }
 
     private void loadSongs() {
@@ -241,7 +202,7 @@ public class EditSongController {
     }
 
     @FXML
-    public void chooseImage() {
+    private void chooseImage() {
         checkComponent(chooseImageButton, "chooseImageButton");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Album Art");
@@ -255,7 +216,7 @@ public class EditSongController {
     }
 
     @FXML
-    public void editSong() {
+    private void editSong() {
         checkComponent(songListView, "songListView");
         String selectedSong = songListView != null ? songListView.getSelectionModel().getSelectedItem() : null;
         if (selectedSong == null) {
@@ -314,7 +275,7 @@ public class EditSongController {
 
             String originalTitle = selectedSong.contains(" (") ? selectedSong.substring(0, selectedSong.indexOf(" (")) : selectedSong;
             if (!originalTitle.equals(newTitle)) {
-                renameSongFolder(selectedSong, newTitle, songPath);
+                renameSongFolder(originalTitle, newTitle, songPath, selectedSong);
                 if (selectedSong.contains(" (") && !selectedSong.contains(" (Single)")) {
                     String albumTitle = selectedSong.substring(selectedSong.indexOf(" (") + 2, selectedSong.length() - 1);
                     updateAlbumSongList(albumTitle, originalTitle, newTitle);
@@ -326,81 +287,103 @@ public class EditSongController {
             AlertUtil.showSuccess("Song '" + newTitle + "' updated successfully!");
         } catch (IOException e) {
             AlertUtil.showError("Error updating song: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            AlertUtil.showError("Invalid numeric data in song file: " + e.getMessage());
         }
     }
 
     private void updateSongFile(File songFile, String newTitle, String lyrics, String releaseDate, String artists, int likes, int plays, String albumArtPath) throws IOException {
-        List<String> songData = FileUtil.readFile(songFile.getPath());
-        StringBuilder updatedData = new StringBuilder();
+        List<String> updatedData = new ArrayList<>();
+        boolean titleUpdated = false, lyricsUpdated = false, artUpdated = false;
 
-        for (String line : songData) {
-            if (line.startsWith("Song Title: ")) {
-                updatedData.append("Song Title: ").append(newTitle).append("\n");
-            } else if (line.startsWith("Lyrics: ")) {
-                updatedData.append("Lyrics: ").append(lyrics).append("\n");
+        for (String line : FileUtil.readFile(songFile.getPath())) {
+            if (line.startsWith("Song Title: ") && !titleUpdated) {
+                updatedData.add("Song Title: " + newTitle);
+                titleUpdated = true;
+            } else if (line.startsWith("Lyrics: ") && !lyricsUpdated) {
+                updatedData.add("Lyrics: " + lyrics);
+                lyricsUpdated = true;
             } else if (line.startsWith("Release Date: ")) {
-                updatedData.append("Release Date: ").append(releaseDate).append("\n");
+                updatedData.add("Release Date: " + releaseDate);
             } else if (line.startsWith("Artists: ")) {
-                updatedData.append("Artists: ").append(artists).append("\n");
+                updatedData.add("Artists: " + artists);
             } else if (line.startsWith("Likes: ")) {
-                updatedData.append("Likes: ").append(likes).append("\n");
+                updatedData.add("Likes: " + likes);
             } else if (line.startsWith("Plays: ")) {
-                updatedData.append("Plays: ").append(plays).append("\n");
-            } else if (line.startsWith("AlbumArtPath: ")) {
-                updatedData.append("AlbumArtPath: ").append(albumArtPath).append("\n");
+                updatedData.add("Plays: " + plays);
+            } else if (line.startsWith("AlbumArtPath: ") && !artUpdated) {
+                updatedData.add("AlbumArtPath: " + albumArtPath);
+                artUpdated = true;
             } else {
-                updatedData.append(line).append("\n");
+                updatedData.add(line);
             }
         }
 
-        FileUtil.writeFile(songFile.getPath(), Collections.singletonList(updatedData.toString()));
+        // Add missing fields if not present
+        if (!titleUpdated) updatedData.add("Song Title: " + newTitle);
+        if (!lyricsUpdated) updatedData.add("Lyrics: " + lyrics);
+        if (!artUpdated && albumArtPath != null) updatedData.add("AlbumArtPath: " + albumArtPath);
+
+        FileUtil.writeFile(songFile.getPath(), updatedData);
     }
 
-    private void renameSongFolder(String selectedSong, String newTitle, String songPath) {
+    private void renameSongFolder(String originalTitle, String newTitle, String songPath, String selectedSong) {
         File songFile = new File(songPath);
         File oldFolder = songFile.getParentFile();
-        String newFolderPath = oldFolder.getParent() + "/" + newTitle;
+        String newFolderPath = oldFolder.getParent() + "/" + FileUtil.sanitizeFileName(newTitle);
         File newFolder = new File(newFolderPath);
 
-        if (!oldFolder.renameTo(newFolder)) {
-            AlertUtil.showError("Failed to rename song folder.");
-            return;
+        try {
+            FileUtil.renameDirectory(oldFolder, newFolder);
+            String newSongPath = newFolderPath + "/" + FileUtil.sanitizeFileName(newTitle) + ".txt";
+            songToPathMap.remove(selectedSong);
+            songToPathMap.put(newTitle + (selectedSong.contains(" (") ? selectedSong.substring(selectedSong.indexOf(" (")) : " (Single)"), newSongPath);
+        } catch (IOException e) {
+            AlertUtil.showError("Failed to rename song folder: " + e.getMessage());
         }
-
-        songToPathMap.remove(selectedSong);
-        songToPathMap.put(newTitle + (selectedSong.contains(" (") ? selectedSong.substring(selectedSong.indexOf(" (")) : ""), newFolderPath + "/" + newTitle + ".txt");
     }
 
     private void updateAlbumSongList(String albumTitle, String originalTitle, String newTitle) throws IOException {
-        String albumPath = FileUtil.DATA_DIR + "artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + albumTitle;
-        File albumFile = new File(albumPath, "album.txt");
+        String albumPath = FileUtil.DATA_DIR + "artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + albumTitle + "/album.txt";
+        File albumFile = new File(albumPath);
         if (albumFile.exists()) {
             List<String> albumData = FileUtil.readFile(albumFile.getPath());
-            StringBuilder updatedAlbumData = new StringBuilder();
+            List<String> updatedData = new ArrayList<>();
 
             for (String line : albumData) {
                 if (line.startsWith("Songs: ")) {
                     String songs = line.substring("Songs: ".length());
-                    String updatedSongs = songs.replace(originalTitle, newTitle);
-                    updatedAlbumData.append("Songs: ").append(updatedSongs).append("\n");
+                    String[] songArray = songs.split(",");
+                    StringBuilder newSongs = new StringBuilder("Songs: ");
+                    boolean found = false;
+                    for (String song : songArray) {
+                        if (song.trim().equals(originalTitle)) {
+                            newSongs.append(newTitle).append(",");
+                            found = true;
+                        } else {
+                            newSongs.append(song.trim()).append(",");
+                        }
+                    }
+                    if (!found) newSongs.append(newTitle).append(",");
+                    updatedData.add(newSongs.toString().replaceAll(",$", ""));
                 } else {
-                    updatedAlbumData.append(line).append("\n");
+                    updatedData.add(line);
                 }
             }
 
-            FileUtil.writeFile(albumFile.getPath(), Collections.singletonList(updatedAlbumData.toString()));
+            FileUtil.writeFile(albumFile.getPath(), updatedData);
         }
     }
 
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToAddSong() { menuBarHandler.goToAddSong(); }
-    @FXML public void goToDeleteSong() { menuBarHandler.goToDeleteSong(); }
-    @FXML public void goToEditSong() { menuBarHandler.goToEditSong(); }
-    @FXML public void goToCreateAlbum() { menuBarHandler.goToCreateAlbum(); }
-    @FXML public void goToDeleteAlbum() { menuBarHandler.goToDeleteAlbum(); }
-    @FXML public void goToEditAlbum() { menuBarHandler.goToEditAlbum(); }
-    @FXML public void goToPendingRequests() { menuBarHandler.goToPendingRequests(); }
-    @FXML public void goToApprovedRequests() { menuBarHandler.goToApprovedRequests(); }
-    @FXML public void goToRejectedRequests() { menuBarHandler.goToRejectedRequests(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
+    @FXML public void goToProfile() { super.goToProfile(); }
+    @FXML public void goToAddSong() { super.goToAddSong(); }
+    @FXML public void goToDeleteSong() { super.goToDeleteSong(); }
+    @FXML public void goToEditSong() { super.goToEditSong(); }
+    @FXML public void goToCreateAlbum() { super.goToCreateAlbum(); }
+    @FXML public void goToDeleteAlbum() { super.goToDeleteAlbum(); }
+    @FXML public void goToEditAlbum() { super.goToEditAlbum(); }
+    @FXML public void goToPendingRequests() { super.goToPendingRequests(); }
+    @FXML public void goToApprovedRequests() { super.goToApprovedRequests(); }
+    @FXML public void goToRejectedRequests() { super.goToRejectedRequests(); }
+    @FXML public void signOut() { super.signOut(); }
 }

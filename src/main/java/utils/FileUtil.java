@@ -7,7 +7,6 @@ import java.util.*;
 
 public class FileUtil {
     public static final String DATA_DIR = ConfigLoader.getInstance().getDataDirectory();
-
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void ensureDataDirectoryExists(String dir) {
@@ -79,6 +78,18 @@ public class FileUtil {
             }
         } catch (IOException e) {
             System.err.println("Error deleting directory or file: " + e.getMessage());
+        }
+    }
+
+    public static void renameDirectory(File oldDir, File newDir) throws IOException {
+        if (!oldDir.exists()) {
+            throw new IOException("Source directory does not exist: " + oldDir.getPath());
+        }
+        if (newDir.exists()) {
+            throw new IOException("Destination directory already exists: " + newDir.getPath());
+        }
+        if (!oldDir.renameTo(newDir)) {
+            throw new IOException("Failed to rename directory from " + oldDir.getPath() + " to " + newDir.getPath());
         }
     }
 

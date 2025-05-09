@@ -24,7 +24,7 @@ import static utils.FileUtil.*;
 
 public class SongFileManager extends FileManager {
 
-    private String getAlbumDir(String artistNickName, String albumTitle) {
+    public String getAlbumDir(String artistNickName, String albumTitle) {
         String safeArtistNickName = sanitizeFileName(artistNickName);
         String safeAlbumTitle = sanitizeFileName(albumTitle);
         return DATA_DIR + "artists/" + safeArtistNickName + "/albums/" + safeAlbumTitle + "/";

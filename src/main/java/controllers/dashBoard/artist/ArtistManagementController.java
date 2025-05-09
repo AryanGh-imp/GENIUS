@@ -7,9 +7,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import models.DTO.LyricsEditRequestDTO;
-import models.account.Artist;
 import models.music.Lyrics;
-import services.SessionManager;
 import services.file.LyricsRequestManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
@@ -20,7 +18,8 @@ import java.util.List;
 import static utils.FileUtil.readFile;
 import static utils.FileUtil.sanitizeFileName;
 
-public class ArtistManagementController {
+public class ArtistManagementController extends BaseArtistController {
+
     @FXML private Label welcomeLabel;
     @FXML private Button signOutButton;
     @FXML private AnchorPane listPane;
@@ -40,55 +39,18 @@ public class ArtistManagementController {
     @FXML private TextArea originalLyricsTextArea;
     @FXML private TextArea allSuggestedEditsTextArea;
 
-    private Artist artist;
     private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
-    private ArtistMenuBarHandler menuBarHandler;
 
     @FXML
     private void initialize() {
-        initializeSessionAndUI();
-    }
-
-    private void initializeSessionAndUI() {
-        if (!validateSession()) return;
+        if (!validateSession(signOutButton)) return;
         initializeUI();
     }
 
-    private boolean validateSession() {
-        try {
-            if (!SessionManager.getInstance().isLoggedIn()) {
-                throw new IllegalStateException("No user is logged in. Please sign in first.");
-            }
-            if (!SessionManager.getInstance().isArtist()) {
-                throw new IllegalStateException("Only artists can access this page.");
-            }
-            this.artist = (Artist) SessionManager.getInstance().getCurrentAccount();
-            this.menuBarHandler = new ArtistMenuBarHandler(signOutButton);
-            return true;
-        } catch (IllegalStateException e) {
-            AlertUtil.showError(e.getMessage());
-            menuBarHandler.signOut();
-            return false;
-        }
-    }
-
     private void initializeUI() {
-        setArtistInfo();
+        setArtistInfo(welcomeLabel);
         loadRequests();
         addRequestSelectionListener();
-    }
-
-    private void checkComponent(Object component, String name) {
-        if (component == null) {
-            System.err.println(name + " is null. Check FXML file.");
-        }
-    }
-
-    private void setArtistInfo() {
-        checkComponent(welcomeLabel, "welcomeLabel");
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome, " + artist.getNickName() + "!");
-        }
     }
 
     private void loadRequests() {
@@ -229,15 +191,15 @@ public class ArtistManagementController {
                 "Failed to reject lyrics edit request");
     }
 
-    @FXML private void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML private void goToAddSong() { menuBarHandler.goToAddSong(); }
-    @FXML private void goToDeleteSong() { menuBarHandler.goToDeleteSong(); }
-    @FXML private void goToEditSong() { menuBarHandler.goToEditSong(); }
-    @FXML private void goToCreateAlbum() { menuBarHandler.goToCreateAlbum(); }
-    @FXML private void goToDeleteAlbum() { menuBarHandler.goToDeleteAlbum(); }
-    @FXML private void goToEditAlbum() { menuBarHandler.goToEditAlbum(); }
-    @FXML private void goToPendingRequests() { menuBarHandler.goToPendingRequests(); }
-    @FXML private void goToApprovedRequests() { menuBarHandler.goToApprovedRequests(); }
-    @FXML private void goToRejectedRequests() { menuBarHandler.goToRejectedRequests(); }
-    @FXML private void signOut() { menuBarHandler.signOut(); }
+    @FXML public void goToProfile() { super.goToProfile(); }
+    @FXML public void goToAddSong() { super.goToAddSong(); }
+    @FXML public void goToDeleteSong() { super.goToDeleteSong(); }
+    @FXML public void goToEditSong() { super.goToEditSong(); }
+    @FXML public void goToCreateAlbum() { super.goToCreateAlbum(); }
+    @FXML public void goToDeleteAlbum() { super.goToDeleteAlbum(); }
+    @FXML public void goToEditAlbum() { super.goToEditAlbum(); }
+    @FXML public void goToPendingRequests() { super.goToPendingRequests(); }
+    @FXML public void goToApprovedRequests() { super.goToApprovedRequests(); }
+    @FXML public void goToRejectedRequests() { super.goToRejectedRequests(); }
+    @FXML public void signOut() { super.signOut(); }
 }

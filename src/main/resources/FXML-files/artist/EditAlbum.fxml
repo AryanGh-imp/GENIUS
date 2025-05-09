@@ -148,7 +148,7 @@
                                                         <Image url="@../../pics/Genius.com_logo_yellow.png" />
                                                     </image>
                                                 </ImageView>
-                                                <Button fx:id="submitButton" alignment="CENTER" contentDisplay="CENTER" onAction="#editAlbum" style="-fx-background-color: #363636;" text="Save Changes" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                <Button fx:id="submitButton" alignment="CENTER" contentDisplay="CENTER" onAction="#submitEdit" style="-fx-background-color: #363636;" text="Save Changes" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                                     <cursor>
                                                         <Cursor fx:constant="HAND" />
                                                     </cursor>

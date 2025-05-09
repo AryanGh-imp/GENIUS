@@ -7,7 +7,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import services.SessionManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 
@@ -16,7 +15,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class CreateAlbumController {
+public class CreateAlbumController extends BaseArtistController {
 
     @FXML private Label welcomeLabel;
     @FXML private Button signOutButton;
@@ -28,63 +27,24 @@ public class CreateAlbumController {
     private String currentArtistNickName;
     private final SongFileManager songFileManager = new SongFileManager();
     private File selectedImageFile;
-    private ArtistMenuBarHandler menuBarHandler;
-    private static final String DEFAULT_IMAGE_PATH = "/pics/Genius.com_logo_yellow.png";
 
     @FXML
     private void initialize() {
-        initializeSessionAndUI();
-    }
-
-    private void initializeSessionAndUI() {
-        if (!validateSession()) return;
+        if (!validateSession(signOutButton)) return;
         initializeUI();
     }
 
-    private boolean validateSession() {
-        try {
-            if (!SessionManager.getInstance().isLoggedIn()) {
-                throw new IllegalStateException("No user is logged in. Please sign in first.");
-            }
-            if (!SessionManager.getInstance().isArtist()) {
-                throw new IllegalStateException("Only artists can access this page.");
-            }
-            this.currentArtistNickName = SessionManager.getInstance().getCurrentAccount().getNickName();
-            this.menuBarHandler = new ArtistMenuBarHandler(signOutButton);
-            return true;
-        } catch (IllegalStateException e) {
-            AlertUtil.showError(e.getMessage());
-            menuBarHandler.signOut();
-            return false;
-        }
-    }
-
     private void initializeUI() {
-        setArtistInfo();
-        updateImagePreview(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
+        setArtistInfo(welcomeLabel);
+        currentArtistNickName = artist.getNickName();
+        loadDefaultImage(imagePreview);
     }
 
-    private void checkComponent(Object component, String name) {
-        if (component == null) {
-            System.err.println(name + " is null. Check FXML file.");
-        }
-    }
-
-    private void setArtistInfo() {
-        checkComponent(welcomeLabel, "welcomeLabel");
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome, " + currentArtistNickName + "!");
-        }
-    }
-
-    private void updateImagePreview(Image image) {
-        checkComponent(imagePreview, "imagePreview");
-        if (imagePreview != null) {
-            try {
-                imagePreview.setImage(image);
-            } catch (Exception e) {
-                System.err.println("Failed to update image preview: " + e.getMessage());
-            }
+    public void loadDefaultImage(ImageView imageView) {
+        try {
+            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
+        } catch (Exception e) {
+            System.err.println("Failed to load default image: " + e.getMessage());
         }
     }
 
@@ -98,7 +58,10 @@ public class CreateAlbumController {
         File file = fileChooser.showOpenDialog(chooseImageButton.getScene().getWindow());
         if (file != null) {
             selectedImageFile = file;
-            updateImagePreview(new Image(file.toURI().toString()));
+            checkComponent(imagePreview, "imagePreview");
+            if (imagePreview != null) {
+                imagePreview.setImage(new Image(file.toURI().toString()));
+            }
         }
     }
 
@@ -112,7 +75,7 @@ public class CreateAlbumController {
         }
 
         try {
-            String albumArtPath = saveAlbumArt(albumTitle);
+            String albumArtPath = selectedImageFile != null ? saveAlbumArt(albumTitle) : null;
             songFileManager.saveAlbum(currentArtistNickName, albumTitle, LocalDate.now().toString(), null, albumArtPath);
             resetForm();
             AlertUtil.showSuccess("Album '" + albumTitle + "' created successfully!");
@@ -139,19 +102,20 @@ public class CreateAlbumController {
     }
 
     private void resetImage() {
-        updateImagePreview(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
+        checkComponent(imagePreview, "imagePreview");
+        if (imagePreview != null) loadDefaultImage(imagePreview);
         selectedImageFile = null;
     }
 
-    @FXML private void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML private void goToAddSong() { menuBarHandler.goToAddSong(); }
-    @FXML private void goToDeleteSong() { menuBarHandler.goToDeleteSong(); }
-    @FXML private void goToEditSong() { menuBarHandler.goToEditSong(); }
-    @FXML private void goToCreateAlbum() { menuBarHandler.goToCreateAlbum(); }
-    @FXML private void goToDeleteAlbum() { menuBarHandler.goToDeleteAlbum(); }
-    @FXML private void goToEditAlbum() { menuBarHandler.goToEditAlbum(); }
-    @FXML private void goToPendingRequests() { menuBarHandler.goToPendingRequests(); }
-    @FXML private void goToApprovedRequests() { menuBarHandler.goToApprovedRequests(); }
-    @FXML private void goToRejectedRequests() { menuBarHandler.goToRejectedRequests(); }
-    @FXML private void signOut() { menuBarHandler.signOut(); }
+    @FXML public void goToProfile() { super.goToProfile(); }
+    @FXML public void goToAddSong() { super.goToAddSong(); }
+    @FXML public void goToDeleteSong() { super.goToDeleteSong(); }
+    @FXML public void goToEditSong() { super.goToEditSong(); }
+    @FXML public void goToCreateAlbum() { super.goToCreateAlbum(); }
+    @FXML public void goToDeleteAlbum() { super.goToDeleteAlbum(); }
+    @FXML public void goToEditAlbum() { super.goToEditAlbum(); }
+    @FXML public void goToPendingRequests() { super.goToPendingRequests(); }
+    @FXML public void goToApprovedRequests() { super.goToApprovedRequests(); }
+    @FXML public void goToRejectedRequests() { super.goToRejectedRequests(); }
+    @FXML public void signOut() { super.signOut(); }
 }

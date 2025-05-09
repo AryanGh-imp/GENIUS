@@ -4,9 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import services.SessionManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
@@ -15,9 +13,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-public class DeleteSongController {
+public class DeleteSongController extends BaseArtistController {
 
     @FXML private Label welcomeLabel;
     @FXML private ListView<String> songListView;
@@ -32,55 +29,19 @@ public class DeleteSongController {
     private String currentArtistNickName;
     private final SongFileManager songFileManager = new SongFileManager();
     private final Map<String, String> songToPathMap = new HashMap<>();
-    private ArtistMenuBarHandler menuBarHandler;
-    private static final String DEFAULT_ALBUM_ART_PATH = "/pics/Genius.com_logo_yellow.png";
 
     @FXML
     public void initialize() {
-        initializeSessionAndUI();
-    }
-
-    private void initializeSessionAndUI() {
-        if (!validateSession()) return;
+        if (!validateSession(signOutButton)) return;
         initializeUI();
     }
 
-    private boolean validateSession() {
-        try {
-            if (!SessionManager.getInstance().isLoggedIn()) {
-                throw new IllegalStateException("No user is logged in. Please sign in first.");
-            }
-            if (!SessionManager.getInstance().isArtist()) {
-                throw new IllegalStateException("Only artists can access this page.");
-            }
-            this.currentArtistNickName = SessionManager.getInstance().getCurrentAccount().getNickName();
-            this.menuBarHandler = new ArtistMenuBarHandler(signOutButton);
-            return true;
-        } catch (IllegalStateException e) {
-            AlertUtil.showError(e.getMessage());
-            menuBarHandler.signOut();
-            return false;
-        }
-    }
-
     private void initializeUI() {
-        setArtistInfo();
+        setArtistInfo(welcomeLabel);
+        currentArtistNickName = artist.getNickName();
         loadSongs();
         addSongSelectionListener();
-        clearMetadata();
-    }
-
-    private void checkComponent(Object component, String name) {
-        if (component == null) {
-            System.err.println(name + " is null. Check FXML file.");
-        }
-    }
-
-    private void setArtistInfo() {
-        checkComponent(welcomeLabel, "welcomeLabel");
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome, " + currentArtistNickName + "!");
-        }
+        loadDefaultImage(albumArtImageView);
     }
 
     private void loadSongs() {
@@ -126,21 +87,17 @@ public class DeleteSongController {
         File songFile = new File(songFolder, songFolder.getName() + ".txt");
         if (songFile.exists()) {
             List<String> songData = FileUtil.readFile(songFile.getPath());
-            String songTitle = parseSongTitle(songData);
+            String songTitle = songData.stream()
+                    .filter(line -> line.startsWith("Song Name: "))
+                    .map(line -> line.substring("Song Name: ".length()))
+                    .findFirst()
+                    .orElse(null);
             if (songTitle != null) {
                 String displayTitle = albumTitle != null ? songTitle + " (Album: " + albumTitle + ")" : songTitle;
                 songListView.getItems().add(displayTitle);
                 songToPathMap.put(displayTitle, songFolder.getPath());
             }
         }
-    }
-
-    private String parseSongTitle(List<String> songData) {
-        return songData.stream()
-                .filter(line -> line.startsWith("Song Name: "))
-                .map(line -> line.substring("Song Name: ".length()))
-                .findFirst()
-                .orElse(null);
     }
 
     private void addSongSelectionListener() {
@@ -178,79 +135,51 @@ public class DeleteSongController {
         File songFile = new File(songPath, FileUtil.sanitizeFileName(songTitle) + ".txt");
         if (songFile.exists()) {
             List<String> songData = FileUtil.readFile(songFile.getPath());
-            updateMetadata(songData, songTitle, albumName);
+            String releaseDate = "N/A";
+            String views = "0";
+            String likes = "0";
+            String albumArtPath = null;
+
+            for (String line : songData) {
+                if (line.startsWith("Release Date: ")) {
+                    releaseDate = line.substring("Release Date: ".length());
+                } else if (line.startsWith("Views: ")) {
+                    views = line.substring("Views: ".length());
+                } else if (line.startsWith("Likes: ")) {
+                    likes = line.substring("Likes: ".length());
+                } else if (line.startsWith("AlbumArtPath: ")) {
+                    albumArtPath = line.substring("AlbumArtPath: ".length());
+                }
+            }
+
+            checkComponent(titleLabel, "titleLabel");
+            checkComponent(albumLabel, "albumLabel");
+            checkComponent(releaseDateLabel, "releaseDateLabel");
+            checkComponent(viewsLabel, "viewsLabel");
+            checkComponent(likesLabel, "likesLabel");
+            if (titleLabel != null) titleLabel.setText("Title: " + songTitle);
+            if (albumLabel != null) albumLabel.setText("Album: " + (albumName != null ? albumName : "Single"));
+            if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + releaseDate);
+            if (viewsLabel != null) viewsLabel.setText("Views: " + views);
+            if (likesLabel != null) likesLabel.setText("Likes: " + likes);
+            updateImageView(albumArtImageView, albumArtPath);
         } else {
             clearMetadata();
         }
     }
 
-    private void updateMetadata(List<String> songData, String songTitle, String albumName) {
-        String releaseDate = "N/A";
-        String views = "0";
-        String likes = "0";
-        String albumArtPath = null;
-
-        for (String line : songData) {
-            if (line.startsWith("Release Date: ")) {
-                releaseDate = line.substring("Release Date: ".length());
-            } else if (line.startsWith("Views: ")) {
-                views = line.substring("Views: ".length());
-            } else if (line.startsWith("Likes: ")) {
-                likes = line.substring("Likes: ".length());
-            } else if (line.startsWith("AlbumArtPath: ")) {
-                albumArtPath = line.substring("AlbumArtPath: ".length());
-            }
-        }
-
-        updateLabels(songTitle, albumName, releaseDate, views, likes);
-        updateImageView(albumArtPath);
-    }
-
-    private void updateLabels(String songTitle, String albumName, String releaseDate, String views, String likes) {
+    private void clearMetadata() {
         checkComponent(titleLabel, "titleLabel");
         checkComponent(albumLabel, "albumLabel");
         checkComponent(releaseDateLabel, "releaseDateLabel");
         checkComponent(viewsLabel, "viewsLabel");
         checkComponent(likesLabel, "likesLabel");
-
-        if (titleLabel != null) titleLabel.setText("Title: " + songTitle);
-        if (albumLabel != null) albumLabel.setText("Album: " + (albumName != null ? albumName : "Single"));
-        if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + releaseDate);
-        if (viewsLabel != null) viewsLabel.setText("Views: " + views);
-        if (likesLabel != null) likesLabel.setText("Likes: " + likes);
-    }
-
-    private void updateImageView(String albumArtPath) {
-        checkComponent(albumArtImageView, "albumArtImageView");
-        if (albumArtImageView == null) return;
-
-        try {
-            if (albumArtPath != null && !albumArtPath.isEmpty()) {
-                File albumArtFile = new File(albumArtPath);
-                if (albumArtFile.exists()) {
-                    albumArtImageView.setImage(new Image(albumArtFile.toURI().toString()));
-                } else {
-                    loadDefaultImage();
-                }
-            } else {
-                loadDefaultImage();
-            }
-        } catch (Exception e) {
-            loadDefaultImage();
-        }
-    }
-
-    private void loadDefaultImage() {
-        try {
-            albumArtImageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_ALBUM_ART_PATH)).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Failed to load default image: " + e.getMessage());
-        }
-    }
-
-    private void clearMetadata() {
-        updateLabels("", null, "N/A", "", "");
-        loadDefaultImage();
+        if (titleLabel != null) titleLabel.setText("Title: ");
+        if (albumLabel != null) albumLabel.setText("Album: ");
+        if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: N/A");
+        if (viewsLabel != null) viewsLabel.setText("Views: 0");
+        if (likesLabel != null) likesLabel.setText("Likes: 0");
+        loadDefaultImage(albumArtImageView);
     }
 
     @FXML
@@ -272,15 +201,15 @@ public class DeleteSongController {
         AlertUtil.showSuccess("Deleted song: " + songTitle + (albumName != null ? " from album: " + albumName : ""));
     }
 
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToAddSong() { menuBarHandler.goToAddSong(); }
-    @FXML public void goToDeleteSong() { menuBarHandler.goToDeleteSong(); }
-    @FXML public void goToEditSong() { menuBarHandler.goToEditSong(); }
-    @FXML public void goToCreateAlbum() { menuBarHandler.goToCreateAlbum(); }
-    @FXML public void goToDeleteAlbum() { menuBarHandler.goToDeleteAlbum(); }
-    @FXML public void goToEditAlbum() { menuBarHandler.goToEditAlbum(); }
-    @FXML public void goToPendingRequests() { menuBarHandler.goToPendingRequests(); }
-    @FXML public void goToApprovedRequests() { menuBarHandler.goToApprovedRequests(); }
-    @FXML public void goToRejectedRequests() { menuBarHandler.goToRejectedRequests(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
+    @FXML public void goToProfile() { super.goToProfile(); }
+    @FXML public void goToAddSong() { super.goToAddSong(); }
+    @FXML public void goToDeleteSong() { super.goToDeleteSong(); }
+    @FXML public void goToEditSong() { super.goToEditSong(); }
+    @FXML public void goToCreateAlbum() { super.goToCreateAlbum(); }
+    @FXML public void goToDeleteAlbum() { super.goToDeleteAlbum(); }
+    @FXML public void goToEditAlbum() { super.goToEditAlbum(); }
+    @FXML public void goToPendingRequests() { super.goToPendingRequests(); }
+    @FXML public void goToApprovedRequests() { super.goToApprovedRequests(); }
+    @FXML public void goToRejectedRequests() { super.goToRejectedRequests(); }
+    @FXML public void signOut() { super.signOut(); }
 }
