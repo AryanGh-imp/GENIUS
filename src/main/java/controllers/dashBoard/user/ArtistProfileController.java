@@ -11,33 +11,25 @@ import services.SessionManager;
 import services.file.ArtistFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
-import utils.SceneUtil;
 
 import java.io.File;
 import java.util.List;
 
-public class ArtistProfileController {
+public class ArtistProfileController extends BaseUserController {
 
-    @FXML private Label welcomeLabel;
     @FXML private Label artistNameLabel;
     @FXML private Label totalSongsLabel;
     @FXML private ListView<String> singlesListView;
     @FXML private ListView<String> albumsListView;
-    @FXML private Button signOutButton;
     @FXML private Button followButton;
 
-    private UserMenuBarHandler menuBarHandler;
     private Artist selectedArtist;
     private final ArtistFileManager artistFileManager = new ArtistFileManager();
 
+    @Override
     @FXML
     public void initialize() {
-        menuBarHandler = new UserMenuBarHandler(signOutButton);
-        initializeUI();
-    }
-
-    private void initializeUI() {
-        welcomeLabel.setText("Welcome, " + SessionManager.getInstance().getCurrentUsername() + "!");
+        super.initialize();
         loadArtistProfile();
         setupListViews();
         setupFollowButton();
@@ -45,9 +37,11 @@ public class ArtistProfileController {
 
     private void loadArtistProfile() {
         String artistName = SessionManager.getInstance().getSelectedArtist();
-        artistNameLabel.setText(artistName);
-        int totalSongs = 0;
+        if (artistNameLabel != null) {
+            artistNameLabel.setText(artistName);
+        }
 
+        int totalSongs = 0;
         List<Artist> allArtists = artistFileManager.loadAllArtists();
         selectedArtist = allArtists.stream()
                 .filter(artist -> artist.getNickName().equals(artistName))
@@ -60,31 +54,34 @@ public class ArtistProfileController {
         }
 
         File singlesDir = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/singles/");
-        if (checkFileExists(singlesDir) && singlesDir.isDirectory()) {
+        if (singlesDir.exists() && singlesDir.isDirectory()) {
             totalSongs += loadItemsFromDirectory(singlesDir, singlesListView, "Song Name:", false);
         }
 
         File albumsDir = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/albums/");
-        if (checkFileExists(albumsDir) && albumsDir.isDirectory()) {
+        if (albumsDir.exists() && albumsDir.isDirectory()) {
             totalSongs += loadItemsFromDirectory(albumsDir, albumsListView, "Album Title:", true);
         }
 
-        totalSongsLabel.setText("Total Songs: " + totalSongs);
+        if (totalSongsLabel != null) {
+            totalSongsLabel.setText("Total Songs: " + totalSongs);
+        }
     }
 
     private int loadItemsFromDirectory(File directory, ListView<String> listView, String titlePrefix, boolean isAlbum) {
         int itemCount = 0;
+        if (listView == null) return itemCount;
+
         File[] folders = directory.listFiles(File::isDirectory);
         if (folders != null) {
             for (File folder : folders) {
                 File dataFile = new File(folder, folder.getName() + (titlePrefix.equals("Album Title:") ? "/album.txt" : ".txt"));
-                if (checkFileExists(dataFile)) {
-                    List<String> data = FileUtil.readFile(dataFile.getPath());
+                if (dataFile.exists()) {
+                    List<String> data = loadFileData(dataFile.getPath());
                     String title = parseTitle(data, titlePrefix, folder.getName());
                     if (!title.isEmpty()) {
                         listView.getItems().add(title);
                         if (isAlbum) {
-                            // Count songs in the album
                             String songsLine = data.stream()
                                     .filter(line -> line.startsWith("Songs: "))
                                     .findFirst()
@@ -92,7 +89,7 @@ public class ArtistProfileController {
                             String[] songTitles = songsLine.substring("Songs: ".length()).split(",");
                             itemCount += songTitles.length;
                         } else {
-                            itemCount++; // For singles, each item is one song
+                            itemCount++;
                         }
                     }
                 }
@@ -109,25 +106,14 @@ public class ArtistProfileController {
                 .orElse(defaultTitle);
     }
 
-    private boolean checkFileExists(File file) {
-        return file != null && file.exists();
-    }
-
     private void setupListViews() {
-        setupListView(singlesListView);
-        setupListView(albumsListView);
-    }
-
-    private void setupListView(ListView<String> listView) {
-        listView.setOnMouseClicked(event -> {
-            String selectedItem = listView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                SceneUtil.changeScene(listView, "/FXML-files/user/SongAndAlbumDetails.fxml");
-            }
-        });
+        setupListView(singlesListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
+        setupListView(albumsListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
     }
 
     private void setupFollowButton() {
+        if (followButton == null) return;
+
         Account currentAccount = SessionManager.getInstance().getCurrentAccount();
         if (!(currentAccount instanceof User currentUser)) {
             followButton.setDisable(true);
@@ -145,6 +131,8 @@ public class ArtistProfileController {
 
     @FXML
     public void toggleFollowArtist() {
+        if (followButton == null) return;
+
         Account currentAccount = SessionManager.getInstance().getCurrentAccount();
         if (!(currentAccount instanceof User currentUser)) {
             AlertUtil.showError("Only users can follow artists.");
@@ -165,9 +153,4 @@ public class ArtistProfileController {
             AlertUtil.showError("Failed to update follow status: " + e.getMessage());
         }
     }
-
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToSearch() { menuBarHandler.goToSearch(); }
-    @FXML public void goToCharts() { menuBarHandler.goToCharts(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
 }

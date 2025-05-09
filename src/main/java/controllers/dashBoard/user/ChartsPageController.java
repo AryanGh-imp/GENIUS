@@ -1,7 +1,6 @@
 package controllers.dashBoard.user;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import models.DTO.SongDTO;
 import services.SearchAndChartManager;
@@ -10,9 +9,8 @@ import services.file.SongFileManager;
 
 import java.util.List;
 
-public class ChartsPageController {
+public class ChartsPageController extends BaseUserController {
 
-    @FXML private Label welcomeLabel;
     @FXML private Label song1Label;
     @FXML private Label song2Label;
     @FXML private Label song3Label;
@@ -23,23 +21,17 @@ public class ChartsPageController {
     @FXML private Label song8Label;
     @FXML private Label song9Label;
     @FXML private Label song10Label;
-    @FXML private Button signOutButton;
 
-    private UserMenuBarHandler menuBarHandler;
     private final SearchAndChartManager searchManager;
 
     public ChartsPageController() {
         this.searchManager = new SearchAndChartManager(new ArtistFileManager(), new SongFileManager());
     }
 
+    @Override
     @FXML
     public void initialize() {
-        menuBarHandler = new UserMenuBarHandler(signOutButton);
-        initializeUI();
-    }
-
-    private void initializeUI() {
-        welcomeLabel.setText("Welcome, User!");
+        super.initialize();
         loadTopSongs();
     }
 
@@ -49,7 +41,10 @@ public class ChartsPageController {
                 song6Label, song7Label, song8Label, song9Label, song10Label};
 
         for (int i = 0; i < labels.length; i++) {
-            labels[i].setText(i < topSongs.size() ? formatSongLabel(i + 1, topSongs.get(i)) : formatEmptyLabel(i + 1));
+            checkComponent(labels[i], "songLabel" + (i + 1));
+            if (labels[i] != null) {
+                labels[i].setText(i < topSongs.size() ? formatSongLabel(i + 1, topSongs.get(i)) : formatEmptyLabel(i + 1));
+            }
         }
     }
 
@@ -66,9 +61,4 @@ public class ChartsPageController {
     private String formatEmptyLabel(int rank) {
         return String.format("%d. No Song Available", rank);
     }
-
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToSearch() { menuBarHandler.goToSearch(); }
-    @FXML public void goToCharts() { menuBarHandler.goToCharts(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
 }

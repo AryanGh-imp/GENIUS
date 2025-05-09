@@ -2,7 +2,6 @@ package controllers.dashBoard.artist;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import models.music.Album;
@@ -15,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 public class AddSongPageController extends BaseArtistController {
 
@@ -42,20 +40,12 @@ public class AddSongPageController extends BaseArtistController {
 
     private void configureUI() {
         setArtistInfo(welcomeLabel);
-        loadDefaultImage(imagePreview);
+        updateImageView(imagePreview, null); // Set default image
         configureRadioButtons();
         configureAlbumListView();
         setArtistField();
         addSongTypeListener();
         loadAlbums();
-    }
-
-    public void loadDefaultImage(ImageView imageView) {
-        try {
-            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Failed to load default image: " + e.getMessage());
-        }
     }
 
     private void configureRadioButtons() {
@@ -90,13 +80,13 @@ public class AddSongPageController extends BaseArtistController {
         File albumsDirFile = new File(albumsDir);
 
         if (!albumsDirFile.exists() || !albumsDirFile.isDirectory()) {
-            System.out.println("Albums directory not found or not a directory: " + albumsDir);
+            AlertUtil.showWarning("Albums directory not found or not a directory: " + albumsDir);
             return;
         }
 
         File[] albumFolders = albumsDirFile.listFiles(File::isDirectory);
         if (albumFolders == null || albumFolders.length == 0) {
-            System.out.println("No album folders found in: " + albumsDir);
+            AlertUtil.showWarning("No album folders found in: " + albumsDir);
             return;
         }
 
@@ -144,7 +134,7 @@ public class AddSongPageController extends BaseArtistController {
             selectedImageFile = file;
             checkComponent(imagePreview, "imagePreview");
             if (imagePreview != null) {
-                imagePreview.setImage(new Image(file.toURI().toString()));
+                updateImageView(imagePreview, file.toURI().toString());
             }
         }
     }
@@ -245,7 +235,7 @@ public class AddSongPageController extends BaseArtistController {
         if (titleField != null) titleField.clear();
         if (albumListView != null) albumListView.getSelectionModel().clearSelection();
         if (lyricsArea != null) lyricsArea.clear();
-        if (imagePreview != null) loadDefaultImage(imagePreview);
+        if (imagePreview != null) updateImageView(imagePreview, null);
         if (singleTrackRadio != null) singleTrackRadio.setSelected(true);
         selectedImageFile = null;
     }

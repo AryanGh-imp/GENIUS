@@ -2,7 +2,6 @@ package controllers.dashBoard.user;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import models.DTO.SearchResultDTO;
@@ -16,15 +15,12 @@ import utils.SceneUtil;
 
 import java.util.List;
 
-public class SearchPageController {
+public class SearchPageController extends BaseUserController {
 
-    @FXML private Label welcomeLabel;
     @FXML private TextField searchField;
     @FXML private Button searchButton;
     @FXML private ListView<String> searchResultsListView;
-    @FXML private Button signOutButton;
 
-    private UserMenuBarHandler menuBarHandler;
     private final SearchAndChartManager searchManager;
     private final SongAndAlbumDetailsController detailsHelper = new SongAndAlbumDetailsController();
 
@@ -32,15 +28,19 @@ public class SearchPageController {
         this.searchManager = new SearchAndChartManager(new ArtistFileManager(), new SongFileManager());
     }
 
+    @Override
     @FXML
     public void initialize() {
-        menuBarHandler = new UserMenuBarHandler(signOutButton);
-        welcomeLabel.setText("Welcome, User!");
+        super.initialize();
         setupSearchResultsListView();
     }
 
     @FXML
     public void search() {
+        checkComponent(searchField, "searchField");
+        checkComponent(searchResultsListView, "searchResultsListView");
+        if (searchField == null || searchResultsListView == null) return;
+
         String query = searchField.getText().trim().toLowerCase();
         if (query.isEmpty()) {
             AlertUtil.showError("Please enter a search query.");
@@ -85,6 +85,9 @@ public class SearchPageController {
     }
 
     private void setupSearchResultsListView() {
+        checkComponent(searchResultsListView, "searchResultsListView");
+        if (searchResultsListView == null) return;
+
         searchResultsListView.setOnMouseClicked(event -> {
             String selectedItem = searchResultsListView.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
@@ -121,9 +124,4 @@ public class SearchPageController {
             }
         });
     }
-
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToSearch() { menuBarHandler.goToSearch(); }
-    @FXML public void goToCharts() { menuBarHandler.goToCharts(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
 }

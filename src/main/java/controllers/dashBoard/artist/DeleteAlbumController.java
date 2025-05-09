@@ -21,7 +21,6 @@ public class DeleteAlbumController extends BaseArtistController {
     @FXML private Label releaseDateLabel;
     @FXML private ImageView albumArtImageView;
 
-    private String currentArtistNickName;
     private final SongFileManager songFileManager = new SongFileManager();
 
     @FXML
@@ -32,10 +31,9 @@ public class DeleteAlbumController extends BaseArtistController {
 
     private void initializeUI() {
         setArtistInfo(welcomeLabel);
-        currentArtistNickName = artist.getNickName();
         loadAlbums();
         addAlbumSelectionListener();
-        loadDefaultImage(albumArtImageView);
+        updateImageView(albumArtImageView, null); // Set default image
     }
 
     private void loadAlbums() {
@@ -43,18 +41,18 @@ public class DeleteAlbumController extends BaseArtistController {
         if (albumListView == null) return;
 
         albumListView.getItems().clear();
-        String safeNickName = FileUtil.sanitizeFileName(currentArtistNickName);
+        String safeNickName = FileUtil.sanitizeFileName(artist.getNickName());
         String albumsDir = FileUtil.DATA_DIR + "artists/" + safeNickName + "/albums/";
         File albumsDirFile = new File(albumsDir);
 
         if (!albumsDirFile.exists() || !albumsDirFile.isDirectory()) {
-            System.out.println("Albums directory not found or not a directory: " + albumsDir);
+            AlertUtil.showWarning("Albums directory not found or not a directory: " + albumsDir);
             return;
         }
 
         File[] albumFolders = albumsDirFile.listFiles(File::isDirectory);
         if (albumFolders == null || albumFolders.length == 0) {
-            System.out.println("No album folders found in: " + albumsDir);
+            AlertUtil.showWarning("No album folders found in: " + albumsDir);
             return;
         }
 
@@ -88,7 +86,7 @@ public class DeleteAlbumController extends BaseArtistController {
     }
 
     private void displayAlbumMetadata(String selectedAlbum) {
-        String albumDir = songFileManager.getAlbumDir(currentArtistNickName, selectedAlbum);
+        String albumDir = songFileManager.getAlbumDir(artist.getNickName(), selectedAlbum);
         File albumFile = new File(albumDir + "album.txt");
         if (albumFile.exists()) {
             List<String> albumData = FileUtil.readFile(albumFile.getPath());
@@ -118,7 +116,7 @@ public class DeleteAlbumController extends BaseArtistController {
         checkComponent(releaseDateLabel, "releaseDateLabel");
         if (titleLabel != null) titleLabel.setText("Title: ");
         if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: N/A");
-        loadDefaultImage(albumArtImageView);
+        updateImageView(albumArtImageView, null);
     }
 
     @FXML
@@ -130,7 +128,7 @@ public class DeleteAlbumController extends BaseArtistController {
             return;
         }
 
-        songFileManager.deleteAlbum(currentArtistNickName, selectedAlbum);
+        songFileManager.deleteAlbum(artist.getNickName(), selectedAlbum);
         loadAlbums();
         clearMetadata();
         AlertUtil.showSuccess("Deleted album: " + selectedAlbum);

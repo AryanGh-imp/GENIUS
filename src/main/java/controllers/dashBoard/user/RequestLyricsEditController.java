@@ -8,22 +8,19 @@ import services.SessionManager;
 import services.file.LyricsRequestManager;
 import utils.AlertUtil;
 
-public class RequestLyricsEditController {
+public class RequestLyricsEditController extends BaseUserController {
 
-    @FXML private Label welcomeLabel;
     @FXML private Label songInfoLabel;
     @FXML private TextArea suggestedLyricsArea;
     @FXML private Button submitRequestButton;
-    @FXML private Button signOutButton;
 
-    private UserMenuBarHandler menuBarHandler;
     private LyricsRequestManager lyricsRequestManager;
 
+    @Override
     @FXML
     public void initialize() {
-        menuBarHandler = new UserMenuBarHandler(signOutButton);
+        super.initialize();
         lyricsRequestManager = new LyricsRequestManager();
-        welcomeLabel.setText("Welcome, " + SessionManager.getInstance().getCurrentUsername() + "!");
         loadSongInfo();
     }
 
@@ -31,6 +28,9 @@ public class RequestLyricsEditController {
         String artistName = SessionManager.getInstance().getSelectedArtist();
         String songTitle = SessionManager.getInstance().getSelectedSong();
         String albumTitle = SessionManager.getInstance().getSelectedAlbum();
+
+        checkComponent(songInfoLabel, "songInfoLabel");
+        if (songInfoLabel == null) return;
 
         if (songTitle != null) {
             songInfoLabel.setText("Song: " + songTitle + " - " + artistName + (albumTitle != null ? " (Album: " + albumTitle + ")" : ""));
@@ -41,6 +41,10 @@ public class RequestLyricsEditController {
 
     @FXML
     public void submitRequest() {
+        checkComponent(suggestedLyricsArea, "suggestedLyricsArea");
+        checkComponent(submitRequestButton, "submitRequestButton");
+        if (suggestedLyricsArea == null) return;
+
         String suggestedLyrics = suggestedLyricsArea.getText().trim();
         if (suggestedLyrics.isEmpty()) {
             AlertUtil.showError("Please provide suggested lyrics.");
@@ -60,9 +64,4 @@ public class RequestLyricsEditController {
             AlertUtil.showError("Failed to submit request: " + e.getMessage());
         }
     }
-
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToSearch() { menuBarHandler.goToSearch(); }
-    @FXML public void goToCharts() { menuBarHandler.goToCharts(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
 }

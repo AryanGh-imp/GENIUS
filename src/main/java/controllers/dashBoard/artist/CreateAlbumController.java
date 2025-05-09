@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import services.file.SongFileManager;
@@ -12,8 +11,6 @@ import utils.AlertUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Objects;
 
 public class CreateAlbumController extends BaseArtistController {
 
@@ -24,7 +21,6 @@ public class CreateAlbumController extends BaseArtistController {
     @FXML private ImageView imagePreview;
     @FXML private Button submitButton;
 
-    private String currentArtistNickName;
     private final SongFileManager songFileManager = new SongFileManager();
     private File selectedImageFile;
 
@@ -36,16 +32,7 @@ public class CreateAlbumController extends BaseArtistController {
 
     private void initializeUI() {
         setArtistInfo(welcomeLabel);
-        currentArtistNickName = artist.getNickName();
-        loadDefaultImage(imagePreview);
-    }
-
-    public void loadDefaultImage(ImageView imageView) {
-        try {
-            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Failed to load default image: " + e.getMessage());
-        }
+        updateImageView(imagePreview, null); // Set default image
     }
 
     @FXML
@@ -60,7 +47,7 @@ public class CreateAlbumController extends BaseArtistController {
             selectedImageFile = file;
             checkComponent(imagePreview, "imagePreview");
             if (imagePreview != null) {
-                imagePreview.setImage(new Image(file.toURI().toString()));
+                updateImageView(imagePreview, file.toURI().toString());
             }
         }
     }
@@ -76,7 +63,7 @@ public class CreateAlbumController extends BaseArtistController {
 
         try {
             String albumArtPath = selectedImageFile != null ? saveAlbumArt(albumTitle) : null;
-            songFileManager.saveAlbum(currentArtistNickName, albumTitle, LocalDate.now().toString(), null, albumArtPath);
+            songFileManager.saveAlbum(artist.getNickName(), albumTitle, java.time.LocalDate.now().toString(), null, albumArtPath);
             resetForm();
             AlertUtil.showSuccess("Album '" + albumTitle + "' created successfully!");
         } catch (Exception e) {
@@ -88,7 +75,7 @@ public class CreateAlbumController extends BaseArtistController {
         checkComponent(selectedImageFile, "selectedImageFile");
         if (selectedImageFile == null) return null;
 
-        return songFileManager.saveAlbumArt(currentArtistNickName, albumTitle, selectedImageFile);
+        return songFileManager.saveAlbumArt(artist.getNickName(), albumTitle, selectedImageFile);
     }
 
     private void resetForm() {
@@ -103,7 +90,7 @@ public class CreateAlbumController extends BaseArtistController {
 
     private void resetImage() {
         checkComponent(imagePreview, "imagePreview");
-        if (imagePreview != null) loadDefaultImage(imagePreview);
+        if (imagePreview != null) updateImageView(imagePreview, null);
         selectedImageFile = null;
     }
 

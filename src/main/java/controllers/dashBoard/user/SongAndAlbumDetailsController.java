@@ -7,7 +7,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import models.music.Album;
 import models.music.Comment;
@@ -23,9 +22,8 @@ import utils.SceneUtil;
 import java.io.File;
 import java.util.List;
 
-public class SongAndAlbumDetailsController {
+public class SongAndAlbumDetailsController extends BaseUserController {
 
-    @FXML private Label welcomeLabel;
     @FXML private Label titleLabel;
     @FXML private Label artistLabel;
     @FXML private Label albumLabel;
@@ -40,17 +38,15 @@ public class SongAndAlbumDetailsController {
     @FXML private TextField commentField;
     @FXML private Button submitCommentButton;
     @FXML private ImageView coverImageView;
-    @FXML private Button signOutButton;
     @FXML private Button likeButton;
 
-    private UserMenuBarHandler menuBarHandler;
     private final SongFileManager songFileManager = new SongFileManager();
     private final SearchAndChartManager searchManager = new SearchAndChartManager(new ArtistFileManager(), new SongFileManager());
 
+    @Override
     @FXML
     public void initialize() {
-        menuBarHandler = new UserMenuBarHandler(signOutButton);
-        welcomeLabel.setText("Welcome, " + SessionManager.getInstance().getCurrentUsername() + "!");
+        super.initialize();
         loadDetails();
         setupAlbumSongsListView();
         setupCommentsListView();
@@ -61,52 +57,92 @@ public class SongAndAlbumDetailsController {
         String songTitle = SessionManager.getInstance().getSelectedSong();
         String albumTitle = SessionManager.getInstance().getSelectedAlbum();
 
-        artistLabel.setText("Artist: " + artistName);
+        checkComponent(artistLabel, "artistLabel");
+        if (artistLabel != null) artistLabel.setText("Artist: " + artistName);
 
-        lyricsArea.setVisible(false);
-        requestLyricsEditButton.setVisible(false);
-        likesLabel.setVisible(false);
-        likeButton.setVisible(false);
+        checkComponent(lyricsArea, "lyricsArea");
+        checkComponent(requestLyricsEditButton, "requestLyricsEditButton");
+        checkComponent(likesLabel, "likesLabel");
+        checkComponent(likeButton, "likeButton");
+        if (lyricsArea != null) lyricsArea.setVisible(false);
+        if (requestLyricsEditButton != null) requestLyricsEditButton.setVisible(false);
+        if (likesLabel != null) likesLabel.setVisible(false);
+        if (likeButton != null) likeButton.setVisible(false);
 
         if (songTitle != null) {
-            titleLabel.setText(songTitle);
-            File songFile = getSongFile(artistName, songTitle, albumTitle);
-            if (songFile.exists()) {
-                Song song = loadAndProcessSong(songFile, albumTitle, artistName);
-                updateSongDetails(song);
-                loadCoverImage(songFile.getParent());
+            loadSongDetails(artistName, songTitle, albumTitle);
+        } else if (albumTitle != null) {
+            loadAlbumDetails(artistName, albumTitle);
+        }
+    }
+
+    private void loadSongDetails(String artistName, String songTitle, String albumTitle) {
+        checkComponent(titleLabel, "titleLabel");
+        if (titleLabel != null) titleLabel.setText(songTitle);
+
+        File songFile = getSongFile(artistName, songTitle, albumTitle);
+        if (songFile.exists()) {
+            Song song = loadAndProcessSong(songFile, albumTitle, artistName);
+            updateSongDetails(song);
+            loadImage(coverImageView, songFile.getParent() + "/cover.png");
+            checkComponent(commentsListView, "commentsListView");
+            if (commentsListView != null) {
                 commentsListView.getItems().setAll(songFileManager.loadComments(artistName, songTitle, albumTitle));
             }
-        } else if (albumTitle != null) {
-            titleLabel.setText(albumTitle);
-            albumLabel.setVisible(false);
-            songsLabel.setVisible(true);
-            albumSongsListView.setVisible(true);
+        }
+    }
 
-            File albumFile = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/albums/" + albumTitle + "/album.txt");
-            if (albumFile.exists()) {
-                List<String> albumData = loadFileData(albumFile.getPath());
-                for (String line : albumData) {
-                    if (line.startsWith("Release Date: ")) {
-                        releaseDateLabel.setText("Release Date: " + line.substring("Release Date: ".length()));
-                    } else if (line.startsWith("Views: ")) {
-                        viewsLabel.setText("Views: " + line.substring("Views: ".length()));
-                    }
-                }
+    private void loadAlbumDetails(String artistName, String albumTitle) {
+        checkComponent(titleLabel, "titleLabel");
+        checkComponent(albumLabel, "albumLabel");
+        checkComponent(songsLabel, "songsLabel");
+        checkComponent(albumSongsListView, "albumSongsListView");
+        if (titleLabel != null) titleLabel.setText(albumTitle);
+        if (albumLabel != null) albumLabel.setVisible(false);
+        if (songsLabel != null) songsLabel.setVisible(true);
+        if (albumSongsListView != null) albumSongsListView.setVisible(true);
 
-                loadCoverImage(albumFile.getParent());
+        File albumFile = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/albums/" + albumTitle + "/album.txt");
+        if (albumFile.exists()) {
+            List<String> albumData = loadFileData(albumFile.getPath());
+            updateAlbumMetadata(albumData);
+            loadImage(coverImageView, albumFile.getParent() + "/cover.png");
+            checkComponent(commentsListView, "commentsListView");
+            if (commentsListView != null) {
                 commentsListView.getItems().setAll(songFileManager.loadComments(artistName, null, albumTitle));
+            }
+            loadAlbumSongs(albumData);
+        }
+    }
 
-                String songsLine = albumData.stream()
-                        .filter(line -> line.startsWith("Songs: "))
-                        .findFirst()
-                        .orElse("Songs: ");
-                String[] songTitles = songsLine.substring("Songs: ".length()).split(",");
-                for (String title : songTitles) {
-                    if (!title.trim().isEmpty()) {
-                        albumSongsListView.getItems().add(title.trim());
-                    }
+    private void updateAlbumMetadata(List<String> albumData) {
+        for (String line : albumData) {
+            if (line.startsWith("Release Date: ")) {
+                checkComponent(releaseDateLabel, "releaseDateLabel");
+                if (releaseDateLabel != null) {
+                    releaseDateLabel.setText("Release Date: " + line.substring("Release Date: ".length()));
                 }
+            } else if (line.startsWith("Views: ")) {
+                checkComponent(viewsLabel, "viewsLabel");
+                if (viewsLabel != null) {
+                    viewsLabel.setText("Views: " + line.substring("Views: ".length()));
+                }
+            }
+        }
+    }
+
+    private void loadAlbumSongs(List<String> albumData) {
+        checkComponent(albumSongsListView, "albumSongsListView");
+        if (albumSongsListView == null) return;
+
+        String songsLine = albumData.stream()
+                .filter(line -> line.startsWith("Songs: "))
+                .findFirst()
+                .orElse("Songs: ");
+        String[] songTitles = songsLine.substring("Songs: ".length()).split(",");
+        for (String title : songTitles) {
+            if (!title.trim().isEmpty()) {
+                albumSongsListView.getItems().add(title.trim());
             }
         }
     }
@@ -122,7 +158,6 @@ public class SongAndAlbumDetailsController {
     protected Song loadAndProcessSong(File songFile, String albumTitle, String artistName) {
         List<String> songData = loadFileData(songFile.getPath());
         String lyrics = searchManager.loadLyrics(songFile.getPath());
-        // Default values for email and password
         Artist artist = new Artist("", artistName, "defaultPassword");
         return songFileManager.parseSongFromFile(songData, albumTitle != null ? new Album(albumTitle, "Not set", artist) : null, lyrics);
     }
@@ -157,42 +192,32 @@ public class SongAndAlbumDetailsController {
         }
     }
 
-    protected List<String> loadFileData(String filePath) {
-        try {
-            return FileUtil.readFile(filePath);
-        } catch (Exception e) {
-            System.err.println("Error loading file data: " + e.getMessage());
-            return List.of();
-        }
-    }
-
-    private void loadCoverImage(String directoryPath) {
-        File imageFile = new File(directoryPath, "cover.png");
-        if (imageFile.exists()) {
-            try {
-                coverImageView.setImage(new Image(imageFile.toURI().toString()));
-            } catch (Exception e) {
-                System.err.println("Error loading cover image: " + e.getMessage());
-                coverImageView.setImage(new Image("GENIUS/src/main/resources/pics/Genius.com_logo_yellow.png"));
-            }
-        } else {
-            coverImageView.setImage(new Image("GENIUS/src/main/resources/pics/Genius.com_logo_yellow.png"));
-        }
-    }
-
     private void updateSongDetails(Song song) {
-        releaseDateLabel.setText("Release Date: " + song.getReleaseDate());
-        viewsLabel.setText("Views: " + song.getViews());
-        likesLabel.setText("Likes: " + song.getLikes());
-        lyricsArea.setText(song.getLyrics());
+        checkComponent(releaseDateLabel, "releaseDateLabel");
+        checkComponent(viewsLabel, "viewsLabel");
+        checkComponent(likesLabel, "likesLabel");
+        checkComponent(lyricsArea, "lyricsArea");
+        checkComponent(requestLyricsEditButton, "requestLyricsEditButton");
+        checkComponent(likeButton, "likeButton");
 
-        lyricsArea.setVisible(true);
-        requestLyricsEditButton.setVisible(true);
-        likesLabel.setVisible(true);
-        likeButton.setVisible(true);
+        if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + song.getReleaseDate());
+        if (viewsLabel != null) viewsLabel.setText("Views: " + song.getViews());
+        if (likesLabel != null) {
+            likesLabel.setText("Likes: " + song.getLikes());
+            likesLabel.setVisible(true);
+        }
+        if (lyricsArea != null) {
+            lyricsArea.setText(song.getLyrics());
+            lyricsArea.setVisible(true);
+        }
+        if (requestLyricsEditButton != null) requestLyricsEditButton.setVisible(true);
+        if (likeButton != null) likeButton.setVisible(true);
     }
 
     private void setupAlbumSongsListView() {
+        checkComponent(albumSongsListView, "albumSongsListView");
+        if (albumSongsListView == null) return;
+
         albumSongsListView.setOnMouseClicked(event -> {
             String selectedSong = albumSongsListView.getSelectionModel().getSelectedItem();
             if (selectedSong != null) {
@@ -203,25 +228,26 @@ public class SongAndAlbumDetailsController {
     }
 
     private void setupCommentsListView() {
+        checkComponent(commentsListView, "commentsListView");
+        if (commentsListView == null) return;
+
         commentsListView.setCellFactory(param -> new ListCell<Comment>() {
             @Override
             protected void updateItem(Comment comment, boolean empty) {
                 super.updateItem(comment, empty);
-                if (empty || comment == null) {
-                    setText(null);
-                } else {
-                    setText(comment.toString());
-                }
+                setText(empty || comment == null ? null : comment.toString());
             }
         });
     }
 
     @FXML
     public void submitComment() {
+        checkComponent(commentField, "commentField");
+        checkComponent(commentsListView, "commentsListView");
+        if (commentField == null || commentsListView == null) return;
+
         String commentText = commentField.getText().trim();
-        if (commentText.isEmpty()) {
-            return;
-        }
+        if (commentText.isEmpty()) return;
 
         String username = SessionManager.getInstance().getCurrentUsername();
         String artistName = SessionManager.getInstance().getSelectedArtist();
@@ -229,15 +255,16 @@ public class SongAndAlbumDetailsController {
         String albumTitle = SessionManager.getInstance().getSelectedAlbum();
 
         songFileManager.addComment(artistName, songTitle, albumTitle, commentText, username);
-
-        List<Comment> comments = songFileManager.loadComments(artistName, songTitle, albumTitle);
-        commentsListView.getItems().setAll(comments);
+        commentsListView.getItems().setAll(songFileManager.loadComments(artistName, songTitle, albumTitle));
         commentField.clear();
     }
 
     @FXML
     public void requestLyricsEdit() {
-        SceneUtil.changeScene(requestLyricsEditButton, "/FXML-files/user/RequestLyricsEdit.fxml");
+        checkComponent(requestLyricsEditButton, "requestLyricsEditButton");
+        if (requestLyricsEditButton != null) {
+            SceneUtil.changeScene(requestLyricsEditButton, "/FXML-files/user/RequestLyricsEdit.fxml");
+        }
     }
 
     @FXML
@@ -255,9 +282,4 @@ public class SongAndAlbumDetailsController {
             }
         }
     }
-
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToSearch() { menuBarHandler.goToSearch(); }
-    @FXML public void goToCharts() { menuBarHandler.goToCharts(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
 }

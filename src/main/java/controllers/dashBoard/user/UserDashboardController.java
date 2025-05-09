@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import models.account.Account;
@@ -14,7 +13,6 @@ import services.SessionManager;
 import services.file.ArtistFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
-import utils.SceneUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,22 +22,21 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UserDashboardController {
+public class UserDashboardController extends BaseUserController {
 
-    @FXML private Label welcomeLabel;
     @FXML private Label usernameLabel;
     @FXML private Label joinedDateLabel;
     @FXML private ListView<String> followingArtistsListView;
     @FXML private ImageView profileImageView;
     @FXML private Button changeProfileImageButton;
-    @FXML private Button signOutButton;
 
-    private UserMenuBarHandler menuBarHandler;
     private final ArtistFileManager artistFileManager = new ArtistFileManager();
+    String username = SessionManager.getInstance().getCurrentUsername();
 
+    @Override
     @FXML
     public void initialize() {
-        menuBarHandler = new UserMenuBarHandler(signOutButton);
+        super.initialize();
         loadUserProfile();
         loadFollowingArtists();
         loadProfileImage();
@@ -47,22 +44,21 @@ public class UserDashboardController {
     }
 
     private void loadUserProfile() {
-        UserInfo userInfo = getCurrentUserInfo();
-        welcomeLabel.setText("Welcome, " + userInfo.username + "!");
-        usernameLabel.setText("Username: " + userInfo.username);
+        checkComponent(usernameLabel, "usernameLabel");
+        if (usernameLabel != null) usernameLabel.setText("Username: " + username);
 
-        File userProfileFile = new File(FileUtil.DATA_DIR + "users/" + userInfo.username + "/profile.txt");
+        File userProfileFile = new File(FileUtil.DATA_DIR + "users/" + username + "/profile.txt");
         List<String> profileData = loadFileData(userProfileFile.getPath());
         String joinedDate = profileData.stream()
                 .filter(line -> line.startsWith("Joined Date: "))
                 .findFirst()
                 .map(line -> line.substring("Joined Date: ".length()))
                 .orElse(String.valueOf(LocalDate.now()));
-        joinedDateLabel.setText("Joined Date: " + joinedDate);
+        checkComponent(joinedDateLabel, "joinedDateLabel");
+        if (joinedDateLabel != null) joinedDateLabel.setText("Joined Date: " + joinedDate);
     }
 
     private void loadFollowingArtists() {
-        UserInfo userInfo = getCurrentUserInfo();
         Account currentAccount = SessionManager.getInstance().getCurrentAccount();
         if (currentAccount == null) {
             AlertUtil.showError("User not logged in.");
@@ -74,7 +70,10 @@ public class UserDashboardController {
             return;
         }
 
-        List<String> artistNames = loadFileData(new File(FileUtil.DATA_DIR + "users/" + userInfo.username + "/following.txt").getPath())
+        checkComponent(followingArtistsListView, "followingArtistsListView");
+        if (followingArtistsListView == null) return;
+
+        List<String> artistNames = loadFileData(new File(FileUtil.DATA_DIR + "users/" + username + "/following.txt").getPath())
                 .stream()
                 .filter(line -> !line.trim().isEmpty())
                 .map(line -> {
@@ -96,75 +95,36 @@ public class UserDashboardController {
     }
 
     private void loadProfileImage() {
-        UserInfo userInfo = getCurrentUserInfo();
-        File profileImageFile = new File(FileUtil.DATA_DIR + "users/" + userInfo.username + "/profile_image.png");
-        loadOrUpdateImage(profileImageFile);
+        loadImage(profileImageView, FileUtil.DATA_DIR + "users/" + username + "/profile_image.png");
     }
 
     private void setupFollowingArtistsListView() {
-        followingArtistsListView.setOnMouseClicked(event -> {
-            String selectedArtist = followingArtistsListView.getSelectionModel().getSelectedItem();
-            if (selectedArtist != null && !selectedArtist.equals("No artists followed.")) {
-                SessionManager.getInstance().setSelectedArtist(selectedArtist);
-                SceneUtil.changeScene(followingArtistsListView, "/FXML-files/user/ArtistProfile.fxml");
-            }
-        });
+        setupListView(followingArtistsListView, "/FXML-files/user/ArtistProfile.fxml");
     }
 
     @FXML
     public void changeProfileImage() {
+        checkComponent(changeProfileImageButton, "changeProfileImageButton");
+        if (changeProfileImageButton == null) return;
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Profile Image");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File selectedFile = fileChooser.showOpenDialog(changeProfileImageButton.getScene().getWindow());
 
         if (selectedFile != null) {
-            UserInfo userInfo = getCurrentUserInfo();
-            File destinationDir = new File(FileUtil.DATA_DIR + "users/" + userInfo.username);
+            File destinationDir = new File(FileUtil.DATA_DIR + "users/" + username);
             if (!destinationDir.exists()) {
                 destinationDir.mkdirs();
             }
 
-            File destinationFile = new File(destinationDir, "profile_image.png");
+            File destinationFile = new File(destinationDir, "user_icon.png");
             try {
                 Files.copy(selectedFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                loadOrUpdateImage(destinationFile);
+                loadImage(profileImageView, destinationFile.getPath());
             } catch (IOException e) {
                 AlertUtil.showError("Failed to change profile image: " + e.getMessage());
             }
         }
     }
-
-    private void loadOrUpdateImage(File imageFile) {
-        if (imageFile.exists()) {
-            profileImageView.setImage(new Image(imageFile.toURI().toString()));
-        }
-    }
-
-    private List<String> loadFileData(String filePath) {
-        try {
-            return FileUtil.readFile(filePath);
-        } catch (Exception e) {
-            System.err.println("Error loading file data: " + e.getMessage());
-            return List.of();
-        }
-    }
-
-    private UserInfo getCurrentUserInfo() {
-        String username = SessionManager.getInstance().getCurrentUsername();
-        return new UserInfo(username);
-    }
-
-    private static class UserInfo {
-        private final String username;
-
-        public UserInfo(String username) {
-            this.username = username;
-        }
-    }
-
-    @FXML public void goToProfile() { menuBarHandler.goToProfile(); }
-    @FXML public void goToSearch() { menuBarHandler.goToSearch(); }
-    @FXML public void goToCharts() { menuBarHandler.goToCharts(); }
-    @FXML public void signOut() { menuBarHandler.signOut(); }
 }

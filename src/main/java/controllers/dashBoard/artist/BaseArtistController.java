@@ -8,6 +8,7 @@ import models.account.Artist;
 import services.SessionManager;
 import utils.AlertUtil;
 
+import java.io.File;
 import java.util.Objects;
 
 public abstract class BaseArtistController {
@@ -29,23 +30,26 @@ public abstract class BaseArtistController {
             return true;
         } catch (IllegalStateException e) {
             AlertUtil.showError(e.getMessage());
-            menuBarHandler.signOut();
+            if (menuBarHandler != null) menuBarHandler.signOut();
             return false;
         }
     }
 
     protected void setArtistInfo(Label welcomeLabel) {
         checkComponent(welcomeLabel, "welcomeLabel");
-        if (welcomeLabel != null) {
+        if (welcomeLabel != null && artist != null) {
             welcomeLabel.setText("Welcome, " + artist.getNickName() + "!");
         }
     }
 
     protected void loadDefaultImage(ImageView imageView) {
-        try {
-            imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Failed to load default image: " + e.getMessage());
+        checkComponent(imageView, "imageView");
+        if (imageView != null) {
+            try {
+                imageView.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
+            } catch (Exception e) {
+                System.err.println("Failed to load default image: " + e.getMessage());
+            }
         }
     }
 
@@ -55,17 +59,14 @@ public abstract class BaseArtistController {
 
         try {
             if (albumArtPath != null && !albumArtPath.isEmpty()) {
-                java.io.File albumArtFile = new java.io.File(albumArtPath);
-                if (albumArtFile.exists()) {
-                    imageView.setImage(new Image(albumArtFile.toURI().toString()));
-                } else {
-                    loadDefaultImage(imageView);
-                }
+                File albumArtFile = new File(albumArtPath);
+                imageView.setImage(albumArtFile.exists() ? new Image(albumArtFile.toURI().toString()) : new Image(DEFAULT_IMAGE_PATH));
             } else {
                 loadDefaultImage(imageView);
             }
         } catch (Exception e) {
             loadDefaultImage(imageView);
+            System.err.println("Error loading image from " + albumArtPath + ": " + e.getMessage());
         }
     }
 

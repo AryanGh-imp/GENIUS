@@ -11,12 +11,10 @@ import models.music.Lyrics;
 import services.file.LyricsRequestManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
+import utils.FileUtil;
 
 import java.io.File;
 import java.util.List;
-
-import static utils.FileUtil.readFile;
-import static utils.FileUtil.sanitizeFileName;
 
 public class ArtistManagementController extends BaseArtistController {
 
@@ -117,8 +115,9 @@ public class ArtistManagementController extends BaseArtistController {
         checkComponent(originalLyricsTextArea, "originalLyricsTextArea");
         checkComponent(allSuggestedEditsTextArea, "allSuggestedEditsTextArea");
 
-        String songDir = new SongFileManager().getSongDir(request.artistNickname(), request.songTitle(), request.albumName());
-        File songFile = new File(songDir + sanitizeFileName(request.songTitle()) + ".txt");
+        SongFileManager songFileManager = new SongFileManager();
+        String songDir = songFileManager.getSongDir(request.artistNickname(), request.songTitle(), request.albumName());
+        File songFile = new File(songDir + FileUtil.sanitizeFileName(request.songTitle()) + ".txt");
 
         if (!songFile.exists()) {
             if (originalLyricsTextArea != null) originalLyricsTextArea.setText("Lyrics not found.");
@@ -126,7 +125,7 @@ public class ArtistManagementController extends BaseArtistController {
             return;
         }
 
-        List<String> songData = readFile(songFile.getPath());
+        List<String> songData = FileUtil.readFile(songFile.getPath());
         String lyricsText = songData.stream()
                 .filter(line -> line.startsWith("Lyrics: "))
                 .map(line -> line.substring("Lyrics: ".length()))

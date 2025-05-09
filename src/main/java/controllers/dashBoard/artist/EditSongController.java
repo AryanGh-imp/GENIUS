@@ -2,7 +2,6 @@ package controllers.dashBoard.artist;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import services.file.SongFileManager;
@@ -11,7 +10,10 @@ import utils.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EditSongController extends BaseArtistController {
 
@@ -27,7 +29,6 @@ public class EditSongController extends BaseArtistController {
     private final SongFileManager songFileManager = new SongFileManager();
     private final Map<String, String> songToPathMap = new HashMap<>();
     private File selectedImageFile;
-    private static final String DEFAULT_IMAGE_PATH = "/pics/Genius.com_logo_yellow.png";
 
     @FXML
     public void initialize() {
@@ -39,7 +40,7 @@ public class EditSongController extends BaseArtistController {
         setArtistInfo(welcomeLabel);
         loadSongs();
         addSongSelectionListener();
-        updateImageView(null); // Set default image
+        updateImageView(imagePreview, null); // Set default image
     }
 
     private void loadSongs() {
@@ -54,7 +55,6 @@ public class EditSongController extends BaseArtistController {
         File singlesDir = new File(artistDir + "singles/");
         File albumsDir = new File(artistDir + "albums/");
 
-        // Load singles
         if (singlesDir.exists() && singlesDir.isDirectory()) {
             File[] songFolders = singlesDir.listFiles(File::isDirectory);
             if (songFolders != null) {
@@ -72,7 +72,6 @@ public class EditSongController extends BaseArtistController {
             }
         }
 
-        // Load songs from albums
         if (albumsDir.exists() && albumsDir.isDirectory()) {
             File[] albumFolders = albumsDir.listFiles(File::isDirectory);
             if (albumFolders != null) {
@@ -156,7 +155,7 @@ public class EditSongController extends BaseArtistController {
         }
 
         updateFields(title, lyrics);
-        updateImageView(albumArtPath);
+        updateImageView(imagePreview, albumArtPath);
     }
 
     private void updateFields(String title, String lyrics) {
@@ -167,37 +166,9 @@ public class EditSongController extends BaseArtistController {
         if (lyricsArea != null) lyricsArea.setText(lyrics);
     }
 
-    private void updateImageView(String albumArtPath) {
-        checkComponent(imagePreview, "imagePreview");
-        if (imagePreview == null) return;
-
-        try {
-            if (albumArtPath != null && !albumArtPath.isEmpty()) {
-                File albumArtFile = new File(albumArtPath);
-                if (albumArtFile.exists()) {
-                    imagePreview.setImage(new Image(albumArtFile.toURI().toString()));
-                } else {
-                    loadDefaultImage();
-                }
-            } else {
-                loadDefaultImage();
-            }
-        } catch (Exception e) {
-            loadDefaultImage();
-        }
-    }
-
-    private void loadDefaultImage() {
-        try {
-            imagePreview.setImage(new Image(Objects.requireNonNull(getClass().getResource(DEFAULT_IMAGE_PATH)).toExternalForm()));
-        } catch (Exception e) {
-            System.err.println("Failed to load default image: " + e.getMessage());
-        }
-    }
-
     private void clearMetadata() {
         updateFields("", "");
-        loadDefaultImage();
+        updateImageView(imagePreview, null);
         selectedImageFile = null;
     }
 
@@ -211,7 +182,7 @@ public class EditSongController extends BaseArtistController {
         File file = fileChooser.showOpenDialog(chooseImageButton.getScene().getWindow());
         if (file != null) {
             selectedImageFile = file;
-            updateImageView(file.toURI().toString());
+            updateImageView(imagePreview, file.toURI().toString());
         }
     }
 
@@ -319,7 +290,6 @@ public class EditSongController extends BaseArtistController {
             }
         }
 
-        // Add missing fields if not present
         if (!titleUpdated) updatedData.add("Song Title: " + newTitle);
         if (!lyricsUpdated) updatedData.add("Lyrics: " + lyrics);
         if (!artUpdated && albumArtPath != null) updatedData.add("AlbumArtPath: " + albumArtPath);

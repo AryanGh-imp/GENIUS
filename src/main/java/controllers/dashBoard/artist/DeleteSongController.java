@@ -26,7 +26,6 @@ public class DeleteSongController extends BaseArtistController {
     @FXML private Label likesLabel;
     @FXML private ImageView albumArtImageView;
 
-    private String currentArtistNickName;
     private final SongFileManager songFileManager = new SongFileManager();
     private final Map<String, String> songToPathMap = new HashMap<>();
 
@@ -38,10 +37,9 @@ public class DeleteSongController extends BaseArtistController {
 
     private void initializeUI() {
         setArtistInfo(welcomeLabel);
-        currentArtistNickName = artist.getNickName();
         loadSongs();
         addSongSelectionListener();
-        loadDefaultImage(albumArtImageView);
+        updateImageView(albumArtImageView, null); // Set default image
     }
 
     private void loadSongs() {
@@ -51,7 +49,7 @@ public class DeleteSongController extends BaseArtistController {
         songListView.getItems().clear();
         songToPathMap.clear();
 
-        String safeNickName = FileUtil.sanitizeFileName(currentArtistNickName);
+        String safeNickName = FileUtil.sanitizeFileName(artist.getNickName());
         String artistDir = FileUtil.DATA_DIR + "artists/" + safeNickName + "/";
         loadSongsFromDirectory(artistDir + "singles/", null);
         loadSongsFromDirectory(artistDir + "albums/", true);
@@ -179,7 +177,7 @@ public class DeleteSongController extends BaseArtistController {
         if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: N/A");
         if (viewsLabel != null) viewsLabel.setText("Views: 0");
         if (likesLabel != null) likesLabel.setText("Likes: 0");
-        loadDefaultImage(albumArtImageView);
+        updateImageView(albumArtImageView, null);
     }
 
     @FXML
@@ -195,7 +193,7 @@ public class DeleteSongController extends BaseArtistController {
         String songTitle = songInfo[0];
         String albumName = songInfo[1];
 
-        songFileManager.deleteSong(currentArtistNickName, songTitle, albumName);
+        songFileManager.deleteSong(artist.getNickName(), songTitle, albumName);
         loadSongs();
         clearMetadata();
         AlertUtil.showSuccess("Deleted song: " + songTitle + (albumName != null ? " from album: " + albumName : ""));
