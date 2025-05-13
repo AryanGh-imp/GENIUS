@@ -12,6 +12,9 @@ import utils.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -79,6 +82,7 @@ public class AddSongPageController extends BaseArtistController {
         String albumsDir = FileUtil.DATA_DIR + "artists/" + safeNickName + "/albums/";
         File albumsDirFile = new File(albumsDir);
 
+        FileUtil.ensureDataDirectoryExists(albumsDir);
         if (!albumsDirFile.exists() || !albumsDirFile.isDirectory()) {
             AlertUtil.showWarning("Albums directory not found or not a directory: " + albumsDir);
             return;
@@ -123,8 +127,6 @@ public class AddSongPageController extends BaseArtistController {
     @FXML
     private void chooseImage() {
         checkComponent(chooseImageButton, "chooseImageButton");
-        if (chooseImageButton == null) return;
-
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Album Art");
         fileChooser.getExtensionFilters().addAll(
@@ -134,7 +136,7 @@ public class AddSongPageController extends BaseArtistController {
             selectedImageFile = file;
             checkComponent(imagePreview, "imagePreview");
             if (imagePreview != null) {
-                updateImageView(imagePreview, file.toURI().toString());
+                updateImageView(imagePreview, file.getAbsolutePath());
             }
         }
     }
@@ -153,16 +155,52 @@ public class AddSongPageController extends BaseArtistController {
             Song song = new Song(title, lyrics, LocalDate.now().toString());
             song.addArtist(artist);
 
-            String albumArtPath = selectedImageFile != null ? saveAlbumArt(artistName, isSingleTrack ? title : selectedAlbum) : null;
-            if (albumArtPath != null) {
-                song.setAlbumArtPath(albumArtPath);
+            String albumArtPath = null;
+            if (selectedImageFile != null) {
+                if (isSingleTrack) {
+                    albumArtPath = songFileManager.saveSingleSongArt(artistName, title, selectedImageFile);
+                } else {
+                    // For songs in an album, we save the image in the song directory.
+                    String songDir = songFileManager.getSongDir(artistName, title, selectedAlbum);
+                    FileUtil.ensureDataDirectoryExists(songDir);
+                    String fileExtension = selectedImageFile.getName().substring(selectedImageFile.getName().lastIndexOf("."));
+                    String newArtFile = songDir + "song_art" + fileExtension;
+                    try {
+                        Files.copy(selectedImageFile.toPath(), Paths.get(newArtFile), StandardCopyOption.REPLACE_EXISTING);
+                        albumArtPath = newArtFile;
+                        System.out.println("Saved song art to: " + newArtFile);
+                    } catch (IOException e) {
+                        System.err.println("Failed to save song art to: " + newArtFile + " - " + e.getMessage());
+                        AlertUtil.showError("Failed to save song art: " + e.getMessage());
+                        return;
+                    }
+                }
             }
 
             Album album = manageSongPlacement(isSingleTrack, selectedAlbum, song);
-            saveSongAndUpdateUI(artistName, title, selectedAlbum, lyrics, isSingleTrack, album);
+            if (!isSingleTrack && albumArtPath == null && album != null) {
+                albumArtPath = album.getAlbumArtPath();
+            }
+
+            saveSongAndUpdateUI(artistName, title, selectedAlbum, lyrics, isSingleTrack, albumArtPath);
         } catch (Exception e) {
             AlertUtil.showError("Error adding song: " + e.getMessage());
         }
+    }
+
+    private void saveSongAndUpdateUI(String artistName, String title, String selectedAlbum, String lyrics, boolean isSingleTrack, String albumArtPath){
+        songFileManager.saveSong(
+                List.of(artistName),
+                title,
+                isSingleTrack ? null : selectedAlbum,
+                lyrics,
+                LocalDate.now().toString(),
+                0, 0,
+                albumArtPath);
+
+        resetForm();
+        loadAlbums();
+        AlertUtil.showSuccess("Song '" + title + "' added successfully!");
     }
 
     private boolean validateInputs() {
@@ -187,13 +225,6 @@ public class AddSongPageController extends BaseArtistController {
         return true;
     }
 
-    private String saveAlbumArt(String artistName, String folderName) throws IOException {
-        checkComponent(selectedImageFile, "selectedImageFile");
-        if (selectedImageFile == null) return null;
-
-        return songFileManager.saveAlbumArt(artistName, folderName, selectedImageFile);
-    }
-
     private Album manageSongPlacement(boolean isSingleTrack, String selectedAlbum, Song song) {
         if (isSingleTrack) {
             artist.addSingle(song);
@@ -209,20 +240,6 @@ public class AddSongPageController extends BaseArtistController {
                     })
                     .addSong(song);
         }
-    }
-
-    private void saveSongAndUpdateUI(String artistName, String title, String selectedAlbum, String lyrics, boolean isSingleTrack, Album album) throws IOException {
-        songFileManager.saveSong(
-                List.of(artistName),
-                title,
-                isSingleTrack ? null : selectedAlbum,
-                lyrics,
-                LocalDate.now().toString(),
-                0, 0,
-                album != null ? album.getAlbumArtPath() : (isSingleTrack ? saveAlbumArt(artistName, title) : null));
-        resetForm();
-        loadAlbums();
-        AlertUtil.showSuccess("Song '" + title + "' added successfully!");
     }
 
     private void resetForm() {

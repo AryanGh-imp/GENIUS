@@ -32,6 +32,7 @@ public class UserDashboardController extends BaseUserController {
 
     private final ArtistFileManager artistFileManager = new ArtistFileManager();
     String username = SessionManager.getInstance().getCurrentUsername();
+    String email = SessionManager.getInstance().getCurrentEmail();
 
     @Override
     @FXML
@@ -47,7 +48,7 @@ public class UserDashboardController extends BaseUserController {
         checkComponent(usernameLabel, "usernameLabel");
         if (usernameLabel != null) usernameLabel.setText("Username: " + username);
 
-        File userProfileFile = new File(FileUtil.DATA_DIR + "users/" + username + "/profile.txt");
+        File userProfileFile = new File(FileUtil.DATA_DIR + "users/" + username + "/" + username + "-" + email + ".txt");
         List<String> profileData = loadFileData(userProfileFile.getPath());
         String joinedDate = profileData.stream()
                 .filter(line -> line.startsWith("Joined Date: "))
@@ -73,33 +74,33 @@ public class UserDashboardController extends BaseUserController {
         checkComponent(followingArtistsListView, "followingArtistsListView");
         if (followingArtistsListView == null) return;
 
-        List<String> artistNames = loadFileData(new File(FileUtil.DATA_DIR + "users/" + username + "/following.txt").getPath())
-                .stream()
-                .filter(line -> !line.trim().isEmpty())
-                .map(line -> {
-                    try {
-                        currentUser.loadFollowingArtistsFromFile(artistFileManager, SessionManager.getInstance().getUserFileManager());
-                        return currentUser.getFollowingArtists().stream()
-                                .filter(artist -> artist.getNickName().equals(line.trim()))
-                                .findFirst()
-                                .map(Artist::getNickName)
-                                .orElse(line.trim());
-                    } catch (Exception e) {
-                        AlertUtil.showError("Failed to load artist: " + e.getMessage());
-                        return line.trim();
-                    }
-                })
-                .collect(Collectors.toList());
+        try {
+            // Loading followed artists
+            currentUser.loadFollowingArtistsFromFile(artistFileManager, SessionManager.getInstance().getUserFileManager());
+            List<String> artistNames = currentUser.getFollowingArtists().stream()
+                    .map(Artist::getNickName)
+                    .collect(Collectors.toList());
 
-        followingArtistsListView.getItems().setAll(artistNames.isEmpty() ? List.of("No artists followed.") : artistNames);
+            // Adjust the list and ensure it is empty if necessary
+            followingArtistsListView.getItems().clear(); // Empty the list first.
+            if (!artistNames.isEmpty()) {
+                followingArtistsListView.getItems().addAll(artistNames);
+            } else {
+                followingArtistsListView.getItems().add("No artists followed.");
+            }
+        } catch (Exception e) {
+            AlertUtil.showError("Failed to load following artists: " + e.getMessage());
+            followingArtistsListView.getItems().clear(); // If there is an error, clear the list.
+            followingArtistsListView.getItems().add("No artists followed.");
+        }
     }
 
     private void loadProfileImage() {
-        loadImage(profileImageView, FileUtil.DATA_DIR + "users/" + username + "/profile_image.png");
+        loadImage(profileImageView, FileUtil.DATA_DIR + "users/" + username + "/user_icon.png");
     }
 
     private void setupFollowingArtistsListView() {
-        setupListView(followingArtistsListView, "/FXML-files/user/ArtistProfile.fxml");
+        setupListView(followingArtistsListView, "/FXML-files/user/ArtistProfile.fxml", "artist");
     }
 
     @FXML

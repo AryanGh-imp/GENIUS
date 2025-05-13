@@ -30,6 +30,7 @@ public class ArtistDashboardController extends BaseArtistController {
     private void initializeUI() {
         setArtistInfo(welcomeLabel);
         artist.loadSongsAndAlbums(songFileManager, artistFileManager);
+        saveChanges();
         setArtistNickname();
         displayStatistics();
     }
@@ -62,30 +63,38 @@ public class ArtistDashboardController extends BaseArtistController {
     }
 
     private int calculateTotalSongs() {
-        int totalSongs = artist.getSingles().size();
+        int total = artist.getSingles().size();
         for (Album album : artist.getAlbums()) {
-            totalSongs += album.getSongs().size();
+            total += album.getSongs().size();
         }
-        return totalSongs;
+        return total;
     }
 
     private int[] calculateLikesAndViews() {
         int totalLikes = 0;
         int totalViews = 0;
 
+        System.out.println("Singles Likes and Views:");
         for (Song song : artist.getSingles()) {
             totalLikes += song.getLikes();
             totalViews += song.getViews();
+            System.out.println("Song: " + song.getTitle() + ", Likes: " + song.getLikes() + ", Views: " + song.getViews());
         }
 
+        System.out.println("Album Songs Likes and Views:");
         for (Album album : artist.getAlbums()) {
             for (Song song : album.getSongs()) {
                 totalLikes += song.getLikes();
                 totalViews += song.getViews();
+                System.out.println("Album: " + album.getTitle() + ", Song: " + song.getTitle() + ", Likes: " + song.getLikes() + ", Views: " + song.getViews());
             }
         }
 
         return new int[]{totalLikes, totalViews};
+    }
+
+    public void saveChanges() {
+        songFileManager.saveSongsAndAlbumsForArtist(artist);
     }
 
     @FXML public void goToProfile() { super.goToProfile(); }

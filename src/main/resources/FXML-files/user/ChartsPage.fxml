@@ -74,13 +74,13 @@
                             </font>
                         </Label>
                         <Line endX="681.199951171875" layoutX="166.0" layoutY="97.0" startX="-100.0" stroke="WHITE" />
-                        <HBox layoutX="65.0" layoutY="105.0" prefHeight="562.0" prefWidth="782.0" spacing="20.0">
+                        <HBox alignment="CENTER_LEFT" layoutX="65.0" layoutY="105.0" prefHeight="441.0" prefWidth="782.0" spacing="20.0">
                             <children>
                                 <VBox prefHeight="562.0" prefWidth="782.0" spacing="10.0">
                                     <children>
                                         <Label fx:id="song1Label" text="1. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" top="20.0" />
@@ -88,7 +88,7 @@
                                         </Label>
                                         <Label fx:id="song2Label" text="2. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -96,7 +96,7 @@
                                         </Label>
                                         <Label fx:id="song3Label" text="3. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -104,7 +104,7 @@
                                         </Label>
                                         <Label fx:id="song4Label" text="4. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -112,7 +112,7 @@
                                         </Label>
                                         <Label fx:id="song5Label" text="5. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -120,7 +120,7 @@
                                         </Label>
                                         <Label fx:id="song6Label" text="6. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -128,7 +128,7 @@
                                         </Label>
                                         <Label fx:id="song7Label" text="7. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -136,7 +136,7 @@
                                         </Label>
                                         <Label fx:id="song8Label" text="8. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -144,7 +144,7 @@
                                         </Label>
                                         <Label fx:id="song9Label" text="9. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -152,7 +152,7 @@
                                         </Label>
                                         <Label fx:id="song10Label" text="10. Song Title - Artist (Views: 0, Likes: 0)" textFill="WHITE">
                                             <font>
-                                                <Font name="DIN Medium" size="20.0" />
+                                                <Font name="DIN Medium" size="16.0" />
                                             </font>
                                             <padding>
                                                 <Insets bottom="10.0" />
@@ -160,7 +160,7 @@
                                         </Label>
                                     </children>
                                 </VBox>
-                                <ImageView fitHeight="405.0" fitWidth="381.0" pickOnBounds="true" preserveRatio="true">
+                                <ImageView fitHeight="306.0" fitWidth="308.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@../../pics/Genius_logo_black.jpg" />
                                     </image>

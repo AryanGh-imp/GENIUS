@@ -11,16 +11,16 @@ import models.DTO.ArtistRequestDTO;
 import models.DTO.LyricsEditRequestDTO;
 import models.account.Admin;
 import models.music.Lyrics;
+import services.file.FileManager;
 import services.file.LyricsRequestManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
+import utils.FileUtil;
 import utils.SceneUtil;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-
-import static utils.FileUtil.*;
 
 public class AdminDashboardController {
     @FXML private ListView<Object> requestListView;
@@ -49,7 +49,6 @@ public class AdminDashboardController {
     @FXML private Button approveLyricsButton;
     @FXML private Button rejectLyricsButton;
     @FXML private TextArea originalLyricsTextArea;
-    @FXML private TextArea allSuggestedEditsTextArea;
 
     private Admin admin;
     private ArtistRequestDTO selectedArtistRequestDTO;
@@ -57,6 +56,7 @@ public class AdminDashboardController {
     private ObservableList<Object> requests;
 
     private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
+    private final FileManager fileManager = new LyricsRequestManager();
 
     @FXML
     private void initialize() {
@@ -129,19 +129,36 @@ public class AdminDashboardController {
     }
 
     private void loadLyricsDetails(LyricsEditRequestDTO request) {
-        if (originalLyricsTextArea != null || allSuggestedEditsTextArea != null) {
-            String songDir = new SongFileManager().getSongDir(request.artistNickname(), request.songTitle(), request.albumName());
-            File songFile = new File(songDir + sanitizeFileName(request.songTitle()) + ".txt");
-            if (songFile.exists()) {
-                List<String> songData = readFile(songFile.getPath());
-                String originalLyrics = extractField(songData, "Lyrics: ") != null ? extractField(songData, "Lyrics: ") : "";
-                Lyrics lyrics = new Lyrics(originalLyrics);
-                originalLyricsTextArea.setText(lyrics.getOriginalLyrics());
-                String suggestedEdits = extractField(songData, "# Suggested Edits: ");
-                allSuggestedEditsTextArea.setText(suggestedEdits != null ? suggestedEdits.replace("# Suggested Edits: ", "") : "No suggested edits available.");
+        if (originalLyricsTextArea != null) {
+            SongFileManager songFileManager = new SongFileManager();
+            String songDir = songFileManager.getSongDir(request.artistNickname(), request.songTitle(), request.albumName());
+            File songFile = new File(songDir + FileUtil.sanitizeFileName(request.songTitle()) + ".txt");
+            File lyricsFile = new File(songDir + FileUtil.sanitizeFileName(request.songTitle()) + "_lyrics.txt");
+
+            System.out.println("Checking song file: " + songFile.getPath());
+            System.out.println("Checking lyrics file: " + lyricsFile.getPath());
+
+            if (!songFile.exists()) {
+                if (originalLyricsTextArea != null) originalLyricsTextArea.setText("Song file not found.");
+                return;
+            }
+
+            List<String> songData = FileUtil.readFile(songFile.getPath());
+            System.out.println("Song data: " + songData);
+
+            String originalLyricsFromFile = lyricsFile.exists() ? songFileManager.loadLyrics(songFile.getPath()) : null;
+
+            if (originalLyricsFromFile == null || originalLyricsFromFile.trim().isEmpty()) {
+                System.out.println("No original lyrics found for song: " + request.songTitle());
+                if (originalLyricsTextArea != null) originalLyricsTextArea.setText("No original lyrics found.");
             } else {
-                originalLyricsTextArea.setText("Lyrics not found.");
-                allSuggestedEditsTextArea.setText("No suggested edits available.");
+                try {
+                    Lyrics lyrics = new Lyrics(originalLyricsFromFile);
+                    if (originalLyricsTextArea != null) originalLyricsTextArea.setText(lyrics.getOriginalLyrics());
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Failed to create Lyrics object: " + e.getMessage());
+                    if (originalLyricsTextArea != null) originalLyricsTextArea.setText("Error loading lyrics.");
+                }
             }
         }
     }
@@ -152,7 +169,6 @@ public class AdminDashboardController {
         artistButtonsBox.setVisible(false);
         lyricsButtonsBox.setVisible(false);
         originalLyricsTextArea.clear();
-        allSuggestedEditsTextArea.clear();
     }
 
     private void showRequests(boolean isArtistRequest, String status) {
@@ -174,11 +190,19 @@ public class AdminDashboardController {
             }
                     : lyricsRequestManager.getLyricsEditRequests(status);
 
+            System.out.println("Loaded " + requestsData.length + " requests for type: " + (isArtistRequest ? "Artist" : "Lyrics") + ", status: " + status);
             for (String[] requestData : requestsData) {
                 if (isArtistRequest && requestData.length >= 5) {
                     requests.add(new ArtistRequestDTO(requestData[0], requestData[1], requestData[2], status, requestData[4]));
+                    System.out.println("Added ArtistRequestDTO: " + Arrays.toString(requestData));
                 } else if (!isArtistRequest && requestData.length >= 7) {
-                    requests.add(createLyricsEditRequest(requestData));
+                    LyricsEditRequestDTO lyricsRequest = createLyricsEditRequest(requestData);
+                    if (lyricsRequest != null) {
+                        requests.add(lyricsRequest);
+                        System.out.println("Added LyricsEditRequestDTO: " + lyricsRequest);
+                    } else {
+                        System.err.println("Failed to create LyricsEditRequestDTO from data: " + Arrays.toString(requestData));
+                    }
                 } else {
                     System.err.println("Invalid request data: " + Arrays.toString(requestData));
                 }
@@ -187,6 +211,7 @@ public class AdminDashboardController {
             System.err.println("Error loading requests: " + e.getMessage());
             AlertUtil.showError("Error loading requests: " + e.getMessage());
         }
+        System.out.println("Total requests added to ListView: " + requests.size());
     }
 
     @FXML
@@ -204,8 +229,50 @@ public class AdminDashboardController {
     }
 
     private LyricsEditRequestDTO createLyricsEditRequest(String[] requestData) {
+        // [Requester, Artist, Song, Album, SuggestedLyrics, Status, Timestamp]
+        if (requestData.length < 7) {
+            System.err.println("Insufficient data in requestData: " + Arrays.toString(requestData));
+            return null;
+        }
+
+        String requester = requestData[0];
+        String artistNickname = requestData[1];
+        String songTitle = requestData[2];
+        String albumName = requestData[3];
+        String suggestedLyrics = requestData[4];
+        String status = requestData[5];
+        String timestamp = requestData[6];
+
+        System.out.println("Extracted Lyrics Edit Request - Requester: " + requester + ", Artist: " + artistNickname +
+                ", Song: " + songTitle + ", Album: " + albumName + ", SuggestedLyrics: " + suggestedLyrics +
+                ", Timestamp: " + timestamp + ", Status: " + status);
+
+        String email = requester;
+        if (!email.contains("@")) {
+            System.out.println("Requester '" + requester + "' is not an email, attempting to find email by nickname...");
+            email = fileManager.findEmailByNickName(requester, "user");
+            if (email == null) {
+                email = fileManager.findEmailByNickName(requester, "artist");
+            }
+            if (email == null) {
+                System.err.println("Could not find email for requester nickname: " + requester);
+                return null;
+            }
+            System.out.println("Found email '" + email + "' for requester nickname '" + requester + "'");
+        }
+
+        if (artistNickname == null || songTitle == null || suggestedLyrics == null || timestamp == null || status == null) {
+            System.err.println("One or more fields are null in request data: " + Arrays.toString(requestData));
+            return null;
+        }
+
+        String normalizedTimestamp = timestamp.replace("T", " ").replaceAll("[Z]", "");
+        if (normalizedTimestamp.length() > 19) {
+            normalizedTimestamp = normalizedTimestamp.substring(0, 19);
+        }
+
         LyricsEditRequestDTO request = new LyricsEditRequestDTO(
-                requestData[4], requestData[0], requestData[1], requestData[2], requestData[3], requestData[6], requestData[5]
+                email, artistNickname, songTitle, albumName, suggestedLyrics, normalizedTimestamp, status
         );
         request.setLyricsRequestManager(lyricsRequestManager);
         return request;

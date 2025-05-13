@@ -8,20 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
 public abstract class Account {
 
     private final String email;
     private String nickName;
     private String password;
 
-
     protected Account(String email, String nickName, String password) {
-        email = email != null ? email.toLowerCase() : null;
-        nickName = nickName != null ? nickName.toLowerCase() : null;
         validateParameters(email, nickName, password);
-        this.email = email;
-        this.nickName = nickName;
+        this.email = email.toLowerCase();
+        this.nickName = nickName != null ? nickName.toLowerCase() : null;
         this.password = password;
     }
 
@@ -78,7 +74,6 @@ public abstract class Account {
         }
         this.password = password;
     }
-
 
     public abstract String getRole();
 

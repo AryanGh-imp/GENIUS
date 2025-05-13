@@ -38,7 +38,7 @@ public class ArtistProfileController extends BaseUserController {
     private void loadArtistProfile() {
         String artistName = SessionManager.getInstance().getSelectedArtist();
         if (artistNameLabel != null) {
-            artistNameLabel.setText(artistName);
+            artistNameLabel.setText(artistName != null ? artistName : "Unknown Artist");
         }
 
         int totalSongs = 0;
@@ -56,11 +56,19 @@ public class ArtistProfileController extends BaseUserController {
         File singlesDir = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/singles/");
         if (singlesDir.exists() && singlesDir.isDirectory()) {
             totalSongs += loadItemsFromDirectory(singlesDir, singlesListView, "Song Name:", false);
+        } else {
+            System.out.println("Singles directory not found: " + singlesDir.getPath());
+            singlesListView.getItems().clear();
+            singlesListView.getItems().add("None - No singles available");
         }
 
         File albumsDir = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/albums/");
         if (albumsDir.exists() && albumsDir.isDirectory()) {
             totalSongs += loadItemsFromDirectory(albumsDir, albumsListView, "Album Title:", true);
+        } else {
+            System.out.println("Albums directory not found: " + albumsDir.getPath());
+            albumsListView.getItems().clear();
+            albumsListView.getItems().add("None - No albums available");
         }
 
         if (totalSongsLabel != null) {
@@ -70,31 +78,60 @@ public class ArtistProfileController extends BaseUserController {
 
     private int loadItemsFromDirectory(File directory, ListView<String> listView, String titlePrefix, boolean isAlbum) {
         int itemCount = 0;
-        if (listView == null) return itemCount;
+        if (listView == null) {
+            System.err.println("ListView is null for " + (isAlbum ? "albums" : "singles"));
+            return itemCount;
+        }
 
+        listView.getItems().clear();
         File[] folders = directory.listFiles(File::isDirectory);
-        if (folders != null) {
-            for (File folder : folders) {
-                File dataFile = new File(folder, folder.getName() + (titlePrefix.equals("Album Title:") ? "/album.txt" : ".txt"));
-                if (dataFile.exists()) {
-                    List<String> data = loadFileData(dataFile.getPath());
-                    String title = parseTitle(data, titlePrefix, folder.getName());
-                    if (!title.isEmpty()) {
-                        listView.getItems().add(title);
-                        if (isAlbum) {
-                            String songsLine = data.stream()
-                                    .filter(line -> line.startsWith("Songs: "))
-                                    .findFirst()
-                                    .orElse("Songs: ");
-                            String[] songTitles = songsLine.substring("Songs: ".length()).split(",");
-                            itemCount += songTitles.length;
-                        } else {
-                            itemCount++;
-                        }
+        if (folders == null || folders.length == 0) {
+            System.out.println("No folders found in directory: " + directory.getPath());
+            listView.getItems().add("None - No " + (isAlbum ? "albums" : "singles") + " available");
+            return itemCount;
+        }
+
+        for (File folder : folders) {
+            String folderName = folder.getName();
+            File dataFile = new File(folder, isAlbum ? "album.txt" : folderName + ".txt");
+            System.out.println("Checking file: " + dataFile.getPath());
+
+            if (dataFile.exists()) {
+                List<String> data = loadFileData(dataFile.getPath());
+                String title = parseTitle(data, titlePrefix, folderName);
+                if (!title.isEmpty()) {
+                    listView.getItems().add(title);
+                    if (isAlbum) {
+                        String songsLine = data.stream()
+                                .filter(line -> line.startsWith("Songs: "))
+                                .findFirst()
+                                .orElse("Songs: ");
+                        String[] songTitles = songsLine.substring("Songs: ".length()).split(",");
+                        itemCount += songTitles.length;
+                    } else {
+                        itemCount++;
                     }
+                    System.out.println("Added " + (isAlbum ? "album" : "single") + ": " + title);
+                } else {
+                    System.err.println("Failed to parse title for folder: " + folderName);
                 }
+            } else {
+                System.err.println("Data file not found: " + dataFile.getPath() + ". Using folder name as fallback.");
+                listView.getItems().add(folderName); // Using directory name as fallback
+                if (isAlbum) {
+                    File[] songDirs = folder.listFiles(File::isDirectory);
+                    itemCount += (songDirs != null) ? songDirs.length : 0;
+                } else {
+                    itemCount++;
+                }
+                System.out.println("Added fallback " + (isAlbum ? "album" : "single") + ": " + folderName);
             }
         }
+
+        if (listView.getItems().isEmpty()) {
+            listView.getItems().add("None - No " + (isAlbum ? "albums" : "singles") + " available");
+        }
+
         return itemCount;
     }
 
@@ -107,8 +144,8 @@ public class ArtistProfileController extends BaseUserController {
     }
 
     private void setupListViews() {
-        setupListView(singlesListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
-        setupListView(albumsListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
+        setupListView(singlesListView, "/FXML-files/user/SongAndAlbumDetails.fxml", "song");
+        setupListView(albumsListView, "/FXML-files/user/SongAndAlbumDetails.fxml", "album");
     }
 
     private void setupFollowButton() {

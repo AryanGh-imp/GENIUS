@@ -154,7 +154,7 @@
                                                 <Cursor fx:constant="HAND" />
                                             </cursor>
                                         </Button>
-                                        <ImageView fx:id="imagePreview" fitHeight="353.0" fitWidth="369.0" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                        <ImageView fx:id="imagePreview" fitHeight="327.0" fitWidth="361.0" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                     </children>
                                 </GridPane>
                             </children>

@@ -1,10 +1,14 @@
 package controllers.auth;
 
+import controllers.dashBoard.admin.AdminDashboardController;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import models.account.Account;
 import models.account.Admin;
 import models.account.Artist;
@@ -89,9 +93,11 @@ public class SignInController {
         String adminPassword = configLoader.getAdminPassword();
         String adminNickName = configLoader.getAdminNickname();
 
-        if (adminEmail == null || adminPassword == null || adminNickName == null) {
-            AlertUtil.showError("Admin configuration is missing. Please check config file.");
-            System.out.println("Admin configuration missing: adminEmail=" + adminEmail +
+        if (adminEmail == null || adminEmail.trim().isEmpty() ||
+                adminPassword == null || adminPassword.trim().isEmpty() ||
+                adminNickName == null || adminNickName.trim().isEmpty()) {
+            AlertUtil.showError("Admin configuration is missing or invalid. Please check config file.");
+            System.out.println("Admin configuration invalid: adminEmail=" + adminEmail +
                     ", adminPassword=" + adminPassword +
                     ", adminNickName=" + adminNickName);
             return false;
@@ -110,27 +116,23 @@ public class SignInController {
         try {
             String userNickName = userManager.findNickNameByEmail(email, "user");
             if (userNickName == null) {
-                AlertUtil.showError("No user found with email: " + email);
                 System.out.println("User not found with email: " + email);
                 return false;
             }
 
             Account account = userManager.loadAccountByNickName(userNickName);
             if (account == null) {
-                AlertUtil.showError("User account not found for email: " + email);
                 System.out.println("User account not found for nickname: " + userNickName);
                 return false;
             }
 
             if (!password.equals(account.getPassword())) {
-                AlertUtil.showError("Incorrect password for user account.");
                 System.out.println("Incorrect password for user: " + userNickName);
                 return false;
             }
 
             return loginSuccess(account, USER_DASHBOARD_FXML, "User Dashboard");
         } catch (Exception e) {
-            AlertUtil.showError("Error loading user account: " + e.getMessage());
             System.out.println("Error loading user account: " + e.getMessage());
             return false;
         }
@@ -140,20 +142,17 @@ public class SignInController {
         try {
             String artistNickName = artistManager.findNickNameByEmail(email, "artist");
             if (artistNickName == null) {
-                AlertUtil.showError("No artist found with email: " + email);
                 System.out.println("Artist not found with email: " + email);
                 return false;
             }
 
             Account account = artistManager.loadAccountByNickName(artistNickName);
             if (account == null) {
-                AlertUtil.showError("Artist account not found for email: " + email);
                 System.out.println("Artist account not found for nickname: " + artistNickName);
                 return false;
             }
 
             if (!password.equals(account.getPassword())) {
-                AlertUtil.showError("Incorrect password for artist account.");
                 System.out.println("Incorrect password for artist: " + artistNickName);
                 return false;
             }
@@ -166,7 +165,6 @@ public class SignInController {
 
             return loginSuccess(account, ARTIST_DASHBOARD_FXML, "Artist Dashboard");
         } catch (Exception e) {
-            AlertUtil.showError("Error loading artist account: " + e.getMessage());
             System.out.println("Error loading artist account: " + e.getMessage());
             return false;
         }
@@ -177,7 +175,29 @@ public class SignInController {
             SessionManager.getInstance().setCurrentAccount(account);
             AlertUtil.showSuccess("Login successful! Welcome, " + account.getNickName());
             System.out.println("Attempting to load dashboard: " + fxmlPath);
-            SceneUtil.changeScene(loginButton, fxmlPath);
+
+            if (account instanceof Admin admin) {
+                // Load Admin Dashboard manually for admin
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(ADMIN_DASHBOARD_FXML));
+                Scene scene = new Scene(loader.load());
+
+                // Access AdminDashboardController and set admin
+                AdminDashboardController controller = loader.getController();
+                if (controller == null) {
+                    throw new RuntimeException("AdminDashboardController is null. Check fx:controller attribute in AdminDashboard.fxml.");
+                }
+                controller.setAdmin(admin);
+
+                // Change scene to Admin Dashboard
+                Stage stage = (Stage) loginButton.getScene().getWindow();
+                stage.setScene(scene);
+                stage.setTitle("Genius Music - " + title);
+                stage.show();
+            } else {
+                // Use SceneUtil.changeScene for other users (User and Artist)
+                SceneUtil.changeScene(loginButton, fxmlPath);
+            }
+
             System.out.println("Dashboard loaded successfully: " + title);
             return true;
         } catch (Exception e) {

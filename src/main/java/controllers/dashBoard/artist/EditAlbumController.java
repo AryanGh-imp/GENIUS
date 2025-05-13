@@ -5,12 +5,15 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import models.music.Album;
+import models.music.Song;
+import services.file.ArtistFileManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
 
 import java.io.File;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class EditAlbumController extends BaseArtistController {
@@ -24,6 +27,7 @@ public class EditAlbumController extends BaseArtistController {
     @FXML private Button submitButton;
 
     private final SongFileManager songFileManager = new SongFileManager();
+    private final ArtistFileManager artistFileManager = new ArtistFileManager();
     private File selectedImageFile;
 
     @FXML
@@ -34,6 +38,7 @@ public class EditAlbumController extends BaseArtistController {
 
     private void initializeUI() {
         setArtistInfo(welcomeLabel);
+        songFileManager.loadSongsAndAlbumsForArtist(artist, artistFileManager);
         loadAlbums();
         addAlbumSelectionListener();
         updateImageView(albumArtImageView, null); // Set default image
@@ -91,6 +96,7 @@ public class EditAlbumController extends BaseArtistController {
     private void displayAlbumMetadata(String selectedAlbum) {
         String albumDir = songFileManager.getAlbumDir(artist.getNickName(), selectedAlbum);
         File albumFile = new File(albumDir + "album.txt");
+        System.out.println("Checking album file: " + albumFile.getAbsolutePath() + " - Exists: " + albumFile.exists());
         if (albumFile.exists()) {
             List<String> albumData = FileUtil.readFile(albumFile.getPath());
             String albumArtPath = null;
@@ -149,44 +155,94 @@ public class EditAlbumController extends BaseArtistController {
         }
 
         try {
+            System.out.println("Artist albums before update: " + artist.getAlbums());
             String oldAlbumDir = songFileManager.getAlbumDir(artist.getNickName(), selectedAlbum);
             File albumFile = new File(oldAlbumDir + "album.txt");
             if (!albumFile.exists()) {
                 throw new IllegalStateException("Album file not found: " + oldAlbumDir);
             }
 
-            List<String> albumData = FileUtil.readFile(albumFile.getPath());
-            String releaseDate = albumData.stream()
-                    .filter(line -> line.startsWith("Release Date: "))
-                    .map(line -> line.substring("Release Date: ".length()))
-                    .findFirst()
-                    .orElse("Not set");
-            String songs = albumData.stream()
-                    .filter(line -> line.startsWith("Songs: "))
-                    .map(line -> line.substring("Songs: ".length()))
-                    .findFirst()
-                    .orElse("");
-            List<String> songTitles = songs.isEmpty() ? Collections.emptyList() : List.of(songs.split(","));
+            if (artist.getAlbums().stream().noneMatch(a -> a.getTitle().equals(selectedAlbum))) {
+                System.out.println("Album not found in artist, reloading: " + selectedAlbum);
+                songFileManager.loadSongsAndAlbumsForArtist(artist, artistFileManager);
+            }
 
             Album albumToUpdate = artist.getAlbums().stream()
                     .filter(a -> a.getTitle().equals(selectedAlbum))
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Album not found in artist: " + selectedAlbum));
 
+            // Extract the path of the old image
+            List<String> albumData = FileUtil.readFile(albumFile.getPath());
+            String oldAlbumArtPath = null;
+            for (String line : albumData) {
+                if (line.startsWith("AlbumArtPath: ")) {
+                    oldAlbumArtPath = line.substring("AlbumArtPath: ".length());
+                }
+            }
+
+            String newAlbumArtPath = oldAlbumArtPath;
+
+            // Rename the directory if the album title has changed.
             if (!selectedAlbum.equals(newTitle)) {
                 String newAlbumDir = songFileManager.getAlbumDir(artist.getNickName(), newTitle);
-                FileUtil.renameDirectory(new File(oldAlbumDir), new File(newAlbumDir));
+                File oldDir = new File(oldAlbumDir);
+                File newDir = new File(newAlbumDir);
+
+                // If the new directory exists, delete it.
+                if (newDir.exists()) {
+                    FileUtil.deleteDirectory(newDir);
+                }
+
+                // Rename a directory
+                FileUtil.renameDirectory(oldDir, newDir);
+
+                // Update image path if it exists
+                if (oldAlbumArtPath != null) {
+                    File oldArtFile = new File(FileUtil.DATA_DIR + oldAlbumArtPath.replace("data/data", "data"));
+                    System.out.println("Checking old album art file: " + oldArtFile.getAbsolutePath() + " - Exists: " + oldArtFile.exists());
+                    if (oldArtFile.exists()) {
+                        String artFileName = oldArtFile.getName();
+                        File newArtFile = new File(newAlbumDir + artFileName);
+                        FileUtil.ensureDataDirectoryExists(newAlbumDir);
+                        Files.copy(oldArtFile.toPath(), newArtFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + newTitle + "/" + artFileName;
+                        System.out.println("Updated AlbumArtPath after rename: " + newAlbumArtPath);
+                    } else {
+                        // بررسی دایرکتوری جدید برای فایل تصویر
+                        File newArtCheck = new File(newAlbumDir + oldArtFile.getName());
+                        if (newArtCheck.exists()) {
+                            newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + newTitle + "/" + newArtCheck.getName();
+                            System.out.println("Found art file in new directory: " + newAlbumArtPath);
+                        }
+                    }
+                }
+
                 albumToUpdate.setTitle(newTitle);
             }
 
-            String albumArtPath = selectedImageFile != null ? songFileManager.saveAlbumArt(artist.getNickName(), newTitle, selectedImageFile) : null;
-            if (albumArtPath != null) {
-                albumToUpdate.setAlbumArtPath(albumArtPath);
+            // If a new image is selected, save it.
+            if (selectedImageFile != null) {
+                newAlbumArtPath = songFileManager.saveAlbumArt(artist.getNickName(), newTitle, selectedImageFile);
+                System.out.println("Updated AlbumArtPath after new image: " + newAlbumArtPath);
+            } else if (newAlbumArtPath != null) {
+                System.out.println("Reusing existing AlbumArtPath: " + newAlbumArtPath);
             }
 
-            songFileManager.saveAlbum(artist.getNickName(), newTitle, releaseDate, songTitles, albumToUpdate.getAlbumArtPath());
+            // Update image path in album
+            albumToUpdate.setAlbumArtPath(newAlbumArtPath);
 
-            for (String songTitle : songTitles) {
+            // Save album with new metadata
+            songFileManager.saveAlbum(
+                    artist.getNickName(),
+                    newTitle,
+                    albumToUpdate.getReleaseDate(),
+                    albumToUpdate.getSongs().stream().map(Song::getTitle).toList(),
+                    albumToUpdate.getAlbumArtPath()
+            );
+
+            // Update album tracks
+            for (String songTitle : albumToUpdate.getSongs().stream().map(Song::getTitle).toList()) {
                 if (!songTitle.isEmpty()) {
                     String songPath = songFileManager.getSongDir(artist.getNickName(), songTitle, newTitle) + FileUtil.sanitizeFileName(songTitle) + ".txt";
                     File songFile = new File(songPath);
@@ -208,19 +264,23 @@ public class EditAlbumController extends BaseArtistController {
                                 songTitle,
                                 newTitle,
                                 lyrics,
-                                releaseDate,
+                                albumToUpdate.getReleaseDate(),
                                 likes,
                                 plays,
-                                albumToUpdate.getAlbumArtPath());
+                                albumToUpdate.getAlbumArtPath()
+                        );
                     }
                 }
             }
 
+            // Reload songs and albums
+            songFileManager.loadSongsAndAlbumsForArtist(artist, artistFileManager);
             loadAlbums();
             clearMetadata();
             AlertUtil.showSuccess("Album updated successfully to '" + newTitle + "'!");
         } catch (Exception e) {
             AlertUtil.showError("Error updating album: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

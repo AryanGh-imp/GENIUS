@@ -47,7 +47,7 @@ public class CreateAlbumController extends BaseArtistController {
             selectedImageFile = file;
             checkComponent(imagePreview, "imagePreview");
             if (imagePreview != null) {
-                updateImageView(imagePreview, file.toURI().toString());
+                updateImageView(imagePreview, file.toURI().toString()); // Show selected image
             }
         }
     }
@@ -64,10 +64,27 @@ public class CreateAlbumController extends BaseArtistController {
         try {
             String albumArtPath = selectedImageFile != null ? saveAlbumArt(albumTitle) : null;
             songFileManager.saveAlbum(artist.getNickName(), albumTitle, java.time.LocalDate.now().toString(), null, albumArtPath);
-            resetForm();
+
+            // Checking the existence of the file
+            String albumDir = songFileManager.getAlbumDir(artist.getNickName(), albumTitle) + "album.txt";
+            File albumFile = new File(albumDir);
+            if (!albumFile.exists()) {
+                throw new IOException("Failed to create album file: " + albumDir);
+            }
+
+            // Show image in preview (if image exists)
+            if (albumArtPath != null && imagePreview != null) {
+                System.out.println("Updating image preview with path: " + albumArtPath);
+                updateImageView(imagePreview, new File(albumArtPath).toURI().toString());
+            }
+
             AlertUtil.showSuccess("Album '" + albumTitle + "' created successfully!");
-        } catch (Exception e) {
+            resetForm();
+        } catch (IOException e) {
             AlertUtil.showError("Error creating album: " + e.getMessage());
+        } catch (Exception e) {
+            AlertUtil.showError("Unexpected error creating album: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

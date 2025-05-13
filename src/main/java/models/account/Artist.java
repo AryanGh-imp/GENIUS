@@ -39,7 +39,6 @@ public class Artist extends Account {
         }
         if (!singles.contains(song)) {
             singles.add(song);
-            saveSongsAndAlbums();
         }
     }
 
@@ -52,7 +51,6 @@ public class Artist extends Account {
         }
         if (!albums.contains(album)) {
             albums.add(album);
-            saveSongsAndAlbums();
         }
     }
 
@@ -66,6 +64,24 @@ public class Artist extends Account {
 
     public List<Album> getAlbums() {
         return new ArrayList<>(albums);
+    }
+
+    public void clearSingles() {
+        singles.clear();
+    }
+
+    public void clearAlbums() {
+        albums.clear();
+    }
+
+    public void setSingles(List<Song> singles) {
+        this.singles.clear();
+        this.singles.addAll(singles);
+    }
+
+    public void setAlbums(List<Album> albums) {
+        this.albums.clear();
+        this.albums.addAll(albums);
     }
 
     @Override
@@ -84,10 +100,12 @@ public class Artist extends Account {
             throw new IllegalArgumentException("ArtistFileManager cannot be null.");
         }
         try {
-            songFileManager.loadSongsAndAlbumsForArtist(this);
+            System.out.println("Loading songs and albums for artist: " + getNickName() + ", approved: " + approved);
+            songFileManager.loadSongsAndAlbumsForArtist(this, artistFileManager);
         } catch (Exception e) {
             System.err.println("Failed to load songs and albums for artist '" + getNickName() + "': " + e.getMessage());
-            throw new IllegalStateException("Failed to load songs and albums for artist '" + getNickName() + "': " + e.getMessage(), e);
+            e.printStackTrace();
+            throw new IllegalStateException("Failed to load songs and albums for artist '" + getNickName() + "': " + (e.getMessage() != null ? e.getMessage() : "Unknown error"), e);
         }
     }
 

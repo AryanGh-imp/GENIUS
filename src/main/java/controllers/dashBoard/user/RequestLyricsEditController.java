@@ -6,7 +6,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import services.SessionManager;
 import services.file.LyricsRequestManager;
+import services.file.SongFileManager;
 import utils.AlertUtil;
+import utils.FileUtil;
+
+import java.io.File;
 
 public class RequestLyricsEditController extends BaseUserController {
 
@@ -15,6 +19,7 @@ public class RequestLyricsEditController extends BaseUserController {
     @FXML private Button submitRequestButton;
 
     private LyricsRequestManager lyricsRequestManager;
+    private final SongFileManager songFileManager = new SongFileManager();
 
     @Override
     @FXML
@@ -34,8 +39,31 @@ public class RequestLyricsEditController extends BaseUserController {
 
         if (songTitle != null) {
             songInfoLabel.setText("Song: " + songTitle + " - " + artistName + (albumTitle != null ? " (Album: " + albumTitle + ")" : ""));
+            // Upload the original song lyrics to verify its existence
+            File songFile = new File(FileUtil.DATA_DIR + "artists/" + artistName +
+                    (albumTitle != null ? "/albums/" + albumTitle + "/" + songTitle + "/" + songTitle + ".txt" :
+                            "/singles/" + songTitle + "/" + songTitle + ".txt"));
+            if (songFile.exists()) {
+                String lyricsFilePath = songFile.getPath().replace(".txt", "_lyrics.txt");
+                System.out.println("Attempting to load lyrics from: " + lyricsFilePath);
+                String originalLyrics = songFileManager.loadLyrics(songFile.getPath());
+                if (originalLyrics == null || originalLyrics.trim().isEmpty()) {
+                    System.out.println("Lyrics file not found or empty at: " + lyricsFilePath);
+                    AlertUtil.showWarning("Original lyrics not found for this song.");
+                    suggestedLyricsArea.setText(""); // Leave the box empty if lyrics are not found.
+                } else {
+                    System.out.println("Loaded lyrics: " + originalLyrics.substring(0, Math.min(50, originalLyrics.length())) + "...");
+                    SessionManager.getInstance().setSelectedOriginalLyrics(originalLyrics);
+                    suggestedLyricsArea.setText(originalLyrics); // Display the original text in the box
+                }
+            } else {
+                System.out.println("Song file not found: " + songFile.getPath());
+                AlertUtil.showError("Song file not found: " + songFile.getPath());
+                suggestedLyricsArea.setText(""); // Leave the box empty if the file is not found.
+            }
         } else {
             songInfoLabel.setText("Album: " + albumTitle + " - " + artistName);
+            suggestedLyricsArea.setText(""); // If it's an album, leave the box empty.
         }
     }
 

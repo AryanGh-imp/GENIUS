@@ -1,7 +1,6 @@
 package models.music;
 
 import models.account.Artist;
-import services.file.SongFileManager;
 import utils.FileUtil;
 
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ public class Song {
         }
         if (!artists.contains(artist)) {
             artists.add(artist);
-            saveChanges();
         }
     }
 
@@ -45,19 +43,15 @@ public class Song {
         if (artist == null) {
             throw new IllegalArgumentException("Artist cannot be null");
         }
-        if (artists.remove(artist)) {
-            saveChanges();
-        }
+        artists.remove(artist);
     }
 
     public void incrementLikes() {
         this.likes++;
-        saveChanges();
     }
 
     public void incrementViews() {
         this.views++;
-        saveChanges();
     }
 
     private int validateNonNegative(int value) {
@@ -74,7 +68,6 @@ public class Song {
 
     public void setLyrics(String lyrics) {
         this.lyrics = lyrics != null ? lyrics : "";
-        saveChanges();
     }
 
     public String getReleaseDate() {
@@ -87,7 +80,6 @@ public class Song {
 
     public void setLikes(int likes) {
         this.likes = validateNonNegative(likes);
-        saveChanges();
     }
 
     public int getViews() {
@@ -96,7 +88,6 @@ public class Song {
 
     public void setViews(int views) {
         this.views = validateNonNegative(views);
-        saveChanges();
     }
 
     public Album getAlbum() {
@@ -105,7 +96,6 @@ public class Song {
 
     public void setAlbum(Album album) {
         this.album = album;
-        saveChanges();
     }
 
     public String getAlbumArtPath() {
@@ -114,7 +104,6 @@ public class Song {
 
     public void setAlbumArtPath(String albumArtPath) {
         this.albumArtPath = albumArtPath;
-        saveChanges();
     }
 
     public List<Artist> getArtists() {
@@ -131,18 +120,6 @@ public class Song {
                 ? FileUtil.DATA_DIR + "artists/" + safeArtistNickName + "/albums/" + FileUtil.sanitizeFileName(album.getTitle()) + "/" + safeSongTitle + "/"
                 : FileUtil.DATA_DIR + "artists/" + safeArtistNickName + "/singles/" + safeSongTitle + "/";
         return songDir + safeSongTitle + ".txt";
-    }
-
-    private void saveChanges() {
-        if (artists.isEmpty()) {
-            throw new IllegalStateException("Cannot save song without at least one artist");
-        }
-        SongFileManager songFileManager = new SongFileManager();
-        List<String> artistNickNames = artists.stream()
-                .map(Artist::getNickName)
-                .collect(Collectors.toList());
-        songFileManager.saveSong(artistNickNames, title, album != null ? album.getTitle() : null,
-                lyrics, releaseDate, likes, views, albumArtPath);
     }
 
     @Override

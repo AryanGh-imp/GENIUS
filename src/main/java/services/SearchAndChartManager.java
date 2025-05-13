@@ -18,6 +18,12 @@ public class SearchAndChartManager {
     private final ChartService chartService;
 
     public SearchAndChartManager(ArtistFileManager artistFileManager, SongFileManager songFileManager) {
+        if (artistFileManager == null) {
+            throw new IllegalArgumentException("ArtistFileManager cannot be null");
+        }
+        if (songFileManager == null) {
+            throw new IllegalArgumentException("SongFileManager cannot be null");
+        }
         this.artistFileManager = artistFileManager;
         this.songFileManager = songFileManager;
         this.chartService = new ChartService(artistFileManager, songFileManager);
@@ -29,29 +35,41 @@ public class SearchAndChartManager {
         List<Artist> artists = artistFileManager.loadAllArtists();
 
         for (Artist artist : artists) {
-            songFileManager.loadSongsAndAlbumsForArtist(artist);
-            List<Song> artistSongs = new ArrayList<>(artist.getSingles());
-            for (var album : artist.getAlbums()) {
-                artistSongs.addAll(album.getSongs());
+            if (!artist.isApproved()) {
+                // Skip unapproved artists to avoid IllegalStateException
+                continue;
             }
+            try {
+                songFileManager.loadSongsAndAlbumsForArtist(artist, artistFileManager); // Pass ArtistFileManager
+                List<Song> artistSongs = new ArrayList<>(artist.getSingles());
+                for (var album : artist.getAlbums()) {
+                    artistSongs.addAll(album.getSongs());
+                }
 
-            for (Song song : artistSongs) {
-                songs.add(new SongDTO(
-                        song.getTitle(),
-                        artist.getNickName(),
-                        song.getAlbum() != null ? song.getAlbum().getTitle() : null,
-                        song.getViews(),
-                        song.getLikes(),
-                        song.getMetaFilePath(),
-                        song.getReleaseDate(),
-                        song.getAlbumArtPath() != null ? song.getAlbumArtPath() : "GENIUS/src/main/resources/pics/Genius.com_logo_yellow.png"
-                ));
+                for (Song song : artistSongs) {
+                    songs.add(new SongDTO(
+                            song.getTitle(),
+                            artist.getNickName(),
+                            song.getAlbum() != null ? song.getAlbum().getTitle() : null,
+                            song.getViews(),
+                            song.getLikes(),
+                            song.getMetaFilePath(),
+                            song.getReleaseDate(),
+                            song.getAlbumArtPath() != null ? song.getAlbumArtPath() : "GENIUS/src/main/resources/pics/Genius.com_logo_yellow.png"
+                    ));
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to load songs for artist '" + artist.getNickName() + "': " + e.getMessage());
+                // Continue with the next artist instead of failing
             }
         }
         return songs;
     }
 
     public String loadLyrics(String metaFilePath) {
+        if (metaFilePath == null || metaFilePath.trim().isEmpty()) {
+            throw new IllegalArgumentException("Meta file path cannot be null or empty");
+        }
         String lyricsFilePath = metaFilePath.replace(".txt", "_lyrics.txt");
         try {
             return songFileManager.loadLyrics(metaFilePath);

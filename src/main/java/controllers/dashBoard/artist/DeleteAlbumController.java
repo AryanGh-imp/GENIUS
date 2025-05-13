@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
+import services.file.ArtistFileManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
@@ -22,6 +23,7 @@ public class DeleteAlbumController extends BaseArtistController {
     @FXML private ImageView albumArtImageView;
 
     private final SongFileManager songFileManager = new SongFileManager();
+    private final ArtistFileManager artistFileManager = new ArtistFileManager();
 
     @FXML
     public void initialize() {
@@ -31,6 +33,7 @@ public class DeleteAlbumController extends BaseArtistController {
 
     private void initializeUI() {
         setArtistInfo(welcomeLabel);
+        songFileManager.loadSongsAndAlbumsForArtist(artist, artistFileManager);
         loadAlbums();
         addAlbumSelectionListener();
         updateImageView(albumArtImageView, null); // Set default image
@@ -51,11 +54,12 @@ public class DeleteAlbumController extends BaseArtistController {
         }
 
         File[] albumFolders = albumsDirFile.listFiles(File::isDirectory);
-        if (albumFolders == null || albumFolders.length == 0) {
-            AlertUtil.showWarning("No album folders found in: " + albumsDir);
+        if (albumFolders == null) {
+            AlertUtil.showWarning("Failed to list album folders in: " + albumsDir);
             return;
         }
 
+        // If there are no folders, just leave the list empty and don't display a warning message.
         for (File albumFolder : albumFolders) {
             File albumFile = new File(albumFolder, "album.txt");
             if (albumFile.exists()) {
@@ -128,7 +132,11 @@ public class DeleteAlbumController extends BaseArtistController {
             return;
         }
 
+        String albumDir = songFileManager.getAlbumDir(artist.getNickName(), selectedAlbum);
+        System.out.println("Attempting to delete album directory: " + albumDir);
         songFileManager.deleteAlbum(artist.getNickName(), selectedAlbum);
+        System.out.println("Deletion completed, checking directory: " + new File(albumDir).exists());
+
         loadAlbums();
         clearMetadata();
         AlertUtil.showSuccess("Deleted album: " + selectedAlbum);

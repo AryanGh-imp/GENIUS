@@ -147,6 +147,10 @@ public class DeleteSongController extends BaseArtistController {
                     likes = line.substring("Likes: ".length());
                 } else if (line.startsWith("AlbumArtPath: ")) {
                     albumArtPath = line.substring("AlbumArtPath: ".length());
+                    System.out.println("Found AlbumArtPath: " + albumArtPath);
+                } else if (line.startsWith("SongArtPath: ")) {
+                    albumArtPath = line.substring("SongArtPath: ".length());
+                    System.out.println("Found SongArtPath: " + albumArtPath);
                 }
             }
 

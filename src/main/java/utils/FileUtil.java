@@ -6,15 +6,32 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class FileUtil {
-    public static final String DATA_DIR = ConfigLoader.getInstance().getDataDirectory();
+    public static final String DATA_DIR;
+    static {
+        String loadedDir = ConfigLoader.getInstance().getDataDirectory();
+        if (loadedDir == null || loadedDir.trim().isEmpty()) {
+            System.err.println("ConfigLoader returned invalid DATA_DIR, using default: data/");
+            DATA_DIR = "data/"; // Fallback to default path
+        } else {
+            DATA_DIR = loadedDir.endsWith("/") ? loadedDir : loadedDir + "/";
+            System.out.println("DATA_DIR set to: " + DATA_DIR); // Debug log
+        }
+    }
     public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void ensureDataDirectoryExists(String dir) {
         try {
-            Files.createDirectories(Paths.get(dir));
+            Path path = Paths.get(dir);
+            Files.createDirectories(path);
+            if (!Files.isWritable(path)) {
+                throw new IOException("Directory is not writable: " + dir);
+            }
+            System.out.println("Ensured directory exists and is writable: " + dir);
         } catch (IOException e) {
-            System.err.println("Error creating directory: " + e.getMessage());
-            AlertUtil.showError("Failed to create directory: " + dir);
+            System.err.println("Error creating directory: " + dir + " - " + e.getMessage());
+            e.printStackTrace();
+            AlertUtil.showError("Failed to create directory: " + dir + " - " + e.getMessage());
+            throw new IllegalStateException("Cannot create directory: " + dir, e);
         }
     }
 
@@ -23,43 +40,71 @@ public class FileUtil {
     }
 
     public static synchronized List<String> readFile(String fileName) {
-        List<String> lines = new ArrayList<>();
         File file = new File(fileName);
         if (!file.exists()) {
             System.err.println("File not found: " + fileName);
-            return lines;
+            throw new IllegalStateException("File not found: " + fileName);
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            List<String> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                lines.add(line);
+                String trimmedLine = line.trim();
+                if (!trimmedLine.isEmpty()) { // Filtering empty lines
+                    lines.add(trimmedLine);
+                }
             }
+            System.out.println("Read file " + fileName + " with lines: " + lines);
+            return lines;
         } catch (IOException e) {
             System.err.println("Error reading file: " + fileName + " - " + e.getMessage());
-            AlertUtil.showError("Failed to read file: " + fileName);
+            e.printStackTrace();
+            AlertUtil.showError("Failed to read file: " + fileName + " - " + e.getMessage());
+            throw new IllegalStateException("Cannot read file: " + fileName, e);
         }
-        return lines;
     }
 
     public static synchronized void writeFile(String filePath, List<String> data) {
         try {
-            Files.write(Paths.get(filePath), data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Path path = Paths.get(filePath);
+            Path parentDir = path.getParent();
+            if (parentDir != null && (!Files.exists(parentDir) || !Files.isWritable(parentDir))) {
+                ensureDataDirectoryExists(parentDir.toString());
+                if (!Files.isWritable(parentDir)) {
+                    throw new IOException("No write permission for directory: " + parentDir);
+                }
+            }
+            Files.write(path, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            System.out.println("Successfully wrote to file: " + filePath);
         } catch (IOException e) {
             System.err.println("Error writing file: " + filePath + " - " + e.getMessage());
-            AlertUtil.showError("Failed to write file: " + filePath);
+            e.printStackTrace();
+            AlertUtil.showError("Failed to write file: " + filePath + " - " + e.getMessage());
+            throw new IllegalStateException("Cannot write to file: " + filePath, e);
         }
     }
 
     public static synchronized void writeFile(String filePath, String data) {
         try {
-            Files.write(Paths.get(filePath), data.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Path path = Paths.get(filePath);
+            Path parentDir = path.getParent();
+            if (parentDir != null && (!Files.exists(parentDir) || !Files.isWritable(parentDir))) {
+                ensureDataDirectoryExists(parentDir.toString());
+                if (!Files.isWritable(parentDir)) {
+                    throw new IOException("No write permission for directory: " + parentDir);
+                }
+            }
+            Files.write(path, data.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            System.out.println("Successfully wrote to file: " + filePath);
         } catch (IOException e) {
             System.err.println("Error writing file: " + filePath + " - " + e.getMessage());
-            AlertUtil.showError("Failed to write file: " + filePath);
+            e.printStackTrace();
+            AlertUtil.showError("Failed to write file: " + filePath + " - " + e.getMessage());
+            throw new IllegalStateException("Cannot write to file: " + filePath, e);
         }
     }
 
-    public static void deleteDirectory(File directory) {
+    public static boolean deleteDirectory(File directory) {
         try {
             if (directory.exists()) {
                 File[] files = directory.listFiles();
@@ -72,12 +117,18 @@ public class FileUtil {
                         }
                     }
                 }
-                if (!directory.delete()) {
+                if (directory.delete()) {
+                    System.out.println("Successfully deleted directory: " + directory.getPath());
+                    return true;
+                } else {
                     throw new IOException("Failed to delete directory: " + directory.getPath());
                 }
             }
+            return false;
         } catch (IOException e) {
-            System.err.println("Error deleting directory or file: " + e.getMessage());
+            System.err.println("Error deleting directory or file " + directory.getPath() + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -91,12 +142,35 @@ public class FileUtil {
         if (!oldDir.renameTo(newDir)) {
             throw new IOException("Failed to rename directory from " + oldDir.getPath() + " to " + newDir.getPath());
         }
+        System.out.println("Successfully renamed directory from " + oldDir.getPath() + " to " + newDir.getPath());
     }
 
-    public static File ensureAndGetFile(String filePath) {
+    public static void renameFile(String oldPath, String newPath) throws IOException {
+        File oldFile = new File(oldPath);
+        File newFile = new File(newPath);
+        if (!oldFile.exists()) {
+            throw new IOException("Source file does not exist: " + oldPath);
+        }
+        if (newFile.exists()) {
+            Files.deleteIfExists(newFile.toPath());
+        }
+        if (!oldFile.renameTo(newFile)) {
+            throw new IOException("Failed to rename file from " + oldPath + " to " + newPath);
+        }
+        System.out.println("Successfully renamed file from " + oldPath + " to " + newPath);
+    }
+
+    public static File ensureAndGetFile(String filePath) throws IOException {
         File file = new File(filePath);
         if (!file.exists()) {
-            throw new IllegalStateException("File not found: " + filePath);
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                ensureDataDirectoryExists(parentDir.getPath());
+            }
+            if (!file.createNewFile()) {
+                throw new IOException("Failed to create file: " + filePath);
+            }
+            System.out.println("Created new file: " + filePath);
         }
         return file;
     }
@@ -106,16 +180,23 @@ public class FileUtil {
             writeFile(filePath, updatedData);
             readFile(filePath);
         } catch (Exception e) {
+            System.err.println("Failed to update file: " + filePath + " - " + e.getMessage());
+            e.printStackTrace();
             throw new IllegalStateException("Failed to update file: " + filePath, e);
         }
     }
 
-    public static String extractField(List<String> data, String fieldPrefix) {
+    public static String extractField(List<String> data, String prefix) {
+        System.out.println("Extracting field with prefix: '" + prefix + "' from data: " + data);
         for (String line : data) {
-            if (line.startsWith(fieldPrefix)) {
-                return line.substring(fieldPrefix.length());
+            line = line.trim();
+            if (line.startsWith(prefix)) {
+                String value = line.substring(prefix.length()).trim();
+                System.out.println("Extracted " + prefix + " as: '" + value + "' from line: '" + line + "'");
+                return value;
             }
         }
+        System.out.println("No " + prefix + " found in data: " + data);
         return null;
     }
 }

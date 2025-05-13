@@ -103,7 +103,7 @@
                                                 <Font name="DIN Medium" size="13.0" />
                                             </font>
                                         </Label>
-                                        <ImageView fx:id="profileImageView" fitHeight="275.0" fitWidth="281.0" preserveRatio="true">
+                                        <ImageView fx:id="profileImageView" fitHeight="248.0" fitWidth="264.0" preserveRatio="true">
                                             <image>
                                                 <Image url="@../../pics/user_icon.png" />
                                             </image>

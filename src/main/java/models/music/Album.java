@@ -24,6 +24,10 @@ public class Album {
         this.artist = Objects.requireNonNull(artist, "Artist cannot be null");
         this.releaseDate = releaseDate != null ? releaseDate : DEFAULT_RELEASE_DATE;
         this.songs = new ArrayList<>();
+        // Reverse reference: Add album to artist list
+        if (!artist.getAlbums().contains(this)) {
+            artist.addAlbum(this); // Using the addAlbum method to manage
+        }
     }
 
     public void setTitle(String newTitle) {
@@ -83,6 +87,15 @@ public class Album {
 
     public void setAlbumArtPath(String albumArtPath) {
         this.albumArtPath = albumArtPath;
+    }
+
+    public void setSongs(List<Song> songs) {
+        Objects.requireNonNull(songs, "Songs list cannot be null");
+        this.songs.clear();
+        for (Song song : songs) {
+            this.songs.add(song);
+            song.setAlbum(this);
+        }
     }
 
     @Override

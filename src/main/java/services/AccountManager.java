@@ -56,36 +56,19 @@ public class AccountManager {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
-
         username = username.toLowerCase();
         Account account = null;
         try {
             account = userFileManager.loadAccountByNickName(username);
-        } catch (IllegalStateException e) {
-            System.err.println("Error loading user: " + e.getMessage());
-        }
-        if (account != null) {
-            return account;
-        }
-
-        try {
+            if (account != null) return account;
             account = adminFileManager.loadAccountByNickName(username);
-        } catch (IllegalStateException e) {
-            System.err.println("Error loading admin: " + e.getMessage());
-        }
-        if (account != null) {
-            return account;
-        }
-
-        try {
+            if (account != null) return account;
             account = artistFileManager.loadAccountByNickName(username);
+            if (account != null) return account;
         } catch (IllegalStateException e) {
-            System.err.println("Error loading artist: " + e.getMessage());
+            System.err.println("Error loading account: " + e.getMessage());
         }
-        if (account == null) {
-            throw new IllegalStateException("Account with username " + username + " not found");
-        }
-        return account;
+        throw new IllegalStateException("Account with username " + username + " not found");
     }
 
     // TODO: This should be further investigated for optimization in the future.

@@ -132,7 +132,17 @@
                                     <Font name="Arial" size="14.0" />
                                  </font>
                               </Label>
-                              <TextArea fx:id="suggestedLyricsTextArea" editable="false" minHeight="100.0" prefHeight="150.0" style="-fx-background-color: #3C4649; -fx-text-fill: #FFFFFF;" wrapText="true" VBox.vgrow="ALWAYS">
+                              <TextArea fx:id="suggestedLyricsTextArea" editable="false" minHeight="100.0" prefHeight="150.0" style="-fx-background-color: #3C4649; -fx-text-fill: black;" wrapText="true" VBox.vgrow="ALWAYS">
+                                 <font>
+                                    <Font name="Arial" size="12.0" />
+                                 </font>
+                              </TextArea>
+                              <Label text="Original Lyrics:" textFill="#FFFFFF">
+                                 <font>
+                                    <Font name="Arial" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="originalLyricsTextArea" editable="false" minHeight="100.0" prefHeight="150.0" style="-fx-background-color: #3C4649; -fx-text-fill: black;" wrapText="true" VBox.vgrow="ALWAYS">
                                  <font>
                                     <Font name="Arial" size="12.0" />
                                  </font>

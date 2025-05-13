@@ -9,6 +9,7 @@ import models.DTO.SongDTO;
 import services.SearchAndChartManager;
 import services.SessionManager;
 import services.file.ArtistFileManager;
+import services.file.FileManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.SceneUtil;
@@ -23,6 +24,7 @@ public class SearchPageController extends BaseUserController {
 
     private final SearchAndChartManager searchManager;
     private final SongAndAlbumDetailsController detailsHelper = new SongAndAlbumDetailsController();
+    private final FileManager fileManager = new FileManager() {};
 
     public SearchPageController() {
         this.searchManager = new SearchAndChartManager(new ArtistFileManager(), new SongFileManager());
@@ -93,33 +95,68 @@ public class SearchPageController extends BaseUserController {
             if (selectedItem != null) {
                 if (selectedItem.startsWith("Artist: ")) {
                     String artistName = selectedItem.substring("Artist: ".length());
-                    SessionManager.getInstance().setSelectedArtist(artistName);
-                    SceneUtil.changeScene(searchResultsListView, "/FXML-files/user/ArtistProfile.fxml");
+                    String email = fileManager.findEmailByNickName(artistName, "artist");
+                    System.out.println("Artist name: " + artistName + ", Found email: " + email);
+                    if (email != null) {
+                        SessionManager.getInstance().setSelectedArtist(artistName);
+                        SessionManager.getInstance().setSelectedArtistEmail(email);
+                        System.out.println("Set selectedArtistEmail to: " + SessionManager.getInstance().getSelectedArtistEmail());
+                        SceneUtil.changeScene(searchResultsListView, "/FXML-files/user/ArtistProfile.fxml");
+                    } else {
+                        AlertUtil.showError("Email not found for artist: " + artistName);
+                    }
                 } else if (selectedItem.startsWith("Song: ")) {
                     String songInfo = selectedItem.substring("Song: ".length());
                     String[] parts = songInfo.split(" - ");
+                    if (parts.length < 2) {
+                        AlertUtil.showError("Invalid song format: " + songInfo);
+                        return;
+                    }
                     String songTitle = parts[0];
                     String artistName = parts[1].split(" \\(")[0];
-                    String albumTitle = songInfo.contains("(Album: ") ? songInfo.substring(songInfo.indexOf("(Album: ") + "(Album: ".length(), songInfo.length() - 1) : null;
+                    String albumTitle = songInfo.contains("(Album: ") ?
+                            songInfo.substring(songInfo.indexOf("(Album: ") + "(Album: ".length(), songInfo.length() - 1) : null;
 
-                    detailsHelper.incrementViewsForItem(artistName, songTitle, albumTitle, false);
+                    String email = fileManager.findEmailByNickName(artistName, "artist");
+                    System.out.println("Artist name: " + artistName + ", Found email: " + email);
+                    if (email != null) {
+                        SessionManager.getInstance().setSelectedArtist(artistName);
+                        SessionManager.getInstance().setSelectedArtistEmail(email);
+                        SessionManager.getInstance().setSelectedSong(songTitle);
+                        SessionManager.getInstance().setSelectedAlbum(albumTitle);
+                        System.out.println("Set selectedArtistEmail to: " + SessionManager.getInstance().getSelectedArtistEmail());
 
-                    SessionManager.getInstance().setSelectedSong(songTitle);
-                    SessionManager.getInstance().setSelectedArtist(artistName);
-                    SessionManager.getInstance().setSelectedAlbum(albumTitle);
-                    SceneUtil.changeScene(searchResultsListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
+                        detailsHelper.incrementViewsForItem(artistName, songTitle, albumTitle, false);
+
+                        SceneUtil.changeScene(searchResultsListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
+                    } else {
+                        AlertUtil.showError("Email not found for artist: " + artistName);
+                    }
                 } else if (selectedItem.startsWith("Album: ")) {
                     String albumInfo = selectedItem.substring("Album: ".length());
                     String[] parts = albumInfo.split(" - ");
+                    if (parts.length < 2) {
+                        AlertUtil.showError("Invalid album format: " + albumInfo);
+                        return;
+                    }
                     String albumTitle = parts[0];
                     String artistName = parts[1];
 
-                    detailsHelper.incrementViewsForItem(artistName, null, albumTitle, true);
+                    String email = fileManager.findEmailByNickName(artistName, "artist");
+                    System.out.println("Artist name: " + artistName + ", Found email: " + email);
+                    if (email != null) {
+                        SessionManager.getInstance().setSelectedArtist(artistName);
+                        SessionManager.getInstance().setSelectedArtistEmail(email);
+                        SessionManager.getInstance().setSelectedAlbum(albumTitle);
+                        SessionManager.getInstance().setSelectedSong(null);
+                        System.out.println("Set selectedArtistEmail to: " + SessionManager.getInstance().getSelectedArtistEmail());
 
-                    SessionManager.getInstance().setSelectedArtist(artistName);
-                    SessionManager.getInstance().setSelectedAlbum(albumTitle);
-                    SessionManager.getInstance().setSelectedSong(null);
-                    SceneUtil.changeScene(searchResultsListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
+                        detailsHelper.incrementViewsForItem(artistName, null, albumTitle, true);
+
+                        SceneUtil.changeScene(searchResultsListView, "/FXML-files/user/SongAndAlbumDetails.fxml");
+                    } else {
+                        AlertUtil.showError("Email not found for artist: " + artistName);
+                    }
                 }
             }
         });

@@ -5,6 +5,7 @@ import models.account.User;
 import models.account.Artist;
 import utils.FileUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +23,9 @@ public class ArtistFileManager extends FileManager {
     private static final String FOLLOWERS_PREFIX = "Followers: ";
 
     private final LyricsRequestManager lyricsRequestManager = new LyricsRequestManager();
-    private Map<String, Artist> artistMapCache;
+
+    private final Map<String, Artist> artistCache = new HashMap<>();
+    private final Map<String, List<User>> followerCache = new HashMap<>();
 
     @Override
     public synchronized void saveAccount(Account account) {
@@ -32,6 +35,11 @@ public class ArtistFileManager extends FileManager {
         if (!account.getRole().equalsIgnoreCase("artist")) {
             throw new IllegalArgumentException("ArtistFileManager can only save artists, not " + account.getRole());
         }
+
+        // Clear cache to ensure fresh data
+        clearCache();
+
+        // Check if email or nickname is already taken
         if (isEmailOrNickNameTaken(account.getEmail(), account.getNickName())) {
             throw new IllegalStateException("Email or nickname already registered: " + account.getEmail() + "/" + account.getNickName());
         }
@@ -44,7 +52,7 @@ public class ArtistFileManager extends FileManager {
             ensureDataDirectoryExists(artistDir + "albums/");
             saveFollowers((Artist) account, new ArrayList<>());
             updateArtistIndex();
-            invalidateArtistCache();
+            artistCache.put(account.getNickName(), (Artist) account); // Update cache
         } catch (Exception e) {
             System.err.println("Failed to save account for artist: " + account.getNickName() + ", error: " + e.getMessage());
             throw new RuntimeException("Failed to save account", e);
@@ -52,7 +60,42 @@ public class ArtistFileManager extends FileManager {
     }
 
     public List<Artist> loadAllArtists() {
-        Map<String, Artist> artistMap = getArtistMap();
+        if (!artistCache.isEmpty()) {
+            return new ArrayList<>(artistCache.values());
+        }
+        Map<String, Artist> artistMap = new HashMap<>();
+        try {
+            Path artistsDir = Paths.get(ARTISTS_DIR);
+
+            if (!Files.exists(artistsDir) || !Files.isDirectory(artistsDir)) {
+                System.err.println("Artists directory does not exist or is not a directory: " + ARTISTS_DIR);
+                return new ArrayList<>();
+            }
+
+            try (Stream<Path> artistDirs = Files.list(artistsDir).filter(Files::isDirectory)) {
+                artistDirs.forEach(artistDir -> {
+                    try (Stream<Path> artistFiles = Files.list(artistDir)) {
+                        artistFiles
+                                .filter(file -> file.toString().endsWith(".txt") && !file.getFileName().toString().equals(FOLLOWERS_FILE_NAME))
+                                .forEach(file -> {
+                                    try {
+                                        Account account = loadAccountFromFile(file.toFile());
+                                        if (account instanceof Artist artist) {
+                                            artistMap.put(artist.getNickName(), artist);
+                                            artistCache.put(artist.getNickName(), artist); // Cache artists
+                                        }
+                                    } catch (IllegalStateException e) {
+                                        System.err.println("Failed to load artist from file: " + file + ", error: " + e.getMessage());
+                                    }
+                                });
+                    } catch (IOException e) {
+                        System.err.println("Failed to list files in directory: " + artistDir + ", error: " + e.getMessage());
+                    }
+                });
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to list artist directories: " + ARTISTS_DIR + ", error: " + e.getMessage());
+        }
         return new ArrayList<>(artistMap.values());
     }
 
@@ -74,59 +117,11 @@ public class ArtistFileManager extends FileManager {
                     FOLLOWERS_PREFIX + followers.stream().map(User::getNickName).collect(Collectors.joining(","));
             data.add(followersLine);
             writeFile(fileName, data);
-            invalidateArtistCache();
+            followerCache.put(artist.getNickName(), new ArrayList<>(followers)); // Update followers cache
         } catch (Exception e) {
             System.err.println("Failed to save followers for artist: " + artist.getNickName() + ", error: " + e.getMessage());
             throw new RuntimeException("Failed to save followers", e);
         }
-    }
-
-    private Map<String, Artist> getArtistMap() {
-        if (artistMapCache == null) {
-            try {
-                List<Artist> artists = new ArrayList<>();
-                Path artistsDir = Paths.get(ARTISTS_DIR);
-
-                if (!Files.exists(artistsDir) || !Files.isDirectory(artistsDir)) {
-                    System.err.println("Artists directory does not exist or is not a directory: " + ARTISTS_DIR);
-                } else {
-                    try (Stream<Path> artistDirs = Files.list(artistsDir).filter(Files::isDirectory)) {
-                        artistDirs.forEach(artistDir -> {
-                            try (Stream<Path> artistFiles = Files.list(artistDir)) {
-                                artistFiles
-                                        .filter(file -> file.toString().endsWith(".txt") && !file.getFileName().toString().equals(FOLLOWERS_FILE_NAME))
-                                        .forEach(file -> {
-                                            try {
-                                                Account account = loadAccountFromFile(file.toFile());
-                                                if (account instanceof Artist artist) {
-                                                    artists.add(artist);
-                                                }
-                                            } catch (IllegalStateException e) {
-                                                System.err.println("Failed to load artist from file: " + file + ", error: " + e.getMessage());
-                                            }
-                                        });
-                            } catch (IOException e) {
-                                System.err.println("Failed to list files in directory: " + artistDir + ", error: " + e.getMessage());
-                            }
-                        });
-                    } catch (IOException e) {
-                        System.err.println("Failed to list artist directories: " + ARTISTS_DIR + ", error: " + e.getMessage());
-                    }
-                }
-                artistMapCache = artists.stream()
-                        .collect(Collectors.toMap(Artist::getNickName, a -> a, (a1, a2) -> a1));
-                System.err.println("Artist map cache initialized with " + artistMapCache.size() + " artists");
-            } catch (Exception e) {
-                System.err.println("Failed to load artists for cache: " + e.getMessage());
-                throw new RuntimeException("Failed to load artists", e);
-            }
-        }
-        return artistMapCache;
-    }
-
-    public void invalidateArtistCache() {
-        artistMapCache = null;
-        System.err.println("Artist cache invalidated");
     }
 
     public List<User> loadFollowers(Artist artist, List<User> allUsers) {
@@ -134,7 +129,7 @@ public class ArtistFileManager extends FileManager {
             throw new IllegalArgumentException("Artist cannot be null");
         }
         if (allUsers == null || allUsers.isEmpty()) {
-            System.err.println("No users provided for artist: " + artist.getNickName() + ", returning empty list");
+            System.out.println("No users provided for artist: " + artist.getNickName() + ", returning empty list");
             return new ArrayList<>();
         }
 
@@ -144,6 +139,11 @@ public class ArtistFileManager extends FileManager {
 
         if (!Files.exists(followFile)) {
             return new ArrayList<>();
+        }
+
+        List<User> cachedFollowers = followerCache.get(artist.getNickName());
+        if (cachedFollowers != null) {
+            return new ArrayList<>(cachedFollowers);
         }
 
         try {
@@ -156,16 +156,34 @@ public class ArtistFileManager extends FileManager {
             Map<String, User> userMap = allUsers.stream()
                     .collect(Collectors.toMap(User::getNickName, u -> u, (u1, u2) -> u1));
 
-            return Stream.of(followersLine.split(","))
+            List<User> followers = Stream.of(followersLine.split(","))
                     .map(String::trim)
                     .filter(name -> !name.isEmpty())
                     .map(userMap::get)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+            followerCache.put(artist.getNickName(), new ArrayList<>(followers)); // Cache followers
+            return followers;
         } catch (Exception e) {
             System.err.println("Failed to load followers for artist: " + artist.getNickName() + ", error: " + e.getMessage());
             throw new RuntimeException("Failed to load followers", e);
         }
+    }
+
+    public Artist getArtistByNickName(String nickName) {
+        if (nickName == null || nickName.trim().isEmpty()) return null;
+        Artist artist = artistCache.get(nickName);
+        if (artist == null) {
+            File artistFile = new File(ARTISTS_DIR + sanitizeFileName(nickName) + "/" + nickName + "-" + nickName + "@example.com.txt");
+            if (artistFile.exists()) {
+                Account account = loadAccountFromFile(artistFile);
+                if (account instanceof Artist) {
+                    artist = (Artist) account;
+                    artistCache.put(nickName, artist);
+                }
+            }
+        }
+        return artist;
     }
 
     public List<String[]> getLyricsEditRequests(String artistNickName) {
@@ -217,13 +235,23 @@ public class ArtistFileManager extends FileManager {
 
     private void updateArtistIndex() {
         try {
-            List<String> artistNicknames = loadAllArtists().stream()
-                    .map(Artist::getNickName)
+            List<String> artistEntries = loadAllArtists().stream()
+                    .map(artist -> artist.getEmail() + ":" + artist.getNickName())
                     .collect(Collectors.toList());
-            saveArtistIndex(artistNicknames);
+            saveArtistIndex(artistEntries);
         } catch (Exception e) {
             System.err.println("Failed to update artist index: " + e.getMessage());
             throw new RuntimeException("Failed to update artist index", e);
         }
+    }
+
+    private void invalidateArtistCache() {
+        artistCache.clear();
+    }
+
+    // Method to clear cache
+    public void clearCache() {
+        artistCache.clear();
+        followerCache.clear();
     }
 }

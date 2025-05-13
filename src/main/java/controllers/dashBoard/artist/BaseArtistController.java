@@ -15,6 +15,7 @@ public abstract class BaseArtistController {
 
     protected Artist artist;
     protected ArtistMenuBarHandler menuBarHandler;
+    protected ArtistDashboardController dashboardController;
     protected static final String DEFAULT_IMAGE_PATH = "/pics/Genius.com_logo_yellow.png";
 
     protected boolean validateSession(Button signOutButton) {
@@ -59,14 +60,27 @@ public abstract class BaseArtistController {
 
         try {
             if (albumArtPath != null && !albumArtPath.isEmpty()) {
-                File albumArtFile = new File(albumArtPath);
-                imageView.setImage(albumArtFile.exists() ? new Image(albumArtFile.toURI().toString()) : new Image(DEFAULT_IMAGE_PATH));
+                if (albumArtPath.startsWith("file:/")) {
+                    System.out.println("Loading image from URL: " + albumArtPath);
+                    imageView.setImage(new Image(albumArtPath));
+                } else {
+                    File albumArtFile = new File(albumArtPath);
+                    System.out.println("Checking image file: " + albumArtFile.getAbsolutePath() + " - Exists: " + albumArtFile.exists());
+                    if (albumArtFile.exists()) {
+                        imageView.setImage(new Image(albumArtFile.toURI().toString()));
+                    } else {
+                        System.out.println("Image file does not exist, loading default image.");
+                        loadDefaultImage(imageView);
+                    }
+                }
             } else {
+                System.out.println("Album art path is null or empty, loading default image.");
                 loadDefaultImage(imageView);
             }
         } catch (Exception e) {
-            loadDefaultImage(imageView);
             System.err.println("Error loading image from " + albumArtPath + ": " + e.getMessage());
+            e.printStackTrace();
+            loadDefaultImage(imageView);
         }
     }
 

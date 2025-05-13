@@ -9,17 +9,16 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static utils.FileUtil.extractField;
 
 public class AdminFileManager extends FileManager {
-    // Directory paths for artist requests
     private static final String ARTIST_REQUESTS_DIR = DATA_DIR + "admin/artist_requests/";
     private static final String ARTIST_REQUESTS_PENDING = ARTIST_REQUESTS_DIR + "pending/";
     private static final String ARTIST_REQUESTS_APPROVED = ARTIST_REQUESTS_DIR + "approved/";
     private static final String ARTIST_REQUESTS_REJECTED = ARTIST_REQUESTS_DIR + "rejected/";
 
-    // Constants for request file keys
     private static final String EMAIL_KEY = "Email: ";
     private static final String NICKNAME_KEY = "Nickname: ";
     private static final String PASSWORD_KEY = "Password: ";
@@ -52,15 +51,21 @@ public class AdminFileManager extends FileManager {
     }
 
     public synchronized List<String[]> loadPendingArtistRequests() {
-        return loadRequestsFromDir(ARTIST_REQUESTS_PENDING);
+        List<String[]> requests = loadRequestsFromDir(ARTIST_REQUESTS_PENDING);
+        System.out.println("Loaded pending requests: " + requests.size());
+        return requests;
     }
 
     public synchronized List<String[]> loadApprovedArtistRequests() {
-        return loadRequestsFromDir(ARTIST_REQUESTS_APPROVED);
+        List<String[]> requests = loadRequestsFromDir(ARTIST_REQUESTS_APPROVED);
+        System.out.println("Loaded approved requests: " + requests.size());
+        return requests;
     }
 
     public synchronized List<String[]> loadRejectedArtistRequests() {
-        return loadRequestsFromDir(ARTIST_REQUESTS_REJECTED);
+        List<String[]> requests = loadRequestsFromDir(ARTIST_REQUESTS_REJECTED);
+        System.out.println("Loaded rejected requests: " + requests.size());
+        return requests;
     }
 
     public synchronized void approveArtistRequest(String email, String nickName) {
@@ -80,15 +85,16 @@ public class AdminFileManager extends FileManager {
             throw new IllegalStateException("Invalid artist request data: Password not found for " + nickName + " in file: " + pendingFilePath);
         }
 
-        // Create and save the Artist
         Artist artist = new Artist(email, nickName, password);
         artist.setApproved(true);
         saveAccount(artist);
 
-        // Move the request to the approved directory
         String targetDirPath = ARTIST_REQUESTS_APPROVED + safeNickName + "/";
         String targetFileName = safeNickName + "-" + email + ".txt";
         moveRequestToDir(requestData, targetDirPath, targetFileName, "Approved", pendingFile);
+
+        logDirectoryContents(ARTIST_REQUESTS_PENDING, "Pending directory after approve:");
+        logDirectoryContents(ARTIST_REQUESTS_APPROVED, "Approved directory after approve:");
     }
 
     public synchronized void rejectArtistRequest(String email, String nickName) {
@@ -103,10 +109,12 @@ public class AdminFileManager extends FileManager {
         }
 
         List<String> requestData = FileUtil.readFile(pendingFilePath);
-        // Move the request to the rejected directory
         String targetDirPath = ARTIST_REQUESTS_REJECTED + safeNickName + "/";
         String targetFileName = safeNickName + "-" + email + ".txt";
         moveRequestToDir(requestData, targetDirPath, targetFileName, "Rejected", pendingFile);
+
+        logDirectoryContents(ARTIST_REQUESTS_PENDING, "Pending directory after reject:");
+        logDirectoryContents(ARTIST_REQUESTS_REJECTED, "Rejected directory after reject:");
     }
 
     public List<String[]> getAllLyricsEditRequests() {
@@ -119,5 +127,25 @@ public class AdminFileManager extends FileManager {
 
     public void rejectLyricsEditRequest(String artistNickName, String songTitle, String timestamp) {
         lyricsRequestManager.rejectLyricsEditRequest(artistNickName, songTitle, timestamp);
+    }
+
+    private void logDirectoryContents(String dirPath, String message) {
+        System.out.println(message);
+        Path dir = Paths.get(dirPath);
+        if (!Files.exists(dir) || !Files.isDirectory(dir)) {
+            System.out.println("  Directory does not exist: " + dirPath);
+            return;
+        }
+        try (Stream<Path> paths = Files.walk(dir, 1)) {
+            paths.filter(Files::isRegularFile)
+                    .forEach(path -> System.out.println("  - File: " + path.toString()));
+            paths.close(); // Ensure stream is closed to avoid resource leak
+            try (Stream<Path> dirPaths = Files.list(dir)) {
+                dirPaths.filter(Files::isDirectory)
+                        .forEach(path -> System.out.println("  - Dir: " + path.toString()));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to list directory contents: " + e.getMessage());
+        }
     }
 }

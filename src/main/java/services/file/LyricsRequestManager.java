@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import models.music.Lyrics;
@@ -16,7 +17,6 @@ public class LyricsRequestManager extends FileManager {
     private static final String LYRICS_REQUESTS_APPROVED = LYRICS_REQUESTS_DIR + "approved/";
     private static final String LYRICS_REQUESTS_REJECTED = LYRICS_REQUESTS_DIR + "rejected/";
 
-    // Constants for request file keys
     private static final String ARTIST_KEY = "Artist: ";
     private static final String SONG_KEY = "Song: ";
     private static final String ALBUM_KEY = "Album: ";
@@ -33,26 +33,51 @@ public class LyricsRequestManager extends FileManager {
         String safeArtistNickName = sanitizeFileName(artistNickName);
         String safeSongTitle = sanitizeFileName(songTitle);
         String requestDir = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/";
+        System.out.println("Attempting to create request directory: " + requestDir);
         ensureDataDirectoryExists(requestDir);
-        String timestamp = LocalDateTime.now().format(formatter);
-        String requestFile = requestDir + safeSongTitle + "-" + timestamp.replace(":", "-") + ".txt";
 
-        // Load current lyrics
+        String timestamp = LocalDateTime.now().format(formatter);
+        String formattedTimestamp = timestamp.replace(":", "-").replace(" ", "_");
+        String requestFile = requestDir + safeSongTitle + "-" + formattedTimestamp + ".txt";
+        System.out.println("Request file path: " + requestFile);
+
         String songDir = songFileManager.getSongDir(artistNickName, songTitle, albumName);
+        System.out.println("Song directory: " + songDir);
         Path songFilePath = Paths.get(songDir + safeSongTitle + ".txt");
+        Path lyricsFilePath = Paths.get(songDir + safeSongTitle + "_lyrics.txt");
+
         if (!Files.exists(songFilePath)) {
+            System.err.println("Song file not found: " + songFilePath);
             throw new IllegalStateException("Song file not found: " + songFilePath);
         }
-        List<String> songData = readFile(songFilePath.toString());
-        String currentLyrics = extractField(songData, "Lyrics: ") != null ? extractField(songData, "Lyrics: ") : "";
-        Lyrics lyrics = new Lyrics(currentLyrics);
+        if (!Files.exists(lyricsFilePath)) {
+            System.err.println("Lyrics file not found: " + lyricsFilePath);
+            throw new IllegalStateException("Lyrics file not found: " + lyricsFilePath);
+        }
+
+        String originalLyrics = songFileManager.loadLyrics(songDir + safeSongTitle + ".txt");
+        if (originalLyrics == null || originalLyrics.trim().isEmpty()) {
+            System.err.println("Original lyrics not found for song: " + songTitle + " in directory: " + songDir);
+            throw new IllegalStateException("Original lyrics not found for song: " + songTitle);
+        }
+        System.out.println("Original lyrics loaded: " + originalLyrics);
+
+        Lyrics lyrics = new Lyrics(originalLyrics);
         lyrics.suggestEdit(suggestedLyrics);
+        System.out.println("Lyrics object created and edit suggested: " + lyrics);
 
-        // Save request
         List<String> requestData = createRequestData(artistNickName, songTitle, albumName, suggestedLyrics, requester, timestamp);
+        System.out.println("Request data to save: " + requestData);
         writeFile(requestFile, requestData);
+        System.out.println("Request file saved successfully: " + requestFile);
 
-        // No update to song file here, only on approval
+        Path requestFilePath = Paths.get(requestFile);
+        if (Files.exists(requestFilePath)) {
+            System.out.println("Verified: Request file exists at " + requestFile);
+        } else {
+            System.err.println("Error: Request file was not created at " + requestFile);
+            throw new IllegalStateException("Failed to create request file at " + requestFile);
+        }
     }
 
     public synchronized List<String[]> loadLyricsEditRequestsForArtist(String artistNickName) {
@@ -85,32 +110,40 @@ public class LyricsRequestManager extends FileManager {
         String safeArtistNickName = safeParams[0];
         String safeSongTitle = safeParams[1];
 
-        String pendingFilePath = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + timestamp + ".txt";
+        String formattedTimestamp = timestamp.replace(":", "-").replace(" ", "_");
+        String pendingFilePath = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + formattedTimestamp + ".txt";
+        System.out.println("Looking for file at: " + pendingFilePath);
         Path pendingFile = Paths.get(pendingFilePath);
         if (!Files.exists(pendingFile)) {
             throw new IllegalStateException("Lyrics edit request not found for song: " + songTitle + " at timestamp: " + timestamp);
         }
 
-        // Load and update lyrics
         String songDir = songFileManager.getSongDir(artistNickName, songTitle, albumName);
+        System.out.println("Song directory: " + songDir);
         Path songFilePath = Paths.get(songDir + safeSongTitle + ".txt");
+        Path lyricsFilePath = Paths.get(songDir + safeSongTitle + "_lyrics.txt");
+
         if (!Files.exists(songFilePath)) {
+            System.err.println("Song file not found: " + songFilePath);
             throw new IllegalStateException("Song file not found: " + songFilePath);
         }
-        List<String> songData = readFile(songFilePath.toString());
-        String currentLyrics = extractField(songData, "Lyrics: ") != null ? extractField(songData, "Lyrics: ") : "";
+        if (!Files.exists(lyricsFilePath)) {
+            System.err.println("Lyrics file not found: " + lyricsFilePath);
+            throw new IllegalStateException("Lyrics file not found: " + lyricsFilePath);
+        }
+
+        String currentLyrics = songFileManager.loadLyrics(songDir + safeSongTitle + ".txt");
+        if (currentLyrics == null || currentLyrics.trim().isEmpty()) {
+            System.err.println("Current lyrics not found or empty for song: " + songTitle + " at: " + lyricsFilePath);
+            throw new IllegalStateException("Current lyrics not found for song: " + songTitle);
+        }
+
         Lyrics lyrics = new Lyrics(currentLyrics);
         lyrics.approveEdit(suggestedLyrics);
         String approvedLyrics = lyrics.getApprovedLyrics();
 
-        // Update song file with only the approved lyrics
-        List<String> updatedSongData = new ArrayList<>(songData);
-        updatedSongData.removeIf(line -> line.startsWith("Lyrics: "));
-        updatedSongData.add("Lyrics: " + approvedLyrics);
-        updatedSongData.removeIf(line -> line.startsWith("# Suggested Edits: "));
-        writeFile(songFilePath.toString(), updatedSongData);
+        writeFile(songDir + safeSongTitle + "_lyrics.txt", Collections.singletonList(approvedLyrics));
 
-        // Move request to approved directory
         moveRequest(pendingFile, safeArtistNickName, safeSongTitle, LYRICS_REQUESTS_APPROVED, "Approved");
     }
 
@@ -119,17 +152,17 @@ public class LyricsRequestManager extends FileManager {
         String safeArtistNickName = safeParams[0];
         String safeSongTitle = safeParams[1];
 
-        String pendingFilePath = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + timestamp + ".txt";
+        String formattedTimestamp = timestamp.replace(":", "-").replace(" ", "_");
+        String pendingFilePath = LYRICS_REQUESTS_PENDING + safeArtistNickName + "/" + safeSongTitle + "/" + safeSongTitle + "-" + formattedTimestamp + ".txt";
+        System.out.println("Looking for file at: " + pendingFilePath);
         Path pendingFile = Paths.get(pendingFilePath);
         if (!Files.exists(pendingFile)) {
             throw new IllegalStateException("Lyrics edit request not found for song: " + songTitle + " at timestamp: " + timestamp);
         }
 
-        // Move request to rejected directory
         moveRequest(pendingFile, safeArtistNickName, safeSongTitle, LYRICS_REQUESTS_REJECTED, "Rejected");
     }
 
-    // Helper methods
     private void validateInputs(String artistNickName, String songTitle, String suggestedLyrics, String requester) {
         validateInput(artistNickName, "Artist nickname");
         validateInput(songTitle, "Song title");

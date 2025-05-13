@@ -4,16 +4,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import models.music.Album;
+import models.music.Song;
+import services.file.ArtistFileManager;
 import services.file.SongFileManager;
 import utils.AlertUtil;
 import utils.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 public class EditSongController extends BaseArtistController {
 
@@ -27,6 +29,7 @@ public class EditSongController extends BaseArtistController {
     @FXML private Button submitButton;
 
     private final SongFileManager songFileManager = new SongFileManager();
+    private final ArtistFileManager artistFileManager = new ArtistFileManager();
     private final Map<String, String> songToPathMap = new HashMap<>();
     private File selectedImageFile;
 
@@ -40,7 +43,7 @@ public class EditSongController extends BaseArtistController {
         setArtistInfo(welcomeLabel);
         loadSongs();
         addSongSelectionListener();
-        updateImageView(imagePreview, null); // Set default image
+        updateImageView(imagePreview, null);
     }
 
     private void loadSongs() {
@@ -59,13 +62,14 @@ public class EditSongController extends BaseArtistController {
             File[] songFolders = singlesDir.listFiles(File::isDirectory);
             if (songFolders != null) {
                 for (File songFolder : songFolders) {
-                    File songFile = new File(songFolder, songFolder.getName() + ".txt");
+                    String songTitle = songFolder.getName();
+                    File songFile = new File(songFolder, songTitle + ".txt");
                     if (songFile.exists()) {
                         List<String> songData = FileUtil.readFile(songFile.getPath());
-                        String songTitle = parseSongTitle(songData);
-                        if (songTitle != null && !songTitle.isEmpty()) {
-                            songListView.getItems().add(songTitle + " (Single)");
-                            songToPathMap.put(songTitle + " (Single)", songFile.getPath());
+                        String parsedTitle = parseSongTitle(songData);
+                        if (parsedTitle != null && !parsedTitle.isEmpty()) {
+                            songListView.getItems().add(parsedTitle + " (Single)");
+                            songToPathMap.put(parsedTitle + " (Single)", songFile.getPath());
                         }
                     }
                 }
@@ -78,23 +82,18 @@ public class EditSongController extends BaseArtistController {
                 for (File albumFolder : albumFolders) {
                     String albumTitle = albumFolder.getName();
                     File albumFile = new File(albumFolder, "album.txt");
-                    if (!albumFile.exists()) continue;
-
-                    List<String> albumData = FileUtil.readFile(albumFile.getPath());
-                    String songsLine = albumData.stream()
-                            .filter(line -> line.startsWith("Songs: "))
-                            .findFirst()
-                            .orElse("Songs: ");
-                    String songs = songsLine.substring("Songs: ".length());
-                    if (songs.isEmpty()) continue;
-
-                    String[] songTitles = songs.split(",");
-                    for (String songTitle : songTitles) {
-                        if (songTitle.trim().isEmpty()) continue;
-                        File songFile = new File(albumFolder, songTitle.trim() + "/" + songTitle.trim() + ".txt");
-                        if (songFile.exists()) {
-                            songListView.getItems().add(songTitle.trim() + " (" + albumTitle + ")");
-                            songToPathMap.put(songTitle.trim() + " (" + albumTitle + ")", songFile.getPath());
+                    if (albumFile.exists()) {
+                        List<String> albumData = FileUtil.readFile(albumFile.getPath());
+                        String songsLine = albumData.stream().filter(line -> line.startsWith("Songs: ")).findFirst().orElse("Songs: ");
+                        String[] songTitles = songsLine.substring("Songs: ".length()).split(",");
+                        for (String songTitle : songTitles) {
+                            if (!songTitle.trim().isEmpty()) {
+                                File songFile = new File(albumFolder, songTitle.trim() + "/" + songTitle.trim() + ".txt");
+                                if (songFile.exists()) {
+                                    songListView.getItems().add(songTitle.trim() + " (" + albumTitle + ")");
+                                    songToPathMap.put(songTitle.trim() + " (" + albumTitle + ")", songFile.getPath());
+                                }
+                            }
                         }
                     }
                 }
@@ -104,8 +103,8 @@ public class EditSongController extends BaseArtistController {
 
     private String parseSongTitle(List<String> songData) {
         return songData.stream()
-                .filter(line -> line.trim().startsWith("Song Title: "))
-                .map(line -> line.trim().substring("Song Title: ".length()).trim())
+                .filter(line -> line.trim().startsWith("Song Name: "))
+                .map(line -> line.trim().substring("Song Name: ".length()).trim())
                 .findFirst()
                 .orElse(null);
     }
@@ -114,11 +113,8 @@ public class EditSongController extends BaseArtistController {
         checkComponent(songListView, "songListView");
         if (songListView != null) {
             songListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    displaySongMetadata(newValue);
-                } else {
-                    clearMetadata();
-                }
+                if (newValue != null) displaySongMetadata(newValue);
+                else clearMetadata();
             });
         }
     }
@@ -133,35 +129,30 @@ public class EditSongController extends BaseArtistController {
         File songFile = new File(songPath);
         if (songFile.exists()) {
             List<String> songData = FileUtil.readFile(songFile.getPath());
-            updateMetadata(songData, selectedSong);
+            String lyrics = songFileManager.loadLyrics(songPath);
+            updateMetadata(songData, lyrics, selectedSong);
         } else {
             clearMetadata();
         }
     }
 
-    private void updateMetadata(List<String> songData, String selectedSong) {
+    private void updateMetadata(List<String> songData, String lyrics, String selectedSong) {
         String title = "";
-        String lyrics = "";
         String albumArtPath = null;
 
         for (String line : songData) {
-            if (line.startsWith("Song Title: ")) {
-                title = line.substring("Song Title: ".length());
-            } else if (line.startsWith("Lyrics: ")) {
-                lyrics = line.substring("Lyrics: ".length());
-            } else if (line.startsWith("AlbumArtPath: ")) {
-                albumArtPath = line.substring("AlbumArtPath: ".length());
-            }
+            if (line.startsWith("Song Name: ")) title = line.substring("Song Name: ".length());
+            else if (line.startsWith("AlbumArtPath: ")) albumArtPath = line.substring("AlbumArtPath: ".length());
+            else if (line.startsWith("SongArtPath: ")) albumArtPath = line.substring("SongArtPath: ".length());
         }
 
-        updateFields(title, lyrics);
+        updateFields(title, lyrics != null ? lyrics : "");
         updateImageView(imagePreview, albumArtPath);
     }
 
     private void updateFields(String title, String lyrics) {
         checkComponent(titleField, "titleField");
         checkComponent(lyricsArea, "lyricsArea");
-
         if (titleField != null) titleField.setText(title);
         if (lyricsArea != null) lyricsArea.setText(lyrics);
     }
@@ -177,8 +168,7 @@ public class EditSongController extends BaseArtistController {
         checkComponent(chooseImageButton, "chooseImageButton");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Album Art");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         File file = fileChooser.showOpenDialog(chooseImageButton.getScene().getWindow());
         if (file != null) {
             selectedImageFile = file;
@@ -222,95 +212,130 @@ public class EditSongController extends BaseArtistController {
             String releaseDate = "";
             String artists = "";
             int likes = 0;
-            int plays = 0;
+            int views = 0;
 
             for (String line : songData) {
-                if (line.startsWith("Release Date: ")) {
-                    releaseDate = line.substring("Release Date: ".length());
-                } else if (line.startsWith("Artists: ")) {
-                    artists = line.substring("Artists: ".length());
-                } else if (line.startsWith("Likes: ")) {
-                    likes = Integer.parseInt(line.substring("Likes: ".length()));
-                } else if (line.startsWith("Plays: ")) {
-                    plays = Integer.parseInt(line.substring("Plays: ".length()));
-                } else if (line.startsWith("AlbumArtPath: ")) {
-                    oldAlbumArtPath = line.substring("AlbumArtPath: ".length());
-                }
+                if (line.startsWith("Release Date: ")) releaseDate = line.substring("Release Date: ".length());
+                else if (line.startsWith("Artists: ")) artists = line.substring("Artists: ".length());
+                else if (line.startsWith("Likes: ")) likes = Integer.parseInt(line.substring("Likes: ".length()));
+                else if (line.startsWith("Views: ")) views = Integer.parseInt(line.substring("Views: ".length()));
+                else if (line.startsWith("AlbumArtPath: ")) oldAlbumArtPath = line.substring("AlbumArtPath: ".length());
+                else if (line.startsWith("SongArtPath: ")) oldAlbumArtPath = line.substring("SongArtPath: ".length());
             }
-
-            String newAlbumArtPath = selectedImageFile != null
-                    ? songFileManager.saveAlbumArt(artist.getNickName(), newTitle, selectedImageFile)
-                    : oldAlbumArtPath;
-
-            updateSongFile(songFile, newTitle, lyrics, releaseDate, artists, likes, plays, newAlbumArtPath);
 
             String originalTitle = selectedSong.contains(" (") ? selectedSong.substring(0, selectedSong.indexOf(" (")) : selectedSong;
+            String albumTitle = selectedSong.contains(" (") && !selectedSong.contains(" (Single)")
+                    ? selectedSong.substring(selectedSong.indexOf(" (") + 2, selectedSong.length() - 1)
+                    : null;
+
+            // Finding a song in the artist list
+            Song targetSong = findSong(originalTitle, albumTitle);
+            if (targetSong == null) {
+                AlertUtil.showError("Song not found in artist's list.");
+                return;
+            }
+
+            // Set a new path for the image file.
+            String newSongDir = songFileManager.getSongDir(artist.getNickName(), newTitle, albumTitle);
+            String newAlbumArtPath = oldAlbumArtPath;
+
+            // If the song name has changed, update the directory and files.
             if (!originalTitle.equals(newTitle)) {
-                renameSongFolder(originalTitle, newTitle, songPath, selectedSong);
-                if (selectedSong.contains(" (") && !selectedSong.contains(" (Single)")) {
-                    String albumTitle = selectedSong.substring(selectedSong.indexOf(" (") + 2, selectedSong.length() - 1);
-                    updateAlbumSongList(albumTitle, originalTitle, newTitle);
+                String oldSongDir = songFileManager.getSongDir(artist.getNickName(), originalTitle, albumTitle);
+                File oldFolder = new File(oldSongDir);
+                File newFolder = new File(newSongDir);
+
+                // If the new directory exists, delete it first.
+                if (newFolder.exists()) {
+                    FileUtil.deleteDirectory(newFolder);
+                }
+
+                // Rename a directory
+                FileUtil.renameDirectory(oldFolder, newFolder);
+
+                // Transfer image file if present and update path (only for single songs)
+                if (oldAlbumArtPath != null && (albumTitle == null || albumTitle.isEmpty())) {
+                    File oldArtFile = new File(FileUtil.DATA_DIR + oldAlbumArtPath.replace("data/data", "data"));
+                    System.out.println("Checking old art file: " + oldArtFile.getAbsolutePath() + " - Exists: " + oldArtFile.exists());
+                    if (oldArtFile.exists()) {
+                        String artFileName = oldArtFile.getName();
+                        File newArtFile = new File(newSongDir + artFileName);
+                        FileUtil.ensureDataDirectoryExists(newSongDir);
+                        Files.copy(oldArtFile.toPath(), newArtFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/singles/" + newTitle + "/" + artFileName;
+                        System.out.println("Updated SongArtPath after rename: " + newAlbumArtPath);
+                    } else {
+                        System.out.println("Old art file does not exist: " + oldArtFile.getAbsolutePath());
+                        // Automatically check for files in new directory
+                        File newArtCheck = new File(newSongDir + oldArtFile.getName());
+                        if (newArtCheck.exists()) {
+                            newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/singles/" + newTitle + "/" + newArtCheck.getName();
+                            System.out.println("Found art file in new directory: " + newAlbumArtPath);
+                        }
+                    }
                 }
             }
 
+            // If a new image is selected, save it.
+            if (selectedImageFile != null) {
+                newAlbumArtPath = songFileManager.saveSingleSongArt(artist.getNickName(), newTitle, selectedImageFile);
+                System.out.println("Updated SongArtPath after new image: " + newAlbumArtPath);
+            } else if (newAlbumArtPath != null && new File(FileUtil.DATA_DIR + newAlbumArtPath).exists()) {
+                // Keep old path if file still exists
+                System.out.println("Reusing existing SongArtPath: " + newAlbumArtPath);
+            }
+
+            // Save song with new metadata
+            System.out.println("Saving edited song: " + newTitle + ", Likes: " + likes + ", Views: " + views + ", SongArtPath: " + newAlbumArtPath);
+            songFileManager.saveSong(
+                    List.of(artist.getNickName()),
+                    newTitle,
+                    albumTitle,
+                    lyrics,
+                    releaseDate,
+                    likes,
+                    views,
+                    newAlbumArtPath
+            );
+
+            // Reload songs and albums to update artist list
+            songFileManager.loadSongsAndAlbumsForArtist(artist, artistFileManager);
+
+            // رفرش لیست آهنگ‌ها
             loadSongs();
             clearMetadata();
             AlertUtil.showSuccess("Song '" + newTitle + "' updated successfully!");
         } catch (IOException e) {
             AlertUtil.showError("Error updating song: " + e.getMessage());
+            e.printStackTrace();
         } catch (NumberFormatException e) {
             AlertUtil.showError("Invalid numeric data in song file: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            AlertUtil.showError("Unexpected error while updating song: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void updateSongFile(File songFile, String newTitle, String lyrics, String releaseDate, String artists, int likes, int plays, String albumArtPath) throws IOException {
-        List<String> updatedData = new ArrayList<>();
-        boolean titleUpdated = false, lyricsUpdated = false, artUpdated = false;
-
-        for (String line : FileUtil.readFile(songFile.getPath())) {
-            if (line.startsWith("Song Title: ") && !titleUpdated) {
-                updatedData.add("Song Title: " + newTitle);
-                titleUpdated = true;
-            } else if (line.startsWith("Lyrics: ") && !lyricsUpdated) {
-                updatedData.add("Lyrics: " + lyrics);
-                lyricsUpdated = true;
-            } else if (line.startsWith("Release Date: ")) {
-                updatedData.add("Release Date: " + releaseDate);
-            } else if (line.startsWith("Artists: ")) {
-                updatedData.add("Artists: " + artists);
-            } else if (line.startsWith("Likes: ")) {
-                updatedData.add("Likes: " + likes);
-            } else if (line.startsWith("Plays: ")) {
-                updatedData.add("Plays: " + plays);
-            } else if (line.startsWith("AlbumArtPath: ") && !artUpdated) {
-                updatedData.add("AlbumArtPath: " + albumArtPath);
-                artUpdated = true;
-            } else {
-                updatedData.add(line);
+    private Song findSong(String songTitle, String albumTitle) {
+        if (albumTitle != null && !albumTitle.equals("Single")) {
+            for (Album album : artist.getAlbums()) {
+                if (album.getTitle().equals(albumTitle)) {
+                    for (Song song : album.getSongs()) {
+                        if (song.getTitle().equals(songTitle)) {
+                            return song;
+                        }
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < artist.getSingles().size(); i++) {
+                if (artist.getSingles().get(i).getTitle().equals(songTitle)) {
+                    return artist.getSingles().get(i);
+                }
             }
         }
-
-        if (!titleUpdated) updatedData.add("Song Title: " + newTitle);
-        if (!lyricsUpdated) updatedData.add("Lyrics: " + lyrics);
-        if (!artUpdated && albumArtPath != null) updatedData.add("AlbumArtPath: " + albumArtPath);
-
-        FileUtil.writeFile(songFile.getPath(), updatedData);
-    }
-
-    private void renameSongFolder(String originalTitle, String newTitle, String songPath, String selectedSong) {
-        File songFile = new File(songPath);
-        File oldFolder = songFile.getParentFile();
-        String newFolderPath = oldFolder.getParent() + "/" + FileUtil.sanitizeFileName(newTitle);
-        File newFolder = new File(newFolderPath);
-
-        try {
-            FileUtil.renameDirectory(oldFolder, newFolder);
-            String newSongPath = newFolderPath + "/" + FileUtil.sanitizeFileName(newTitle) + ".txt";
-            songToPathMap.remove(selectedSong);
-            songToPathMap.put(newTitle + (selectedSong.contains(" (") ? selectedSong.substring(selectedSong.indexOf(" (")) : " (Single)"), newSongPath);
-        } catch (IOException e) {
-            AlertUtil.showError("Failed to rename song folder: " + e.getMessage());
-        }
+        return null;
     }
 
     private void updateAlbumSongList(String albumTitle, String originalTitle, String newTitle) throws IOException {
@@ -319,7 +344,6 @@ public class EditSongController extends BaseArtistController {
         if (albumFile.exists()) {
             List<String> albumData = FileUtil.readFile(albumFile.getPath());
             List<String> updatedData = new ArrayList<>();
-
             for (String line : albumData) {
                 if (line.startsWith("Songs: ")) {
                     String songs = line.substring("Songs: ".length());
@@ -340,7 +364,6 @@ public class EditSongController extends BaseArtistController {
                     updatedData.add(line);
                 }
             }
-
             FileUtil.writeFile(albumFile.getPath(), updatedData);
         }
     }

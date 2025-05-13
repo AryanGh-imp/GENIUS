@@ -36,7 +36,6 @@ public class UserFileManager extends FileManager {
             String userDir = getUserDir(account.getNickName());
             ensureDataDirectoryExists(userDir);
             saveFollowingArtists(account.getNickName(), new ArrayList<>());
-            invalidateUserCache();
         } catch (Exception e) {
             System.err.println("Failed to save account for user: " + account.getNickName() + ", error: " + e.getMessage());
             throw new RuntimeException("Failed to save account", e);
@@ -77,7 +76,7 @@ public class UserFileManager extends FileManager {
 
         try {
             if (allArtists == null || allArtists.isEmpty()) {
-                System.err.println("No artists provided for user: " + nickName + ", returning empty list");
+                System.out.println("No artists provided for user: " + nickName + ", returning empty list");
                 return new ArrayList<>();
             }
 
@@ -91,7 +90,7 @@ public class UserFileManager extends FileManager {
                     String[] artistNames = line.replace(FOLLOWING_PREFIX, "").split(",");
                     for (String artistName : artistNames) {
                         String trimmedName = artistName.trim();
-                        if (!trimmedName.isEmpty() && !" (None)".equals(trimmedName)) {
+                        if (!trimmedName.isEmpty() && !trimmedName.equals("(None)")) {
                             Artist artist = artistMap.get(trimmedName);
                             if (artist != null) {
                                 followingArtists.add(artist);
@@ -149,7 +148,7 @@ public class UserFileManager extends FileManager {
                 }
                 userMapCache = users.stream()
                         .collect(Collectors.toMap(User::getNickName, u -> u, (u1, u2) -> u1));
-                System.err.println("User map cache initialized with " + userMapCache.size() + " users");
+                System.out.println("User map cache initialized with " + userMapCache.size() + " users");
             } catch (Exception e) {
                 System.err.println("Failed to load users for cache: " + e.getMessage());
                 throw new RuntimeException("Failed to load users", e);
@@ -160,7 +159,7 @@ public class UserFileManager extends FileManager {
 
     public void invalidateUserCache() {
         userMapCache = null;
-        System.err.println("User cache invalidated");
+        System.out.println("User cache invalidated");
     }
 
     private String getUserDir(String nickName) {

@@ -19,7 +19,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox id="songDetailsRoot" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="912.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.user.SongAndAlbumDetailsController">
+<VBox id="songDetailsRoot" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="946.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.dashBoard.user.SongAndAlbumDetailsController">
     <children>
         <VBox alignment="CENTER" prefHeight="80.0" prefWidth="900.0" style="-fx-background-color: #FFFF64;">
             <children>
@@ -77,7 +77,7 @@
                             </font>
                         </Label>
                         <Line endX="681.199951171875" layoutX="166.0" layoutY="97.0" startX="-100.0" stroke="WHITE" />
-                        <HBox layoutX="65.0" layoutY="105.0" prefHeight="562.0" prefWidth="782.0" spacing="20.0">
+                        <HBox layoutX="65.0" layoutY="105.0" prefHeight="546.0" prefWidth="782.0" spacing="20.0">
                             <children>
                                 <VBox prefHeight="562.0" prefWidth="392.0" spacing="15.0">
                                     <children>
@@ -106,12 +106,12 @@
                                                 <Font name="DIN Medium" size="15.0" />
                                             </font>
                                         </Label>
-                                        <Label text="Lyrics" textFill="WHITE">
+                                        <Label fx:id="lyricsLabel" text="Lyrics" textFill="WHITE"> <!-- Updated with fx:id -->
                                             <font>
                                                 <Font name="DIN Medium" size="15.0" />
                                             </font>
                                         </Label>
-                                        <TextArea fx:id="lyricsArea" editable="false" prefHeight="200.0" prefWidth="383.0" style="-fx-background-color: #363636; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5;" wrapText="true" />
+                                        <TextArea fx:id="lyricsArea" editable="false" prefHeight="200.0" prefWidth="383.0" style="-fx-background-color: #363636; -fx-text-fill: black; -fx-background-radius: 5; -fx-border-radius: 5;" wrapText="true" />
                                         <HBox spacing="10.0">
                                             <children>
                                                 <Button fx:id="requestLyricsEditButton" onAction="#requestLyricsEdit" style="-fx-background-color: #363636; -fx-background-radius: 5;" text="Request Lyrics Edit" textFill="WHITE">
@@ -134,7 +134,7 @@
                                         </HBox>
                                     </children>
                                 </VBox>
-                                <VBox prefHeight="521.0" prefWidth="382.0" spacing="15.0">
+                                <VBox alignment="CENTER" prefHeight="537.0" prefWidth="378.0" spacing="15.0">
                                     <children>
                                         <ImageView fx:id="coverImageView" fitHeight="240.0" fitWidth="377.0" preserveRatio="true">
                                             <image>
@@ -152,7 +152,7 @@
                                                 <Font name="DIN Medium" size="15.0" />
                                             </font>
                                         </Label>
-                                        <ListView fx:id="commentsListView" prefHeight="100.0" prefWidth="383.0" style="-fx-background-color: #363636; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" />
+                                        <ListView fx:id="commentsListView" prefHeight="183.0" prefWidth="378.0" style="-fx-background-color: #363636; -fx-border-color: white; -fx-border-width: 2; -fx-background-radius: 5; -fx-border-radius: 5;" />
                                         <HBox spacing="10.0">
                                             <children>
                                                 <TextField fx:id="commentField" prefHeight="40.0" prefWidth="300.0" promptText="Add a comment..." style="-fx-background-color: #363636; -fx-text-fill: white; -fx-prompt-text-fill: #AAAAAA; -fx-border-color: white; -fx-border-radius: 5;" />
@@ -163,9 +163,9 @@
                                                     <cursor>
                                                         <Cursor fx:constant="HAND" />
                                                     </cursor>
-                                       <HBox.margin>
-                                          <Insets top="5.0" />
-                                       </HBox.margin>
+                                                    <HBox.margin>
+                                                        <Insets top="5.0" />
+                                                    </HBox.margin>
                                                 </Button>
                                             </children>
                                         </HBox>
