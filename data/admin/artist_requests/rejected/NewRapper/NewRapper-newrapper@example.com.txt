@@ -1,0 +1,5 @@
+Email: newrapper@example.com
+Nickname: NewRapper
+Password: TestPass!
+Status: Rejected
+Timestamp: 2025-05-13T18:57:13.534579100Z

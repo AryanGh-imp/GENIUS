@@ -1,0 +1,6 @@
+Song Name: SICKO MODE
+Artists: TravisScott
+Likes: 280328
+Views: 656733
+Release Date: 2018-08-03
+SongArtPath: song_art.jpg

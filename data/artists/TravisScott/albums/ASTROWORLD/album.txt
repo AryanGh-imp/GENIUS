@@ -1,0 +1,4 @@
+Album Title: ASTROWORLD
+Release Date: 2018-08-03
+Songs: STARGAZING,SICKO MODE
+AlbumArtPath: album_art.jpg

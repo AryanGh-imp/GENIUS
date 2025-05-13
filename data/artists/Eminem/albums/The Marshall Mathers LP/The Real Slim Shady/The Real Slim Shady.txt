@@ -1,0 +1,6 @@
+Song Name: The Real Slim Shady
+Artists: Eminem
+Likes: 129224
+Views: 588059
+Release Date: 2000-05-23
+SongArtPath: song_art.jpg

@@ -1,0 +1,6 @@
+Song Name: Stan
+Artists: Eminem
+Likes: 439905
+Views: 666372
+Release Date: 2000-05-23
+SongArtPath: song_art.jpg

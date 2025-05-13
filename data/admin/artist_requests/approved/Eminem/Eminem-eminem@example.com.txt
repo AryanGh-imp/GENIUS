@@ -1,0 +1,5 @@
+Email: eminem@example.com
+Nickname: Eminem
+Password: SlimShady2025!
+Status: Approved
+Timestamp: 2025-05-13T18:57:13.532090400Z
