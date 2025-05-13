@@ -15,7 +15,7 @@ public class AdminTest extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // 1. Set up test data using TestDataSetup
-        TestDataSetup.setupTestData();
+        //TestDataSetup.setupTestData();
 
         // 2. Get ConfigLoader instance
         ConfigLoader configLoader = ConfigLoader.getInstance();
