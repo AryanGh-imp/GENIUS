@@ -29,12 +29,15 @@ public class SongFileManager extends FileManager {
         return DATA_DIR + "artists/" + safeArtistNickName + "/albums/" + safeAlbumTitle + "/";
     }
 
-    public String getSongDir(String artistNickName, String songTitle, String albumName) {
-        String safeArtistNickName = sanitizeFileName(artistNickName);
+    public String getSongDir(String artistNickname, String songTitle, String albumName) {
+        String safeArtistNickName = sanitizeFileName(artistNickname);
         String safeSongTitle = sanitizeFileName(songTitle);
-        return albumName != null && !albumName.isEmpty()
-                ? getAlbumDir(artistNickName, albumName) + safeSongTitle + "/"
-                : DATA_DIR + "artists/" + safeArtistNickName + "/singles/" + safeSongTitle + "/";
+        String basePath = DATA_DIR + "artists/" + safeArtistNickName + "/";
+        if (albumName == null || albumName.equals("Single") || albumName.trim().isEmpty()) {
+            return basePath + "singles/" + safeSongTitle + "/";
+        } else {
+            return basePath + "albums/" + sanitizeFileName(albumName) + "/" + safeSongTitle + "/";
+        }
     }
 
     public synchronized String saveSingleSongArt(String artistNickName, String songTitle, File imageFile) throws IOException {
@@ -170,19 +173,17 @@ public class SongFileManager extends FileManager {
 
                 if (!songFile.exists() || hasSongChanged(songFile, song)) {
                     String songArtPath = song.getAlbumArtPath();
-                    if (songArtPath == null) {
-                        songArtPath = album.getAlbumArtPath();
-                        song.setAlbumArtPath(songArtPath);
-                    }
-                    if (songArtPath != null && new File(songArtPath).exists()) {
-                        String fileExtension = songArtPath.substring(songArtPath.lastIndexOf("."));
-                        String newArtFile = songDir + "song_art" + fileExtension;
-                        try {
-                            Files.copy(Paths.get(songArtPath), Paths.get(newArtFile), StandardCopyOption.REPLACE_EXISTING);
-                            songArtPath = newArtFile;
-                            System.out.println("Copied album art to song directory: " + newArtFile);
-                        } catch (IOException e) {
-                            System.err.println("Failed to copy album art to song directory: " + newArtFile + " - " + e.getMessage());
+                    if (songArtPath == null || !new File(songArtPath).exists()) {
+                        if (album.getAlbumArtPath() != null && new File(album.getAlbumArtPath()).exists()) {
+                            String fileExtension = album.getAlbumArtPath().substring(album.getAlbumArtPath().lastIndexOf("."));
+                            String newArtFile = songDir + "song_art" + fileExtension;
+                            try {
+                                Files.copy(Paths.get(album.getAlbumArtPath()), Paths.get(newArtFile), StandardCopyOption.REPLACE_EXISTING);
+                                songArtPath = newArtFile;
+                                song.setAlbumArtPath(songArtPath);
+                            } catch (IOException e) {
+                                System.err.println("Failed to copy album art to song directory: " + newArtFile + " - " + e.getMessage());
+                            }
                         }
                     }
                     saveSong(Collections.singletonList(artist.getNickName()), song.getTitle(), album.getTitle(), song.getLyrics(), song.getReleaseDate(), song.getLikes(), song.getViews(), songArtPath);
@@ -267,7 +268,7 @@ public class SongFileManager extends FileManager {
         return null;
     }
 
-    public synchronized void saveSong(List<String> artistNickNames, String songTitle, String albumName, String lyrics, String releaseDate, int likes, int views, String albumArtPath) {
+    public synchronized void saveSong(List<String> artistNickNames, String songTitle, String albumName, String lyrics, String releaseDate, int likes, int views, String songArtPath) {
         if (artistNickNames == null || artistNickNames.isEmpty()) throw new IllegalArgumentException("Artist nicknames list cannot be null or empty");
         if (songTitle == null || songTitle.isEmpty()) throw new IllegalArgumentException("Song title cannot be null or empty");
         if (lyrics == null) throw new IllegalArgumentException("Lyrics cannot be null");
@@ -311,15 +312,11 @@ public class SongFileManager extends FileManager {
         songData.add("Likes: " + likes);
         songData.add("Views: " + views);
         songData.add("Release Date: " + releaseDate);
-        if (albumArtPath != null && !albumArtPath.isEmpty()) {
-            if (albumName != null && !albumName.isEmpty()) {
-                songData.add("AlbumArtPath: " + albumArtPath);
-            } else {
-                songData.add("SongArtPath: " + albumArtPath);
-            }
+        if (songArtPath != null && !songArtPath.isEmpty()) {
+            songData.add("SongArtPath: " + songArtPath);
         }
 
-        System.out.println("Saving song with Likes: " + likes + ", Views: " + views + ", ArtPath: " + albumArtPath + ", Path: " + songDir);
+        System.out.println("Saving song with Likes: " + likes + ", Views: " + views + ", ArtPath: " + songArtPath + ", Path: " + songDir);
         writeFile(songDir + safeSongTitle + ".txt", songData);
         writeFile(songDir + safeSongTitle + "_lyrics.txt", Collections.singletonList(lyrics));
 
@@ -649,7 +646,6 @@ public class SongFileManager extends FileManager {
                     .orElse(null);
         }
 
-        // Delete album-level comments if deleting an album
         if (isAlbum) {
             String commentsFile = dir + sanitizeFileName(entityName) + "-album-comments.txt";
             File commentsFileObj = new File(commentsFile);
@@ -701,22 +697,21 @@ public class SongFileManager extends FileManager {
         String releaseDate = extractField(songData, "Release Date: ");
         String likesStr = extractField(songData, "Likes: ");
         String viewsStr = extractField(songData, "Views: ");
-        String albumArtPath = extractField(songData, "AlbumArtPath: ");
         String songArtPath = extractField(songData, "SongArtPath: ");
+        String albumArtPath = extractField(songData, "AlbumArtPath: ");
 
         int likes = likesStr != null ? Integer.parseInt(likesStr) : 0;
         int views = viewsStr != null ? Integer.parseInt(viewsStr) : 0;
 
         System.out.println("Parsing song - Title: " + title + ", ReleaseDate: " + releaseDate + ", Likes: " + likes + ", Views: " + views +
-                ", AlbumArtPath: " + albumArtPath + ", SongArtPath: " + songArtPath);
+                ", SongArtPath: " + songArtPath + ", AlbumArtPath: " + albumArtPath);
 
         Song song = new Song(title, lyrics != null ? lyrics : "", releaseDate != null ? releaseDate : "Not set");
         song.addArtist(artist);
         song.setLikes(likes);
         song.setViews(views);
         if (album != null) song.setAlbum(album);
-        if (albumArtPath != null) song.setAlbumArtPath(albumArtPath);
-        else if (songArtPath != null) song.setAlbumArtPath(songArtPath);
+        song.setAlbumArtPath(songArtPath != null ? songArtPath : (albumArtPath));
         return song;
     }
 

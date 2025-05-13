@@ -159,7 +159,13 @@ public class SongAndAlbumDetailsController extends BaseUserController {
         if (songFile.exists()) {
             Song song = loadAndProcessSong(songFile, albumTitle, artistName);
             updateSongDetails(song);
-            loadImage(coverImageView, songFile.getParent() + "/song_art.png");
+            // load the exclusive image of the song
+            String imagePath = song.getAlbumArtPath();
+            if (imagePath != null && new File(imagePath).exists()) {
+                loadImage(coverImageView, imagePath);
+            } else {
+                loadImage(coverImageView, songFile.getParent() + "/song_art.jpg"); // Default to song image
+            }
             if (commentsListView != null) {
                 commentsListView.getItems().setAll(songFileManager.loadComments(artistName, songTitle, albumTitle));
             }

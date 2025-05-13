@@ -185,7 +185,7 @@ public class ArtistManagementController extends BaseArtistController {
                         requests.add(lyricsRequest);
                         System.out.println("Added LyricsEditRequestDTO: " + lyricsRequest);
                     } else {
-                        System.err.println("Failed to create LyricsEditRequestDTO or status mismatch: " + Arrays.toString(requestData));
+                        System.out.println("Failed to create LyricsEditRequestDTO or status mismatch: " + Arrays.toString(requestData));
                     }
                 } else {
                     System.err.println("Invalid request data: " + Arrays.toString(requestData));
@@ -218,13 +218,13 @@ public class ArtistManagementController extends BaseArtistController {
             return null;
         }
 
-        String artistNickname = extractField(requestData, "Artist: ");
-        String songTitle = extractField(requestData, "Song: ");
-        String albumName = extractField(requestData, "Album: ");
-        String suggestedLyrics = extractField(requestData, "SuggestedLyrics: ");
-        String requester = extractField(requestData, "Requester: ");
-        String status = extractField(requestData, "Status: ");
-        String timestamp = extractField(requestData, "Timestamp: ");
+        String requester = requestData[0];
+        String artistNickname = requestData[1];
+        String songTitle = requestData[2];
+        String albumName = requestData[3];
+        String suggestedLyrics = requestData[4];
+        String status = requestData[5];
+        String timestamp = requestData[6];
 
         System.out.println("Extracted Lyrics Edit Request - Artist: " + artistNickname +
                 ", Song: " + songTitle + ", Album: " + albumName + ", SuggestedLyrics: " + suggestedLyrics +
@@ -244,8 +244,7 @@ public class ArtistManagementController extends BaseArtistController {
             System.out.println("Found email '" + email + "' for requester nickname '" + requester + "'");
         }
 
-        if (email == null || artistNickname == null || songTitle == null || suggestedLyrics == null ||
-                timestamp == null || status == null) {
+        if (artistNickname == null || songTitle == null || suggestedLyrics == null || timestamp == null || status == null) {
             System.err.println("One or more fields are null in request data: " + Arrays.toString(requestData));
             return null;
         }
@@ -260,19 +259,6 @@ public class ArtistManagementController extends BaseArtistController {
         );
         request.setLyricsRequestManager(lyricsRequestManager);
         return request;
-    }
-
-    private String extractField(String[] data, String prefix) {
-        for (String line : data) {
-            if (line.startsWith(prefix)) {
-                System.out.println("Extracting field with prefix: '" + prefix + "' from data: " + Arrays.toString(data));
-                String value = line.substring(prefix.length()).trim();
-                System.out.println("Extracted " + prefix + " as: '" + value + "' from line: '" + line + "'");
-                return value;
-            }
-        }
-        System.err.println("Field with prefix '" + prefix + "' not found in data: " + Arrays.toString(data));
-        return null;
     }
 
     private void executeRequestOperation(String successMessage, Runnable operation) {

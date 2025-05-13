@@ -335,6 +335,7 @@ public class AdminDashboardController {
     @FXML
     private void signOut() {
         services.SessionManager.getInstance().clearSession();
+        AlertUtil.showSuccess("You have been signed out.");
         SceneUtil.changeScene(signOutButton, "/FXML-files/signIn.fxml");
     }
 }
