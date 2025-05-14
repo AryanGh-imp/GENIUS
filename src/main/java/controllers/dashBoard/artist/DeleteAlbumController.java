@@ -59,7 +59,6 @@ public class DeleteAlbumController extends BaseArtistController {
             return;
         }
 
-        // If there are no folders, just leave the list empty and don't display a warning message.
         for (File albumFolder : albumFolders) {
             File albumFile = new File(albumFolder, "album.txt");
             if (albumFile.exists()) {
@@ -99,9 +98,10 @@ public class DeleteAlbumController extends BaseArtistController {
 
             for (String line : albumData) {
                 if (line.startsWith("Release Date: ")) {
-                    releaseDate = line.substring("Release Date: ".length());
+                    releaseDate = line.substring("Release Date: ".length()).trim();
                 } else if (line.startsWith("AlbumArtPath: ")) {
-                    albumArtPath = line.substring("AlbumArtPath: ".length());
+                    albumArtPath = line.substring("AlbumArtPath: ".length()).trim();
+                    System.out.println("Loaded AlbumArtPath: " + albumArtPath);
                 }
             }
 
@@ -109,7 +109,7 @@ public class DeleteAlbumController extends BaseArtistController {
             checkComponent(releaseDateLabel, "releaseDateLabel");
             if (titleLabel != null) titleLabel.setText("Title: " + selectedAlbum);
             if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + releaseDate);
-            updateImageView(albumArtImageView, albumArtPath);
+            updateImageView(albumArtImageView, albumArtPath, albumDir); // Pass the album directory
         } else {
             clearMetadata();
         }

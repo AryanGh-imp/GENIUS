@@ -103,13 +103,14 @@ public class EditAlbumController extends BaseArtistController {
 
             for (String line : albumData) {
                 if (line.startsWith("AlbumArtPath: ")) {
-                    albumArtPath = line.substring("AlbumArtPath: ".length());
+                    albumArtPath = line.substring("AlbumArtPath: ".length()).trim();
+                    System.out.println("Loaded AlbumArtPath: " + albumArtPath);
                 }
             }
 
             checkComponent(titleField, "titleField");
             if (titleField != null) titleField.setText(selectedAlbum);
-            updateImageView(albumArtImageView, albumArtPath);
+            updateImageView(albumArtImageView, albumArtPath, albumDir); // Pass the album directory
         } else {
             clearMetadata();
         }
@@ -177,43 +178,46 @@ public class EditAlbumController extends BaseArtistController {
             String oldAlbumArtPath = null;
             for (String line : albumData) {
                 if (line.startsWith("AlbumArtPath: ")) {
-                    oldAlbumArtPath = line.substring("AlbumArtPath: ".length());
+                    oldAlbumArtPath = line.substring("AlbumArtPath: ".length()).trim();
                 }
             }
 
             String newAlbumArtPath = oldAlbumArtPath;
 
-            // Rename the directory if the album title has changed.
+            // Rename the directory if the album title has changed
             if (!selectedAlbum.equals(newTitle)) {
                 String newAlbumDir = songFileManager.getAlbumDir(artist.getNickName(), newTitle);
                 File oldDir = new File(oldAlbumDir);
                 File newDir = new File(newAlbumDir);
 
-                // If the new directory exists, delete it.
+                // If the new directory exists, delete it
                 if (newDir.exists()) {
                     FileUtil.deleteDirectory(newDir);
                 }
 
-                // Rename a directory
+                // Rename the directory
                 FileUtil.renameDirectory(oldDir, newDir);
 
                 // Update image path if it exists
-                if (oldAlbumArtPath != null) {
-                    File oldArtFile = new File(FileUtil.DATA_DIR + oldAlbumArtPath.replace("data/data", "data"));
+                if (oldAlbumArtPath != null && !oldAlbumArtPath.trim().isEmpty()) {
+                    File oldArtFile = new File(oldAlbumDir, oldAlbumArtPath);
                     System.out.println("Checking old album art file: " + oldArtFile.getAbsolutePath() + " - Exists: " + oldArtFile.exists());
                     if (oldArtFile.exists()) {
                         String artFileName = oldArtFile.getName();
-                        File newArtFile = new File(newAlbumDir + artFileName);
-                        FileUtil.ensureDataDirectoryExists(newAlbumDir);
+                        File newArtFile = new File(newDir, artFileName);
+                        FileUtil.ensureDataDirectoryExists(newDir.getPath());
                         Files.copy(oldArtFile.toPath(), newArtFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + newTitle + "/" + artFileName;
+                        newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + FileUtil.sanitizeFileName(newTitle) + "/" + artFileName;
                         System.out.println("Updated AlbumArtPath after rename: " + newAlbumArtPath);
                     } else {
-                        // بررسی دایرکتوری جدید برای فایل تصویر
-                        File newArtCheck = new File(newAlbumDir + oldArtFile.getName());
+                        // Check if the file exists in the new directory
+                        File newArtCheck = new File(newDir, oldArtFile.getName());
                         if (newArtCheck.exists()) {
-                            newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + newTitle + "/" + newArtCheck.getName();
+                            newAlbumArtPath = "data/artists/" + FileUtil.sanitizeFileName(artist.getNickName()) + "/albums/" + FileUtil.sanitizeFileName(newTitle) + "/" + newArtCheck.getName();
                             System.out.println("Found art file in new directory: " + newAlbumArtPath);
+                        } else {
+                            System.out.println("Old album art file not found: " + oldArtFile.getAbsolutePath());
+                            newAlbumArtPath = null;
                         }
                     }
                 }
@@ -221,12 +225,14 @@ public class EditAlbumController extends BaseArtistController {
                 albumToUpdate.setTitle(newTitle);
             }
 
-            // If a new image is selected, save it.
+            // If a new image is selected, save it
             if (selectedImageFile != null) {
                 newAlbumArtPath = songFileManager.saveAlbumArt(artist.getNickName(), newTitle, selectedImageFile);
                 System.out.println("Updated AlbumArtPath after new image: " + newAlbumArtPath);
-            } else if (newAlbumArtPath != null) {
+            } else if (newAlbumArtPath != null && new File(newAlbumArtPath.replace("data/data", "data")).exists()) {
                 System.out.println("Reusing existing AlbumArtPath: " + newAlbumArtPath);
+            } else {
+                newAlbumArtPath = null; // Reset if the file doesn't exist
             }
 
             // Update image path in album

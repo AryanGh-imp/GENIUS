@@ -1,7 +1,0 @@
-Artist: Eminem
-Song: Houdini
-Album: The Death of Slim Shady
-SuggestedLyrics: I wish I could say, 'What I wanna say'
-Requester: testuser@example.com
-Timestamp: 2025-05-13_20_51_00Z
-Status: Pending

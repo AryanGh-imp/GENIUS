@@ -139,7 +139,7 @@ public class SongAndAlbumDetailsController extends BaseUserController {
                         List<String> data = loadFileData(file.getPath());
                         for (String line : data) {
                             if (line.startsWith("Email: ")) {
-                                return line.substring("Email: ".length()).trim();
+                                return line.substring("E mail: ".length()).trim();
                             }
                         }
                     }
@@ -155,19 +155,40 @@ public class SongAndAlbumDetailsController extends BaseUserController {
             titleLabel.setText(songTitle);
         }
 
-        File songFile = getSongFile(artistName, songTitle, albumTitle);
+        // Validate if the song belongs to the specified album (if any)
+        String actualAlbumTitle = albumTitle;
+        if (albumTitle != null) {
+            File albumFile = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/albums/" + albumTitle + "/album.txt");
+            if (albumFile.exists()) {
+                List<String> albumData = loadFileData(albumFile.getPath());
+                String songsLine = albumData.stream()
+                        .filter(line -> line.startsWith("Songs: "))
+                        .findFirst()
+                        .orElse("Songs: ");
+                if (!songsLine.contains(songTitle)) {
+                    // Song is not in this album, treat it as a single
+                    actualAlbumTitle = null;
+                    SessionManager.getInstance().setSelectedAlbum(null);
+                }
+            } else {
+                // Album doesn't exist, treat the song as a single
+                actualAlbumTitle = null;
+                SessionManager.getInstance().setSelectedAlbum(null);
+            }
+        }
+
+        File songFile = getSongFile(artistName, songTitle, actualAlbumTitle);
         if (songFile.exists()) {
-            Song song = loadAndProcessSong(songFile, albumTitle, artistName);
+            Song song = loadAndProcessSong(songFile, actualAlbumTitle, artistName);
             updateSongDetails(song);
-            // load the exclusive image of the song
             String imagePath = song.getAlbumArtPath();
             if (imagePath != null && new File(imagePath).exists()) {
                 loadImage(coverImageView, imagePath);
             } else {
-                loadImage(coverImageView, songFile.getParent() + "/song_art.jpg"); // Default to song image
+                loadImage(coverImageView, songFile.getParent() + "/song_art.jpg");
             }
             if (commentsListView != null) {
-                commentsListView.getItems().setAll(songFileManager.loadComments(artistName, songTitle, albumTitle));
+                commentsListView.getItems().setAll(songFileManager.loadComments(artistName, songTitle, actualAlbumTitle));
             }
 
             if (albumSongsListView != null) {
@@ -184,7 +205,6 @@ public class SongAndAlbumDetailsController extends BaseUserController {
     }
 
     private void loadAlbumDetails(String artistName, String albumTitle) {
-        // Clear selected song to ensure album view is loaded properly
         SessionManager.getInstance().setSelectedSong(null);
 
         if (titleLabel != null) titleLabel.setText(albumTitle);
@@ -213,14 +233,8 @@ public class SongAndAlbumDetailsController extends BaseUserController {
             List<String> albumData = loadFileData(albumFile.getPath());
             updateAlbumMetadata(albumData);
             loadImage(coverImageView, albumFile.getParent() + "/album_art.jpg");
-            SessionManager sessionManager = SessionManager.getInstance();
-            String selectedSong = sessionManager.getSelectedSong();
             if (commentsListView != null) {
-                if (selectedSong != null && !selectedSong.trim().isEmpty()) {
-                    commentsListView.getItems().setAll(songFileManager.loadComments(artistName, selectedSong, albumTitle));
-                } else {
-                    commentsListView.getItems().setAll(songFileManager.loadAlbumComments(artistName, albumTitle));
-                }
+                commentsListView.getItems().setAll(songFileManager.loadAlbumComments(artistName, albumTitle));
             }
             loadAlbumSongs(albumData);
             int totalViews = calculateTotalAlbumViews(artistName, albumTitle, albumData);
@@ -280,10 +294,19 @@ public class SongAndAlbumDetailsController extends BaseUserController {
 
     protected File getSongFile(String artistName, String songTitle, String albumTitle) {
         File songFile;
+        File file = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/singles/" + songTitle + "/" + songTitle + ".txt");
         if (albumTitle != null) {
             songFile = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/albums/" + albumTitle + "/" + songTitle + "/" + songTitle + ".txt");
+            if (!songFile.exists()) {
+                // Fallback to singles directory if the song is not found in the album
+                songFile = file;
+                if (songFile.exists()) {
+                    // Update SessionManager to reflect that this is a single
+                    SessionManager.getInstance().setSelectedAlbum(null);
+                }
+            }
         } else {
-            songFile = new File(FileUtil.DATA_DIR + "artists/" + artistName + "/singles/" + songTitle + "/" + songTitle + ".txt");
+            songFile = file;
         }
         if (!songFile.exists()) {
             System.err.println("Song file not found: " + songFile.getPath());
@@ -324,7 +347,6 @@ public class SongAndAlbumDetailsController extends BaseUserController {
             song = songFileManager.parseSongFromFile(songData, albumTitle != null ? new Album(albumTitle, "Not set", artist) : null, lyrics, artist);
             songCache.put(cacheKey, song);
         } else {
-            // Ensuring that views and likes are loaded from the file
             Song updatedSong = songFileManager.parseSongFromFile(songData, albumTitle != null ? new Album(albumTitle, "Not set", artist) : null, lyrics, artist);
             song.setViews(updatedSong.getViews());
             song.setLikes(updatedSong.getLikes());
@@ -381,11 +403,9 @@ public class SongAndAlbumDetailsController extends BaseUserController {
         String albumTitle = SessionManager.getInstance().getSelectedAlbum();
 
         if (songTitle != null && !songTitle.trim().isEmpty()) {
-            // Save comment for the song
             songFileManager.addComment(artistName, songTitle, albumTitle, commentText, username);
             commentsListView.getItems().setAll(songFileManager.loadComments(artistName, songTitle, albumTitle));
         } else if (albumTitle != null && !albumTitle.trim().isEmpty()) {
-            // Save comment for the album
             songFileManager.addAlbumComment(artistName, albumTitle, commentText, username);
             commentsListView.getItems().setAll(songFileManager.loadAlbumComments(artistName, albumTitle));
         }
@@ -411,17 +431,16 @@ public class SongAndAlbumDetailsController extends BaseUserController {
             if (songFile.exists()) {
                 String actualAlbumTitle = null;
                 if (songFile.getPath().contains("albums")) {
-                        actualAlbumTitle = albumTitle;
+                    actualAlbumTitle = albumTitle;
                 }
 
                 Song song = loadAndProcessSong(songFile, actualAlbumTitle, artistName);
-                int oldViews = song.getViews(); // Save old views
+                int oldViews = song.getViews();
                 song.incrementLikes();
                 String cacheKey = songFile.getAbsolutePath() + "_" + actualAlbumTitle;
                 songCache.put(cacheKey, song);
                 updateSongDetails(song);
 
-                // Ensuring that views have not changed
                 song.setViews(oldViews);
                 songFileManager.saveSong(Collections.singletonList(artistName), songTitle, actualAlbumTitle, song.getLyrics(), song.getReleaseDate(), song.getLikes(), song.getViews(), song.getAlbumArtPath());
                 System.out.println("Likes updated and saved for song: " + songTitle + ", New Likes: " + song.getLikes() + ", Views (unchanged): " + song.getViews() + ", Album: " + actualAlbumTitle);

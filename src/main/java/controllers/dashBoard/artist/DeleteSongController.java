@@ -87,7 +87,7 @@ public class DeleteSongController extends BaseArtistController {
             List<String> songData = FileUtil.readFile(songFile.getPath());
             String songTitle = songData.stream()
                     .filter(line -> line.startsWith("Song Name: "))
-                    .map(line -> line.substring("Song Name: ".length()))
+                    .map(line -> line.substring("Song Name: ".length()).trim())
                     .findFirst()
                     .orElse(null);
             if (songTitle != null) {
@@ -137,20 +137,28 @@ public class DeleteSongController extends BaseArtistController {
             String views = "0";
             String likes = "0";
             String albumArtPath = null;
+            String baseDir = null;
+
+            // Set the base directory based on whether it's a single or album song
+            if (albumName != null) {
+                baseDir = songFileManager.getAlbumDir(artist.getNickName(), albumName);
+            } else {
+                baseDir = songFileManager.getSongDir(artist.getNickName(), songTitle, null);
+            }
 
             for (String line : songData) {
                 if (line.startsWith("Release Date: ")) {
-                    releaseDate = line.substring("Release Date: ".length());
+                    releaseDate = line.substring("Release Date: ".length()).trim();
                 } else if (line.startsWith("Views: ")) {
-                    views = line.substring("Views: ".length());
+                    views = line.substring("Views: ".length()).trim();
                 } else if (line.startsWith("Likes: ")) {
-                    likes = line.substring("Likes: ".length());
+                    likes = line.substring("Likes: ".length()).trim();
                 } else if (line.startsWith("AlbumArtPath: ")) {
-                    albumArtPath = line.substring("AlbumArtPath: ".length());
-                    System.out.println("Found AlbumArtPath: " + albumArtPath);
+                    albumArtPath = line.substring("AlbumArtPath: ".length()).trim();
+                    System.out.println("Loaded AlbumArtPath: " + albumArtPath);
                 } else if (line.startsWith("SongArtPath: ")) {
-                    albumArtPath = line.substring("SongArtPath: ".length());
-                    System.out.println("Found SongArtPath: " + albumArtPath);
+                    albumArtPath = line.substring("SongArtPath: ".length()).trim();
+                    System.out.println("Loaded SongArtPath: " + albumArtPath);
                 }
             }
 
@@ -164,7 +172,7 @@ public class DeleteSongController extends BaseArtistController {
             if (releaseDateLabel != null) releaseDateLabel.setText("Release Date: " + releaseDate);
             if (viewsLabel != null) viewsLabel.setText("Views: " + views);
             if (likesLabel != null) likesLabel.setText("Likes: " + likes);
-            updateImageView(albumArtImageView, albumArtPath);
+            updateImageView(albumArtImageView, albumArtPath, baseDir);
         } else {
             clearMetadata();
         }

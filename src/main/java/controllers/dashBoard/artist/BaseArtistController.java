@@ -55,21 +55,45 @@ public abstract class BaseArtistController {
     }
 
     protected void updateImageView(ImageView imageView, String albumArtPath) {
+        updateImageView(imageView, albumArtPath, null);
+    }
+
+    protected void updateImageView(ImageView imageView, String albumArtPath, String baseDirectory) {
         checkComponent(imageView, "imageView");
         if (imageView == null) return;
 
         try {
-            if (albumArtPath != null && !albumArtPath.isEmpty()) {
-                if (albumArtPath.startsWith("file:/")) {
-                    System.out.println("Loading image from URL: " + albumArtPath);
-                    imageView.setImage(new Image(albumArtPath));
+            if (albumArtPath != null && !albumArtPath.trim().isEmpty()) {
+                // Normalize the path by removing redundant "data/data" and ensuring correct base directory
+                String normalizedPath = albumArtPath.replace("data/data", "data");
+                if (!normalizedPath.startsWith("file:/") && !normalizedPath.startsWith("data/")) {
+                    // If a base directory is provided, construct the full path
+                    if (baseDirectory != null && !baseDirectory.isEmpty()) {
+                        File baseDirFile = new File(baseDirectory);
+                        if (baseDirFile.exists() && baseDirFile.isDirectory()) {
+                            normalizedPath = new File(baseDirFile, normalizedPath).getAbsolutePath();
+                        } else {
+                            normalizedPath = "data/" + normalizedPath; // Fallback to default data directory
+                        }
+                    } else {
+                        normalizedPath = "data/" + normalizedPath;
+                    }
+                }
+
+                File albumArtFile;
+                if (normalizedPath.startsWith("file:/")) {
+                    System.out.println("Loading image from URL: " + normalizedPath);
+                    imageView.setImage(new Image(normalizedPath));
                 } else {
-                    File albumArtFile = new File(albumArtPath);
+                    // Construct the absolute path
+                    albumArtFile = new File(normalizedPath);
                     System.out.println("Checking image file: " + albumArtFile.getAbsolutePath() + " - Exists: " + albumArtFile.exists());
                     if (albumArtFile.exists()) {
-                        imageView.setImage(new Image(albumArtFile.toURI().toString()));
+                        String uri = albumArtFile.toURI().toString();
+                        System.out.println("Loading image from URI: " + uri);
+                        imageView.setImage(new Image(uri));
                     } else {
-                        System.out.println("Image file does not exist, loading default image.");
+                        System.out.println("Image file does not exist at: " + albumArtFile.getAbsolutePath() + ", loading default image.");
                         loadDefaultImage(imageView);
                     }
                 }
