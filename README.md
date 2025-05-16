@@ -64,18 +64,8 @@ GENIUS is built using:
 - Custom file-based data storage system
 
 ## Installation Process
-The GENIUS application can be installed either by running a pre-built executable or by building from source code.
 
-### Method 1: Using Pre-built Executable
-1. Download the latest release JAR file from the project repository
-2. Ensure you have Java JDK 23+ installed
-3. Create a directory where you want to store the application data
-4. Run the application using the command:
-  
-   ```
-   java -jar GENIUS.jar
-   ```
-### Method 2: Building from Source
+Building from Source
 1. Clone the repository:
 
    ```
