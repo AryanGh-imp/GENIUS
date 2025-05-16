@@ -1,0 +1,6 @@
+Song Name: Genocide
+Artists: drdre
+Likes: 154452
+Views: 938575
+Release Date: 2015-08-07
+SongArtPath: data/artists/DrDre/albums/Compton/Genocide/song_art.jpg

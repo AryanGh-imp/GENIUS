@@ -1,0 +1,4 @@
+Album Title: Mr Morale The Big Steppers
+Release Date: 2022-05-13
+Songs: United In Grief,Savior
+AlbumArtPath: album_art.jpg

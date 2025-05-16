@@ -1,0 +1,6 @@
+Song Name: TELEKINESIS
+Artists: TravisScott
+Likes: 172024
+Views: 921910
+Release Date: 2023-07-28
+AlbumArtPath: song_art.jpg

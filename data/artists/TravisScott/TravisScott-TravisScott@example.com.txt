@@ -1,0 +1,5 @@
+Email: TravisScott@example.com
+Nickname: TravisScott
+Password: CactusJack2025!
+Role: Artist
+Approved: true

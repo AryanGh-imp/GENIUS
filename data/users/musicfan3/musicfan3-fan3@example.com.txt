@@ -1,0 +1,4 @@
+Email: fan3@example.com
+Nickname: musicfan3
+Password: FanPass2023!
+Role: User

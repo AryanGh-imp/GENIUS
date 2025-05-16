@@ -1,0 +1,6 @@
+Song Name: BLOOD
+Artists: KendrickLamar
+Likes: 230070
+Views: 1501066
+Release Date: 2017-04-14
+SongArtPath: song_art.jpg

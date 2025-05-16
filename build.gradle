@@ -1,0 +1,54 @@
+plugins {
+    id("java")
+    id("org.openjfx.javafxplugin") version "0.0.13"
+    id("application")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+
+group = "AP"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.openjfx:javafx-controls:21.0.2'
+    implementation 'org.openjfx:javafx-fxml:21.0.2'
+
+    testImplementation platform("org.junit:junit-bom:5.10.0")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(23))
+    }
+}
+
+javafx {
+    version = "23.0.2"
+    modules = ["javafx.controls", "javafx.fxml"]
+}
+
+application {
+    mainClass.set("app.Main")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+tasks.named("shadowJar") {
+    archiveFileName.set("GENIUS.jar")
+    manifest {
+        attributes 'Main-Class': 'app.Main'
+        attributes 'Class-Path': '.'
+    }
+    mergeServiceFiles()
+
+    // Add resources from src/main/resources
+    from(sourceSets.main.resources.srcDirs) {
+        include "**/*"
+    }
+}

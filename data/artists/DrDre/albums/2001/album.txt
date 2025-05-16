@@ -1,0 +1,4 @@
+Album Title: 2001
+Release Date: 1999-11-16
+Songs: The Next Episode,Still DRE
+AlbumArtPath: data/artists/DrDre/albums/2001/album_art.jpg

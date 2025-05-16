@@ -1,0 +1,7 @@
+Artist: DrDre
+Song: Talk About It
+Album: Compton
+SuggestedLyrics: Talk about it, let’s skip...
+Requester: testuser@example.com
+Timestamp: 2025-05-13_20_51_45Z
+Status: Rejected
