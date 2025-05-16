@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GENIUS.jar" type="JarApplication">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/GENIUS.jar" />
+    <option name="VM_PARAMETERS" value="--module-path &quot;C:\javafx-sdk-24\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2" />
+  </configuration>
+</component>

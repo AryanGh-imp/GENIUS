@@ -2,6 +2,7 @@ plugins {
     id("java")
     id("org.openjfx.javafxplugin") version "0.0.13"
     id("application")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "AP"
@@ -26,14 +27,28 @@ java {
 }
 
 javafx {
-    version = "21.0.2"
+    version = "23.0.2"
     modules = ["javafx.controls", "javafx.fxml"]
 }
 
 application {
-    mainClass.set("Main")
+    mainClass.set("app.Main")
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.named("shadowJar") {
+    archiveFileName.set("GENIUS.jar")
+    manifest {
+        attributes 'Main-Class': 'app.Main'
+        attributes 'Class-Path': '.'
+    }
+    mergeServiceFiles()
+
+    // Add resources from src/main/resources
+    from(sourceSets.main.resources.srcDirs) {
+        include "**/*"
+    }
 }
