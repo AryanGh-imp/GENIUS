@@ -1,3 +1,0 @@
-fan1@example.com:musicfan1
-fan2@example.com:musicfan2
-fan3@example.com:musicfan3

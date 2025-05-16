@@ -1,4 +1,0 @@
-Album Title: DAMN
-Release Date: 2017-04-14
-Songs: BLOOD,HUMBLE
-AlbumArtPath: album_art.jpg

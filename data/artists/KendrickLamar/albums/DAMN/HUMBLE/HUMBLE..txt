@@ -1,6 +1,0 @@
-Song Name: HUMBLE
-Artists: KendrickLamar
-Likes: 118549
-Views: 1044865
-Release Date: 2017-04-14
-SongArtPath: song_art.jpg

@@ -1,6 +1,0 @@
-Song Name: Lose Yourself
-Artists: eminem
-Likes: 269788
-Views: 542301
-Release Date: 2002-10-28
-SongArtPath: song_art.jpg

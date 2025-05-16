@@ -1,6 +1,0 @@
-Song Name: STARGAZING
-Artists: TravisScott
-Likes: 383604
-Views: 318288
-Release Date: 2018-08-03
-SongArtPath: song_art.jpg

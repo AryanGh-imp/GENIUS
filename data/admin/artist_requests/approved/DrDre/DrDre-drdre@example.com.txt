@@ -1,5 +1,0 @@
-Email: drdre@example.com
-Nickname: DrDre
-Password: Dre2025!
-Status: Approved
-Timestamp: 2025-05-13T18:57:13.534579100Z

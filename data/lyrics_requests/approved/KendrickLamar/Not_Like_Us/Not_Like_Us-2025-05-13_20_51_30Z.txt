@@ -1,7 +1,0 @@
-Artist: KendrickLamar
-Song: Not Like Us
-Album: Single
-SuggestedLyrics: They not like us, wop, wop...
-Requester: testuser@example.com
-Timestamp: 2025-05-13_20_51_30Z
-Status: Approved

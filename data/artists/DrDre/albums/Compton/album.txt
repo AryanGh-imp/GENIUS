@@ -1,4 +1,0 @@
-Album Title: Compton
-Release Date: 2015-08-07
-Songs: Genocide,Talk About It
-AlbumArtPath: data/artists/DrDre/albums/Compton/album_art.jpg

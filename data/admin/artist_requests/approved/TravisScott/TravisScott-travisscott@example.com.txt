@@ -1,5 +1,0 @@
-Email: travisscott@example.com
-Nickname: TravisScott
-Password: CactusJack2025!
-Status: Approved
-Timestamp: 2025-05-13T18:57:13.533087100Z

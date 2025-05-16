@@ -1,4 +1,0 @@
-Album Title: The Death of Slim Shady
-Release Date: 2024-07-12
-Songs: Renaissance,Tobey
-AlbumArtPath: album_art.jpg

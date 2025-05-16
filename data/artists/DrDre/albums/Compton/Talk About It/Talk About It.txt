@@ -1,6 +1,0 @@
-Song Name: Talk About It
-Artists: drdre
-Likes: 266463
-Views: 1790697
-Release Date: 2015-08-07
-SongArtPath: data/artists/DrDre/albums/Compton/Talk About It/song_art.jpg

@@ -1,6 +1,0 @@
-Song Name: Still DRE
-Artists: drdre
-Likes: 362358
-Views: 1969868
-Release Date: 1999-10-12
-SongArtPath: data/artists/DrDre/albums/2001/Still DRE/song_art.jpg

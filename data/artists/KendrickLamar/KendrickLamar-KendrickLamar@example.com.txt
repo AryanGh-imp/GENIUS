@@ -1,5 +1,0 @@
-Email: KendrickLamar@example.com
-Nickname: KendrickLamar
-Password: KDot2025!
-Role: Artist
-Approved: true

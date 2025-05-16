@@ -1,5 +1,0 @@
-Email: DrDre@example.com
-Nickname: DrDre
-Password: Dre2025!
-Role: Artist
-Approved: true

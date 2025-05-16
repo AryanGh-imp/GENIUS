@@ -1,5 +1,0 @@
-Email: kendrick.lamar@example.com
-Nickname: KendrickLamar
-Password: KDot2025!
-Status: Approved
-Timestamp: 2025-05-13T18:57:13.533087100Z

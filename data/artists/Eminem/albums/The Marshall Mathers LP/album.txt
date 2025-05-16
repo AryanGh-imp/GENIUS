@@ -1,4 +1,0 @@
-Album Title: The Marshall Mathers LP
-Release Date: 2000-05-23
-Songs: Stan,The Real Slim Shady
-AlbumArtPath: album_art.jpg

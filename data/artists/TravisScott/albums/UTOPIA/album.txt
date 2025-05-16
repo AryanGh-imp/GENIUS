@@ -1,4 +1,0 @@
-Album Title: UTOPIA
-Release Date: 2023-07-28
-Songs: TELEKINESIS
-AlbumArtPath: album_art.jpg

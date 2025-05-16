@@ -1,6 +1,0 @@
-Song Name: The Next Episode
-Artists: drdre
-Likes: 133210
-Views: 1307993
-Release Date: 1999-11-16
-SongArtPath: data/artists/DrDre/albums/2001/The Next Episode/song_art.jpg

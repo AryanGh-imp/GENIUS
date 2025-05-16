@@ -1,5 +1,0 @@
-Email: Eminem@example.com
-Nickname: Eminem
-Password: SlimShady2025!
-Role: Artist
-Approved: true

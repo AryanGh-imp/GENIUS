@@ -1,5 +1,0 @@
-Kendrick.Lamar@example.com:KendrickLamar
-TravisScott@example.com:TravisScott
-DrDre@example.com:DrDre
-Eminem@example.com:Eminem
-eminem@example.com:eminem
