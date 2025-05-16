@@ -68,7 +68,7 @@ The GENIUS application can be installed either by running a pre-built executable
 
 ### Method 1: Using Pre-built Executable
 1. Download the latest release JAR file from the project repository
-2. Ensure you have Java JDK 17+ installed
+2. Ensure you have Java JDK 23+ installed
 3. Create a directory where you want to store the application data
 4. Run the application using the command:
   
@@ -99,7 +99,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## thanks to
+## Thanks To
 Professor: [Dr.SaeedReza Kheradpishe](https://www.linkedin.com/in/saeed-reza-kheradpisheh-7a0b18155/)
 
 Head TA: [Farid Karimi](https://github.com/Farid-Karimi)
