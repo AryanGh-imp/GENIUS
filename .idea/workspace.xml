@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="89af5636-4765-4259-8d03-ce31459be360" name="Changes" comment="bugs have been fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="module" />
+    </option>
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="GENIUS" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="GENIUS" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="GENIUS" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="application" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="GENIUS" type="f1a62948:ProjectNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="GENIUS" type="f1a62948:ProjectNode" />
+                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="UML Sequence" />
+        <option value="FxmlFile" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Dev" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="SOFT" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;AryanGh-imp&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/AryanGh-imp/GENIUS.git&quot;,
+    &quot;accountId&quot;: &quot;f43e51a3-67b8-4e8e-b9f4-98e3766ea509&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2usPNVlMkzL1xTvecwNVHEUAtj9" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;DefaultPlantUmlFileTemplate&quot;: &quot;UML Sequence&quot;,
+    &quot;Gradle.Build GENIUS.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:AddSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:AdminTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:DeleteSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:Main.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:SignUpControllerTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:TestDataSetup.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:app.AdminTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:app.Main.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.DashBoard.AddSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.DashBoard.ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.DashBoard.MainTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.auth.SignUpControllerTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.MainTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.admin.AdminTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.artist.AddSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.artist.DeleteSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.user.ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:test.MainTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [runShadow].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [run].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [shadowJar].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [startShadowScripts].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS.executor&quot;: &quot;Run&quot;,
+    &quot;JAR Application.GENIUS-1.0-SNAPSHOT.jar.executor&quot;: &quot;Run&quot;,
+    &quot;JAR Application.GENIUS.jar.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Gradle/gradle-8.13&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.18275861&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\java\controllers\dashBoard\user" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\java\controllers\dashBoard\user" />
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\resources\FXML-files\user" />
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\resources\FXML-files\admin" />
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\resources\FXML-files\artist" />
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\java\controllers\dashBoard\artist" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JAR Application.GENIUS.jar">
+    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="GENIUS.test" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;C:\javafx-sdk-24\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GENIUS [runShadow]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="runShadow" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="GENIUS [run]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="run" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="GENIUS [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="GENIUS [startShadowScripts]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="startShadowScripts" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="GENIUS" type="GradleRunConfiguration" factoryName="Gradle">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--stacktrace" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":Main.main()" />
+          </list>
+        </option>
+        <option name="vmOptions" value="" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="GENIUS-1.0-SNAPSHOT.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/GENIUS-1.0-SNAPSHOT.jar" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.app.Main" />
+      <item itemvalue="Gradle.GENIUS" />
+      <item itemvalue="Gradle.GENIUS [runShadow]" />
+      <item itemvalue="Gradle.GENIUS [run]" />
+      <item itemvalue="Gradle.GENIUS [shadowJar]" />
+      <item itemvalue="Gradle.GENIUS [startShadowScripts]" />
+      <item itemvalue="JAR Application.GENIUS.jar" />
+      <item itemvalue="JAR Application.GENIUS-1.0-SNAPSHOT.jar" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.GENIUS [shadowJar]" />
+        <item itemvalue="Gradle.GENIUS [startShadowScripts]" />
+        <item itemvalue="Gradle.GENIUS [runShadow]" />
+        <item itemvalue="Gradle.GENIUS [run]" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="89af5636-4765-4259-8d03-ce31459be360" name="Changes" comment="" />
+      <created>1743034270107</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743034270107</updated>
+      <workItem from="1744348161361" duration="124000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial settings have been completed">
+      <option name="closed" value="true" />
+      <created>1743036331502</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743036331502</updated>
+    </task>
+    <task id="LOCAL-00002" summary="signIn.fxml &amp; signUp.fxml have been added">
+      <option name="closed" value="true" />
+      <created>1743109021408</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1743109021408</updated>
+    </task>
+    <task id="LOCAL-00003" summary="File util , alert util , signUp controller have been added">
+      <option name="closed" value="true" />
+      <created>1743214515917</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1743214515917</updated>
+    </task>
+    <task id="LOCAL-00004" summary="signIn &amp; signUp functions have been completed (They have also been tested)">
+      <option name="closed" value="true" />
+      <created>1743277590084</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1743277590084</updated>
+    </task>
+    <task id="LOCAL-00005" summary="FileUtil has been developed">
+      <option name="closed" value="true" />
+      <created>1743444741407</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743444741407</updated>
+    </task>
+    <task id="LOCAL-00006" summary="FileUtil has been updated -1">
+      <option name="closed" value="true" />
+      <created>1743448964642</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1743448964642</updated>
+    </task>
+    <task id="LOCAL-00007" summary="signUp.fxml &amp; signIn.fxml have been updated">
+      <option name="closed" value="true" />
+      <created>1743486003141</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1743486003141</updated>
+    </task>
+    <task id="LOCAL-00008" summary="signIn &amp; signUp controllers have been updated">
+      <option name="closed" value="true" />
+      <created>1743545703277</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1743545703277</updated>
+    </task>
+    <task id="LOCAL-00009" summary="FileUtil has been developed &amp; SignUpController has been updated &amp; project's structure has been updated">
+      <option name="closed" value="true" />
+      <created>1743698585055</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1743698585055</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Account.java has been updated &amp; FileManager.java &amp; ArtistFileManager.java &amp; UserFileManager.java have been developed">
+      <option name="closed" value="true" />
+      <created>1743811572591</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1743811572591</updated>
+    </task>
+    <task id="LOCAL-00011" summary="AdminFileManager.java &amp; LyricsRequestManager.java &amp; SessionManager.java have been developed">
+      <option name="closed" value="true" />
+      <created>1743813274541</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1743813274541</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Album.java &amp; Lyrics.java &amp; Song.java &amp; Comment.java have been developed">
+      <option name="closed" value="true" />
+      <created>1743921024146</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1743921024146</updated>
+    </task>
+    <task id="LOCAL-00013" summary="SongFileManager.java has been developed">
+      <option name="closed" value="true" />
+      <created>1743972820473</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1743972820473</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Album.java has been updated">
+      <option name="closed" value="true" />
+      <created>1743973108523</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1743973108523</updated>
+    </task>
+    <task id="LOCAL-00015" summary="AccountManager.java has been developed &amp; ArtistFileManager.java and FileManager.java have been updated">
+      <option name="closed" value="true" />
+      <created>1743973908509</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1743973908509</updated>
+    </task>
+    <task id="LOCAL-00016" summary="SearchAndChartManager.java &amp; SearchResultDTO.java &amp; SongDTO.java have been developed">
+      <option name="closed" value="true" />
+      <created>1743974518076</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1743974518076</updated>
+    </task>
+    <task id="LOCAL-00017" summary="file's classes have been updated &amp; Admins ConfigLoader.java has been added">
+      <option name="closed" value="true" />
+      <created>1744017071422</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1744017071422</updated>
+    </task>
+    <task id="LOCAL-00018" summary="ConfigLoader.java (for admin) has been added &amp; music package classes">
+      <option name="closed" value="true" />
+      <created>1744018462766</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1744018462766</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Refactor Album, Song, and related classes to improve song management and metadata handling">
+      <option name="closed" value="true" />
+      <created>1744074061752</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1744074061752</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Enhance ArtistFileManager and UserFileManager with user management features and improved error handling">
+      <option name="closed" value="true" />
+      <created>1744075979584</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1744075979584</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Implement account management features with validation and role handling for User and Admin accounts">
+      <option name="closed" value="true" />
+      <created>1744088524938</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1744088524938</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Add admin nickname to configuration and enhance ConfigLoader with error handling">
+      <option name="closed" value="true" />
+      <created>1744113258404</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1744113258404</updated>
+    </task>
+    <task id="LOCAL-00023" summary="code structure done (needs optimization and improvement later)">
+      <option name="closed" value="true" />
+      <created>1744341805883</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1744341805883</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Refactor AdminDashboard and related controllers for improved package structure and error handling">
+      <option name="closed" value="true" />
+      <created>1744612475539</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1744612475539</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Enhance AdminDashboard with welcome message, sign-out functionality, and improved error handling">
+      <option name="closed" value="true" />
+      <created>1744789793912</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1744789793912</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Artist UI has been developed">
+      <option name="closed" value="true" />
+      <created>1744889440228</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1744889440228</updated>
+    </task>
+    <task id="LOCAL-00027" summary="file managers &amp; SceneUtil.java have been updated">
+      <option name="closed" value="true" />
+      <created>1745364877026</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1745364877026</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Optimization part1">
+      <option name="closed" value="true" />
+      <created>1746214058404</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1746214058404</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Optimization part2">
+      <option name="closed" value="true" />
+      <created>1746237600748</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1746237600748</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Optimization part3">
+      <option name="closed" value="true" />
+      <created>1746253325244</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1746253325244</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Optimization part4">
+      <option name="closed" value="true" />
+      <created>1746258455272</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1746258455272</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Optimization part5">
+      <option name="closed" value="true" />
+      <created>1746490214035</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1746490214035</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Optimization part6">
+      <option name="closed" value="true" />
+      <created>1746490532027</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1746490532027</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Optimization part7">
+      <option name="closed" value="true" />
+      <created>1746490662777</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1746490662777</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Optimization part8">
+      <option name="closed" value="true" />
+      <created>1746494399402</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1746494399402</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Artist controllers and artist UI have been completed">
+      <option name="closed" value="true" />
+      <created>1746512298840</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1746512298840</updated>
+    </task>
+    <task id="LOCAL-00037" summary="User controllers and user UI have been completed">
+      <option name="closed" value="true" />
+      <created>1746528624362</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1746528624362</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Optimization part9">
+      <option name="closed" value="true" />
+      <created>1746799658349</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1746799658349</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Optimization part10">
+      <option name="closed" value="true" />
+      <created>1746818075054</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1746818075054</updated>
+    </task>
+    <task id="LOCAL-00040" summary="debugging part1">
+      <option name="closed" value="true" />
+      <created>1747146082823</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1747146082829</updated>
+    </task>
+    <task id="LOCAL-00041" summary="TODO.txt has been added">
+      <option name="closed" value="true" />
+      <created>1747146126320</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1747146126320</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Debugging part 2">
+      <option name="closed" value="true" />
+      <created>1747175980281</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1747175980281</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Test data set has been set">
+      <option name="closed" value="true" />
+      <created>1747176101728</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1747176101728</updated>
+    </task>
+    <task id="LOCAL-00044" summary="minor debugging">
+      <option name="closed" value="true" />
+      <created>1747176251152</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1747176251152</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Project has been completed">
+      <option name="closed" value="true" />
+      <created>1747182148897</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1747182148898</updated>
+    </task>
+    <task id="LOCAL-00046" summary="bugs have been fixed">
+      <option name="closed" value="true" />
+      <created>1747422496369</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1747422496369</updated>
+    </task>
+    <task id="LOCAL-00047" summary="bugs have been fixed">
+      <option name="closed" value="true" />
+      <created>1747424555384</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1747424555384</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Enhance AdminDashboard with welcome message, sign-out functionality, and improved error handling" />
+    <MESSAGE value="Artist UI has been developed" />
+    <MESSAGE value="file managers &amp; SceneUtil.java have been updated" />
+    <MESSAGE value="Optimization part1" />
+    <MESSAGE value="Optimization part2" />
+    <MESSAGE value="Optimization part3" />
+    <MESSAGE value="Optimization part4" />
+    <MESSAGE value="Optimization part5" />
+    <MESSAGE value="Optimization part6" />
+    <MESSAGE value="Optimization part7" />
+    <MESSAGE value="Optimization part8" />
+    <MESSAGE value="Artist controllers and artist UI have been completed" />
+    <MESSAGE value="User controllers and user UI have been completed" />
+    <MESSAGE value="Optimization part9" />
+    <MESSAGE value="Optimization part10" />
+    <MESSAGE value="Debugging part1" />
+    <MESSAGE value="TODO.txt has been added" />
+    <MESSAGE value="Debugging part1" />
+    <MESSAGE value="Debugging part 2" />
+    <MESSAGE value="Test data set has been set" />
+    <MESSAGE value="Minor debugging part1" />
+    <MESSAGE value="minor debugging part1" />
+    <MESSAGE value="Minor debugging part1" />
+    <MESSAGE value="Project has been completed" />
+    <MESSAGE value="bugs have been fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="bugs have been fixed" />
+  </component>
+</project>
