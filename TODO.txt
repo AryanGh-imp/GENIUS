@@ -1,3 +1,0 @@
-TODO : use File.Separator instead of "/" for mac and linux
-TODO : use clearCache
-TODO : refactor and optimization
