@@ -1,6 +1,6 @@
 # GENIUS
 
-![GENIUS Logo](GENIUS/src/main/resources/pics/Genius.com_logo_yellow.png)
+![GENIUS Logo](src/main/resources/pics/Genius.com_logo_yellow.png)
 
 **GENIUS** is a comprehensive music management platform that allows users to explore songs, albums, and artists. It provides specialized interfaces for different user roles including regular users, artists, and administrators.
 
@@ -33,29 +33,29 @@ GENIUS features a modern, sleek interface with a distinctive yellow and black co
 ### Authentication Screens
 
 **Sign Up Screen**  
-![Sign Up Screen](GENIUS/shots/SignUp.png)
+![Sign Up Screen](shots/SignUp.png)
 
 **Sign In Screen**  
-![Sign In Screen](GENIUS/shots/SignIn.png)
+![Sign In Screen](shots/SignIn.png)
 
 **User Interface**  
-![User Interface Screen](GENIUS/shots/UserProfile.png)
+![User Interface Screen](shots/UserProfile.png)
 
 ### Song Management
 
 **Add Song Interface**  
-![Add Song Interface](GENIUS/shots/AddSong.png)
+![Add Song Interface](shots/AddSong.png)
 
 ### Song Details
-![Song Details View](GENIUS/shots/SongP1.png)
+![Song Details View](shots/SongP1.png)
 
 ### Album Management
 
 **Create Album Interface**  
-![Create Album Interface](GENIUS/shots/CreateAlbum.png)
+![Create Album Interface](shots/CreateAlbum.png)
 
 ### Album Details
-![Album Details View](GENIUS/shots/AlbumP1.png)
+![Album Details View](shots/AlbumP1.png)
 
 ## Technical Details
 GENIUS is built using:
@@ -72,7 +72,6 @@ Building from Source
 
    ```
    git clone https://github.com/AryanGh-imp/GENIUS.git
-   cd GENIUS
    ```
 2. Build the project using Gradle:
 
