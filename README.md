@@ -4,6 +4,8 @@
 
 **GENIUS** is a comprehensive music management platform that allows users to explore songs, albums, and artists. It provides specialized interfaces for different user roles including regular users, artists, and administrators.
 
+> **Disclaimer**: This project is not affiliated with, endorsed by, or associated with Genius Media Group Inc. All names, logos, and references to "Genius" are used for educational purposes only.
+
 ## Features
 
 ### For Users
