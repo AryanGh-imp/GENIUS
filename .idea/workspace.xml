@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89af5636-4765-4259-8d03-ce31459be360" name="Changes" comment="structure changed">
-      <change afterPath="$PROJECT_DIR$/.idea/GENIUS.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="89af5636-4765-4259-8d03-ce31459be360" name="Changes" comment="structure was updated">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/fileHashes.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,9 +114,11 @@
   "keyToString": {
     "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.Main.executor": "Debug",
+    "Application.Main.executor": "Run",
     "DefaultPlantUmlFileTemplate": "UML Sequence",
     "Gradle.Build GENIUS.executor": "Run",
+    "Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1).executor": "Run",
+    "Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle.executor": "Run",
     "Gradle.GENIUS [:AddSongPageTest.main()].executor": "Run",
     "Gradle.GENIUS [:AdminTest.main()].executor": "Run",
     "Gradle.GENIUS [:ChartsPageTest.main()].executor": "Run",
@@ -156,7 +157,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.18275861",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle",
+    "settings.editor.selected.configurable": "configurable.group.appearance",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -175,7 +176,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)">
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="23" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -185,6 +186,46 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/GENIUS/build.gradle" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/GENIUS/build.gradle" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
     </configuration>
     <configuration name="GENIUS [runShadow]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -198,28 +239,6 @@
         <option name="taskNames">
           <list>
             <option value="runShadow" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="GENIUS [run]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="run" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -296,26 +315,22 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="GENIUS-1.0-SNAPSHOT.jar" type="JarApplication" temporary="true">
-      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/GENIUS-1.0-SNAPSHOT.jar" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Application.Main" />
       <item itemvalue="Gradle.GENIUS" />
+      <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle" />
+      <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)" />
       <item itemvalue="Gradle.GENIUS [runShadow]" />
-      <item itemvalue="Gradle.GENIUS [run]" />
       <item itemvalue="Gradle.GENIUS [shadowJar]" />
       <item itemvalue="Gradle.GENIUS [startShadowScripts]" />
-      <item itemvalue="JAR Application.GENIUS-1.0-SNAPSHOT.jar" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)" />
+        <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle" />
         <item itemvalue="Gradle.GENIUS [shadowJar]" />
         <item itemvalue="Gradle.GENIUS [startShadowScripts]" />
         <item itemvalue="Gradle.GENIUS [runShadow]" />
-        <item itemvalue="Gradle.GENIUS [run]" />
       </list>
     </recent_temporary>
   </component>
@@ -330,14 +345,6 @@
       <workItem from="1744348161361" duration="124000" />
       <workItem from="1747530862231" duration="79000" />
       <workItem from="1747531162675" duration="261000" />
-    </task>
-    <task id="LOCAL-00003" summary="File util , alert util , signUp controller have been added">
-      <option name="closed" value="true" />
-      <created>1743214515917</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1743214515917</updated>
     </task>
     <task id="LOCAL-00004" summary="signIn &amp; signUp functions have been completed (They have also been tested)">
       <option name="closed" value="true" />
@@ -723,7 +730,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747425122282</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="structure was updated">
+      <option name="closed" value="true" />
+      <created>1747531671034</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1747531671034</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -741,7 +756,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Artist UI has been developed" />
     <MESSAGE value="file managers &amp; SceneUtil.java have been updated" />
     <MESSAGE value="Optimization part1" />
     <MESSAGE value="Optimization part2" />
@@ -766,6 +780,7 @@
     <MESSAGE value="Project has been completed" />
     <MESSAGE value="bugs have been fixed" />
     <MESSAGE value="structure changed" />
-    <option name="LAST_COMMIT_MESSAGE" value="structure changed" />
+    <MESSAGE value="structure was updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="structure was updated" />
   </component>
 </project>
