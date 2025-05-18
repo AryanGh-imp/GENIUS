@@ -4,12 +4,260 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89af5636-4765-4259-8d03-ce31459be360" name="Changes" comment="structure was updated">
+    <list default="true" id="89af5636-4765-4259-8d03-ce31459be360" name="Changes" comment="bugs have been fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/GENIUS.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/md5-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/checksums.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/md5-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/checksums/sha1-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/dependencies-accessors/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.10/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/checksums/checksums.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/checksums/md5-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/checksums/sha1-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/8.13/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/file-system.probe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.gradle/vcs-1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/AugmentWebviewStateStore.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/libraries/lib.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/runConfigurations/GENIUS_jar.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/runConfigurations/app_Main.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/TODO.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/admin/artist_requests/approved/DrDre/DrDre-drdre@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/admin/artist_requests/approved/Eminem/Eminem-eminem@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/admin/artist_requests/approved/KendrickLamar/KendrickLamar-kendrick.lamar@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/admin/artist_requests/approved/TravisScott/TravisScott-travisscott@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/admin/artist_requests/rejected/NewRapper/NewRapper-newrapper@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/admin/index_admins.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/DrDre-DrDre@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/2001-album-comments.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/Still DRE/Still DRE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/Still DRE/Still DRE_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/Still DRE/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/The Next Episode/The Next Episode.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/The Next Episode/The Next Episode_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/The Next Episode/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/2001/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Compton-album-comments.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Genocide/Genocide.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Genocide/Genocide_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Genocide/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Talk About It/Talk About It.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Talk About It/Talk About It_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/Talk About It/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/albums/Compton/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/DrDre/followers.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/Eminem-Eminem@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/Renaissance/Renaissance.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/Renaissance/Renaissance_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/Renaissance/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/Tobey/Tobey.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/Tobey/Tobey_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/Tobey/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Death of Slim Shady/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/Stan/Stan.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/Stan/Stan_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/Stan/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/The Real Slim Shady/The Real Slim Shady.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/The Real Slim Shady/The Real Slim Shady_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/The Real Slim Shady/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/albums/The Marshall Mathers LP/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/followers.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/singles/Lose Yourself/Lose Yourself-comments.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/singles/Lose Yourself/Lose Yourself.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/singles/Lose Yourself/Lose Yourself_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/Eminem/singles/Lose Yourself/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/KendrickLamar-KendrickLamar@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/BLOOD/BLOOD.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/BLOOD/BLOOD_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/BLOOD/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/HUMBLE/HUMBLE..txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/HUMBLE/HUMBLE._lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/HUMBLE/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/DAMN/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/Savior/Savior.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/Savior/Savior_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/Savior/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/United In Grief/United In Grief.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/United In Grief/United In Grief_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/United In Grief/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/albums/Mr Morale The Big Steppers/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/followers.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/singles/Not Like Us/Not Like Us.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/singles/Not Like Us/Not Like Us_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/KendrickLamar/singles/Not Like Us/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/TravisScott-TravisScott@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/SICKO MODE/SICKO MODE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/SICKO MODE/SICKO MODE_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/SICKO MODE/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/STARGAZING/STARGAZING.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/STARGAZING/STARGAZING_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/STARGAZING/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/ASTROWORLD/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/UTOPIA/TELEKINESIS/TELEKINESIS.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/UTOPIA/TELEKINESIS/TELEKINESIS_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/UTOPIA/TELEKINESIS/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/UTOPIA/album.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/albums/UTOPIA/album_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/followers.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/singles/FEIN/FEIN-comments.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/singles/FEIN/FEIN.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/singles/FEIN/FEIN_lyrics.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/TravisScott/singles/FEIN/song_art.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/artists/index_artists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/lyrics_requests/approved/KendrickLamar/Not_Like_Us/Not_Like_Us-2025-05-13_20_51_30Z.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/lyrics_requests/rejected/DrDre/Talk_About_It/Talk_About_It-2025-05-13_20_51_45Z.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/index_users.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan1/followings.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan1/musicfan1-fan1@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan1/user_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan2/followings.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan2/musicfan2-fan2@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan2/user_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan3/followings.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan3/musicfan3-fan3@example.com.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/data/users/musicfan3/user_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/AddSong.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/AdminP1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/AdminP2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/AlbumP1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/AlbumP2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/Charts.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/CreateAlbum.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/DeleteAlbum.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/DeleteSong.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/EditAlbum.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/EditSong.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/RequestLyricsEdit.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/SearchPage.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/SignIn.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/SignUp.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/SongP1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/SongP2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/shots/UserProfile.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/app/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/auth/SignInController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/auth/SignUpController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/admin/AdminDashboardController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/AddSongPageController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/ArtistDashboardController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/ArtistManagementController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/ArtistMenuBarHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/BaseArtistController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/CreateAlbumController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/DeleteAlbumController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/DeleteSongController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/EditAlbumController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/artist/EditSongController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/ArtistProfileController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/BaseUserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/ChartsPageController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/RequestLyricsEditController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/SearchPageController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/SongAndAlbumDetailsController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/UserDashboardController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/controllers/dashBoard/user/UserMenuBarHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/DTO/ArtistRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/DTO/ChartEntryDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/DTO/LyricsEditRequestDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/DTO/SearchResultDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/DTO/SongDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/account/Account.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/account/Admin.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/account/Artist.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/account/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/music/Album.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/music/Comment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/music/Lyrics.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/models/music/Song.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/AccountManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/ChartService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/SearchAndChartManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/SessionManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/file/AdminFileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/file/ArtistFileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/file/FileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/file/LyricsRequestManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/file/SongFileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/services/file/UserFileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/utils/AlertUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/utils/ConfigLoader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/utils/FileUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/java/utils/SceneUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/CSS/styles.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/admin/AdminDashboard.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/AddSong.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/ArtistDashboard.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/ArtistManagement.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/CreateAlbum.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/DeleteAlbum.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/DeleteSong.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/EditAlbum.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/artist/EditSong.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/signIn.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/signUp.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/user/ArtistProfile.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/user/ChartsPage.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/user/RequestLyricsEdit.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/user/SearchPage.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/user/SongAndAlbumDetails.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/FXML-files/user/UserDashboard.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/config.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/pics/Genius.com_logo_yellow.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/pics/Genius.com_logo_yellow2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/pics/Genius.com_logo_yellow3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/pics/Genius_logo_black.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/main/resources/pics/user_icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/AddSongPageTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/AdminTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/ChartsPageTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/DeleteSongPageTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/SignUpControllerTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/java/TestDataSetup.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/resources/Dr.Dre.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/resources/Eminem.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/resources/Kendrick_Lamar.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GENIUS/src/test/resources/Travis_Scott.jpg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,122 +358,76 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.Main.executor": "Run",
-    "DefaultPlantUmlFileTemplate": "UML Sequence",
-    "Gradle.Build GENIUS.executor": "Run",
-    "Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1).executor": "Run",
-    "Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle.executor": "Run",
-    "Gradle.GENIUS [:AddSongPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:AdminTest.main()].executor": "Run",
-    "Gradle.GENIUS [:ChartsPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:DeleteSongPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:Main.main()].executor": "Run",
-    "Gradle.GENIUS [:SignUpControllerTest.main()].executor": "Run",
-    "Gradle.GENIUS [:TestDataSetup.main()].executor": "Run",
-    "Gradle.GENIUS [:app.AdminTest.main()].executor": "Run",
-    "Gradle.GENIUS [:app.Main.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.DashBoard.AddSongPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.DashBoard.ChartsPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.DashBoard.MainTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.auth.SignUpControllerTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.dashBoard.ChartsPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.dashBoard.MainTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.dashBoard.admin.AdminTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.dashBoard.artist.AddSongPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.dashBoard.artist.DeleteSongPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:controllers.dashBoard.user.ChartsPageTest.main()].executor": "Run",
-    "Gradle.GENIUS [:test.MainTest.main()].executor": "Run",
-    "Gradle.GENIUS [runShadow].executor": "Run",
-    "Gradle.GENIUS [run].executor": "Run",
-    "Gradle.GENIUS [shadowJar].executor": "Run",
-    "Gradle.GENIUS [startShadowScripts].executor": "Run",
-    "Gradle.GENIUS.executor": "Run",
-    "JAR Application.GENIUS-1.0-SNAPSHOT.jar.executor": "Run",
-    "JAR Application.GENIUS.jar.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Gradle/gradle-8.13",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.18275861",
-    "settings.editor.selected.configurable": "configurable.group.appearance",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;DefaultPlantUmlFileTemplate&quot;: &quot;UML Sequence&quot;,
+    &quot;Gradle.Build GENIUS.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:AddSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:AdminTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:DeleteSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:Main.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:SignUpControllerTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:TestDataSetup.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:app.AdminTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:app.Main.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.DashBoard.AddSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.DashBoard.ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.DashBoard.MainTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.auth.SignUpControllerTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.MainTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.admin.AdminTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.artist.AddSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.artist.DeleteSongPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:controllers.dashBoard.user.ChartsPageTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [:test.MainTest.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [runShadow].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [run].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [shadowJar].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS [startShadowScripts].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.GENIUS.executor&quot;: &quot;Run&quot;,
+    &quot;JAR Application.GENIUS-1.0-SNAPSHOT.jar.executor&quot;: &quot;Run&quot;,
+    &quot;JAR Application.GENIUS.jar.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Gradle/gradle-8.13&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.18275861&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\java\controllers\dashBoard\user" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Asus\Desktop\AP\GENIUS\GENIUS" />
       <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\java\controllers\dashBoard\user" />
       <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\resources\FXML-files\user" />
       <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\resources\FXML-files\admin" />
       <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\resources\FXML-files\artist" />
+      <recent name="C:\Users\Asus\Desktop\GENIUS\src\main\java\controllers\dashBoard\artist" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)">
+  <component name="RunManager" selected="Application.app.Main">
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="ALTERNATIVE_JRE_PATH" value="23" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="Main" />
-      <module name="GENIUS" />
+      <module name="GENIUS.test" />
       <option name="VM_PARAMETERS" value="--module-path &quot;C:\javafx-sdk-24\lib&quot; --add-modules javafx.controls,javafx.fxml" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/GENIUS/build.gradle" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list />
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/GENIUS/build.gradle" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list />
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
     </configuration>
     <configuration name="GENIUS [runShadow]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -239,6 +441,28 @@
         <option name="taskNames">
           <list>
             <option value="runShadow" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="GENIUS [run]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="run" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -315,22 +539,39 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="GENIUS-1.0-SNAPSHOT.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/GENIUS-1.0-SNAPSHOT.jar" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="GENIUS-Java" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="GENIUS-Java" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Application.Main" />
+      <item itemvalue="Application.app.Main" />
       <item itemvalue="Gradle.GENIUS" />
-      <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle" />
-      <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)" />
       <item itemvalue="Gradle.GENIUS [runShadow]" />
+      <item itemvalue="Gradle.GENIUS [run]" />
       <item itemvalue="Gradle.GENIUS [shadowJar]" />
       <item itemvalue="Gradle.GENIUS [startShadowScripts]" />
+      <item itemvalue="JAR Application.GENIUS.jar" />
+      <item itemvalue="JAR Application.GENIUS-1.0-SNAPSHOT.jar" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle (1)" />
-        <item itemvalue="Gradle.C:/Users/Asus/Desktop/AP/GENIUS/GENIUS/build.gradle" />
         <item itemvalue="Gradle.GENIUS [shadowJar]" />
         <item itemvalue="Gradle.GENIUS [startShadowScripts]" />
         <item itemvalue="Gradle.GENIUS [runShadow]" />
+        <item itemvalue="Gradle.GENIUS [run]" />
       </list>
     </recent_temporary>
   </component>
@@ -343,8 +584,31 @@
       <option name="presentableId" value="Default" />
       <updated>1743034270107</updated>
       <workItem from="1744348161361" duration="124000" />
-      <workItem from="1747530862231" duration="79000" />
-      <workItem from="1747531162675" duration="261000" />
+      <workItem from="1747533152698" duration="202000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial settings have been completed">
+      <option name="closed" value="true" />
+      <created>1743036331502</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743036331502</updated>
+    </task>
+    <task id="LOCAL-00002" summary="signIn.fxml &amp; signUp.fxml have been added">
+      <option name="closed" value="true" />
+      <created>1743109021408</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1743109021408</updated>
+    </task>
+    <task id="LOCAL-00003" summary="File util , alert util , signUp controller have been added">
+      <option name="closed" value="true" />
+      <created>1743214515917</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1743214515917</updated>
     </task>
     <task id="LOCAL-00004" summary="signIn &amp; signUp functions have been completed (They have also been tested)">
       <option name="closed" value="true" />
@@ -698,47 +962,7 @@
       <option name="project" value="LOCAL" />
       <updated>1747424555384</updated>
     </task>
-    <task id="LOCAL-00048" summary="structure changed">
-      <option name="closed" value="true" />
-      <created>1747425019284</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1747425019284</updated>
-    </task>
-    <task id="LOCAL-00049" summary="structure changed">
-      <option name="closed" value="true" />
-      <created>1747425023452</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1747425023452</updated>
-    </task>
-    <task id="LOCAL-00050" summary="structure changed">
-      <option name="closed" value="true" />
-      <created>1747425035481</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1747425035490</updated>
-    </task>
-    <task id="LOCAL-00051" summary="structure changed">
-      <option name="closed" value="true" />
-      <created>1747425122282</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1747425122282</updated>
-    </task>
-    <task id="LOCAL-00052" summary="structure was updated">
-      <option name="closed" value="true" />
-      <created>1747531671034</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1747531671034</updated>
-    </task>
-    <option name="localTasksCounter" value="53" />
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -756,6 +980,11 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/.." />
+    </ignored-roots>
+    <MESSAGE value="Enhance AdminDashboard with welcome message, sign-out functionality, and improved error handling" />
+    <MESSAGE value="Artist UI has been developed" />
     <MESSAGE value="file managers &amp; SceneUtil.java have been updated" />
     <MESSAGE value="Optimization part1" />
     <MESSAGE value="Optimization part2" />
@@ -779,8 +1008,6 @@
     <MESSAGE value="Minor debugging part1" />
     <MESSAGE value="Project has been completed" />
     <MESSAGE value="bugs have been fixed" />
-    <MESSAGE value="structure changed" />
-    <MESSAGE value="structure was updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="structure was updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="bugs have been fixed" />
   </component>
 </project>
