@@ -71,16 +71,16 @@ Building from Source
 1. Clone the repository:
 
    ```
-   git clone https://github.com/AryanGh-imp/GENIUS.git
+   git clone https://github.com/AryanGh-imp/GENIUS-Java.git
    ```
-2. Build the project using Gradle:
+2. Build the project using `Gradle`:
 
-   ```
+   ```gradle
    ./gradlew build
    ```
 3. Run the application:
  
-   ```
+   ```gradle
    ./gradlew run
    ```
 
@@ -89,6 +89,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Developer
+This project was developed by *Aryan Ghasemi*.
 
 ## Thanks To
 Professor: [Dr.SaeedReza Kheradpishe](https://www.linkedin.com/in/saeed-reza-kheradpisheh-7a0b18155/)
